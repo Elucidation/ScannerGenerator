@@ -1,7 +1,5 @@
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Map.Entry;
 
 // Use java -jar <this>
 public class Main {
@@ -28,7 +26,8 @@ public class Main {
 			Token = token;
 			while ( (token=scanner.walkTable()) != null )
 				out.write(token);
-		} catch (FileException fe) {// Catch exception
+
+		} catch (IOException fe) {// Catch exception
 			System.err.println("Couldn't open file... " + e.getMessage());
 		}
 	}
