@@ -25,7 +25,13 @@ public class ScannerGenerator {
 			else System.out.println( "<NEWLINE>" );
 			// TODO :: Parse Specification File
 			if (isValid(line)) {
-				NFA partialNFA = NFA.parse(line);
+//				NFA partialNFA = NFA.parse(line);
+				line.replaceAll("\\ ", "<SPACE>");
+				String[] x = line.split(" ");
+				for (String s : x) {
+					s.replaceAll("<SPACE>", "\\ ");
+					System.out.println(s);
+				}
 			}
 		}
 

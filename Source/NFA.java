@@ -1,5 +1,4 @@
 package Source;
-
 /**
  * NFA
  * @author Sam
