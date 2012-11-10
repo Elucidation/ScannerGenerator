@@ -12,9 +12,9 @@ public class Main {
 	
 	/**
 	 * @param args
-	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		// Parameters passed in
 		if (args.length < 2) {
 			System.out.println("USAGE: ScannerGenerator <SPECIFICIATION_FILE> <INPUT_FILE> [<OUTPUT_FILE>]");

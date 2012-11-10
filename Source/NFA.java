@@ -1,22 +1,24 @@
 package Source;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
  * 
  * @author Ron brown
  *
  */
 public class NFA {
+	private static final Exception ParseError = new Exception();
 	//Variables
 	public State entry;
 	public State exit;
 	
-	public static NFA parse(String line) {
-		// TODO Auto-generated method stub
-		line.replaceAll("\\ ", "<SPACE>"); // replace '\ ' with '<SPACE>' so split doesn't affect it
-		String[] tokens = line.split(" ");
-		for (int i=0;i<tokens.length;++i) tokens[i] = tokens[i].replaceAll("<SPACE>", "\\ "); // replace spaceholder with '\ ' again
-				
-		return new NFA(new State(), new State());
+	/**
+	 * Empty NFA
+	 */
+	public NFA() {
+		this(new State(), new State());
 	}
 	
 	/**
