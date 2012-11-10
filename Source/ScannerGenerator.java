@@ -29,6 +29,7 @@ public class ScannerGenerator {
 		HashMap<String,HashSet<Character>> tokens = new HashMap<String,HashSet<Character>>();
 		while( (line = in.readLine()) != null && !line.isEmpty() ) {
 			if (isValid(line)) {
+				System.out.println("Parsing Character Class: "+line);
 				parseCharClass(line,tokens);
 			}
 		}
@@ -80,7 +81,6 @@ public class ScannerGenerator {
 		
 		String token = chunks[0];
 		HashSet<Character> validChars = new HashSet<Character>();
-		
 		if ( tokens.containsKey(token) ) System.out.println("Token repeat Error!");
 		else if (chunks.length == 2) {
 			// Simple X Y
@@ -122,9 +122,7 @@ public class ScannerGenerator {
 			char c = data.charAt(i);
 			if (c == '-') {
 //				System.out.println(data.charAt(i-1)+"->"+data.charAt(i+1));
-				for (char j = (char) (data.charAt(i-1)+1); j < data.charAt(i+1) - 1; j++) {
-					validChars.add(j);
-				}
+				for (char j = (char) (data.charAt(i-1)+1); j < data.charAt(i+1) - 1; j++) validChars.add(j);
 			}
 			else if (c == '\\') continue; 
 			else validChars.add(c);
@@ -133,9 +131,7 @@ public class ScannerGenerator {
 	private static void deccumulateChars(String data, HashSet<Character> validChars) {
 		for (int i = 0; i < data.length(); i++) {
 			char c = data.charAt(i);
-			if (c == '-') for (char j = data.charAt(i-1); j < data.charAt(i+1); j++) {
-				validChars.remove(j); 
-			}
+			if (c == '-') for (char j = (char) (data.charAt(i-1)+1); j < data.charAt(i+1)-1; j++) validChars.remove(j);
 			else if (c == '\\') continue; 
 			else validChars.remove(c);
 			
