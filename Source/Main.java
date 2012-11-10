@@ -45,7 +45,7 @@ public class Main {
 		while (  (c = (char)in.read()) != EOF  ) {
 			token = tableWalker.walkTable(c);
 			if (token != null) {
-				Iterator tokenIterator = token.iterator();
+				Iterator<Token> tokenIterator = token.iterator();
 				while(tokenIterator.hasNext()){
 				String tokenString = "TOKEN!: "+tokenIterator.next();
 				System.out.println(tokenString);

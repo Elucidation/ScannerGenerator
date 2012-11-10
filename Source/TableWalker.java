@@ -49,7 +49,7 @@ public class TableWalker {
 		}
 		else{
 			return null;
-		}//test
+		}
 	}
 
 	private void reEvaluate(StringBuffer newCurrentToken){
