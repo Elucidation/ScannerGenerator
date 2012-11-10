@@ -35,14 +35,14 @@ public class Main {
 		TableWalker tableWalker = new TableWalker(dfaTable);
 		System.out.println("Done initializing TableWalker.");
 
-		// Main driver
+		// Main driver, Feeds characters from input file to table Walker
 		System.out.println("Walking Table with input file '"+inputFilename+"'...");
 		FileInputStream in = new FileInputStream(inputFilename);
 		char c;
 		Token token;
 		ArrayList<String> tokenStringList = new ArrayList<String>();
 		while (  (c = (char)in.read()) != EOF  ) {
-			token = tableWalker.walkTable(c);
+			token = tableWalker.walkTable(c);									// The auto-magical table walking routine is here!
 			if (token != null) {
 				String tokenString = "TOKEN!: "+token;
 				System.out.println(tokenString);
