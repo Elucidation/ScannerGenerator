@@ -1,4 +1,4 @@
-This is an example experimental Branch by Sam, to show how branches work.
+Sam's Branch
 
 Usage
 ---
@@ -6,7 +6,7 @@ Run Main.java or ScannerGenerator.jar package like so:
 
 	ScannerGenerator <SPECIFICATION_FILE> <INPUT_FILE> [<OUTPUT_FILE>]
 
-If no output file is provided it append `_Output.txt` to the input file and uses that as filename.
+If no output file is provided it appends `_Output.txt` to the input file and uses that as filename.
 
 File Structure
 ---

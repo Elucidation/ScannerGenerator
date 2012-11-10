@@ -35,7 +35,7 @@ public class ScannerGenerator {
 		System.out.println("Finished parsing specification file.");
 		
 		// Merge NFA's into BigNFA
-		System.out.println("Mergin NFAs...");
+		System.out.println("Merging NFAs...");
 		// TODO :: Merge NFAs
 		System.out.println("Done merging.");
 
