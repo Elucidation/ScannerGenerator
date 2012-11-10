@@ -24,6 +24,9 @@ public class ScannerGenerator {
 			if (!line.isEmpty()) System.out.println( "Do something with: '"+line+"'" );
 			else System.out.println( "<NEWLINE>" );
 			// TODO :: Parse Specification File
+			if (isValid(line)) {
+				NFA partialNFA = NFA.parse(line);
+			}
 		}
 
 		// For each line, generate an NFA
@@ -41,5 +44,17 @@ public class ScannerGenerator {
 		// TODO :: Convert BigNFA to DFA
 		System.out.println("Done converting.");
 		return new DFATable();
+	}
+	
+	/**
+	 * Checks whether string is valid regex (defined by project)
+	 * @param line
+	 * @return
+	 */
+	private static boolean isValid(String line) {
+		if ( !line.matches("\\$([\\w-]+)\\ (.+)") ) return false;
+//		if ( line.charAt(0) != '$') return false;
+//		line.
+		return true;
 	}
 }
