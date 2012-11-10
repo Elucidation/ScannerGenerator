@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
 
 public class ScannerGenerator {
@@ -25,13 +26,13 @@ public class ScannerGenerator {
 		String line;
 		NFA partialNFA = new NFA();
 		// Parse Character Classes
-		HashMap<String,ArrayList<Character>> tokens = new HashMap<String,ArrayList<Character>>();
+		HashMap<String,HashSet<Character>> tokens = new HashMap<String,HashSet<Character>>();
 		while( (line = in.readLine()) != null && !line.isEmpty() ) {
 			if (isValid(line)) {
 				parseCharClass(line,tokens);
 			}
 		}
-		for (Entry<String, ArrayList<Character>> e : tokens.entrySet()) {
+		for (Entry<String, HashSet<Character>> e : tokens.entrySet()) {
 			System.out.println( e.getKey() + " : " + e.getValue().toString());
 		}
 		
@@ -72,66 +73,70 @@ public class ScannerGenerator {
 	}
 	
 	
-	public static void parseCharClass(String line, HashMap<String, ArrayList<Character>> tokens) throws Exception {
+	public static void parseCharClass(String line, HashMap<String, HashSet<Character>> tokens) throws Exception {
 		line.replaceAll("\\ ", "<SPACE>"); // replace '\ ' with '<SPACE>' so split doesn't affect it
 		String[] chunks = line.split(" ");
 		for (int i=0;i<chunks.length;++i) chunks[i] = chunks[i].replaceAll("<SPACE>", "\\ "); // replace spaceholder with '\ ' again
 		
 		String token = chunks[0];
+		HashSet<Character> validChars = new HashSet<Character>(255);
 		
 		if ( tokens.containsKey(token) ) System.out.println("Token repeat Error!");
 		else if (chunks.length == 2) {
 			// Simple X Y
 			String data = chunks[1];
-			ArrayList<Character> validChars = parseRule(data);
-			
+			parseRule(data, validChars);
 			tokens.put(token, validChars);
 		}
-		else if (chunks.length == 4 && chunks[2] == "IN" ) {
+		else if (chunks.length == 4 && chunks[2].equals("IN") ) {
 			// $X Y IN $Z
 			String data = chunks[1];
-			ArrayList<Character> charClass = tokens.get( chunks[3] );
-			parseNotRule(data,charClass);
+			validChars = new HashSet<Character>( tokens.get( chunks[3] ) );
+			parseNotRule(data,validChars);
+			
 		}
-	}
-	private static ArrayList<Character> parseRule(String data) {
-		ArrayList<Character> validChars = new ArrayList<Character>();
+		else {
+			System.out.println("Wierd Chunks (n="+chunks.length+")! : " + line);
+			for (String s : chunks) System.out.println(":: "+ s);
+		}
 		
+		tokens.put(token, validChars);
+	}
+	private static void parseRule(String data, HashSet<Character> validChars) {		
 		if (data.startsWith("[") && data.endsWith("]")) {
 			data = data.substring(1,data.length()-1);
 		}
-		System.out.println(data);
 		accumulateChars(data,validChars);
-		
-		return validChars;
 	}
 	
-	private static ArrayList<Character> parseNotRule(String data, ArrayList<Character> charClass) {
-		ArrayList<Character> validChars = new ArrayList<Character>( charClass );
+	private static void parseNotRule(String data, HashSet<Character> validChars) {
 		if (data.startsWith("[^") && data.endsWith("]")) {
 			// Not
 			data = data.substring(2,data.length()-1);
 		}
-		System.out.println(data);
 		deccumulateChars(data, validChars);
-		
-		return validChars;
 	}
 	
-	private static void accumulateChars(String data, ArrayList<Character> validChars) {
+	private static void accumulateChars(String data, HashSet<Character> validChars) {
 		for (int i = 0; i < data.length(); i++) {
 			char c = data.charAt(i);
-			if (c == '-') for (char j = data.charAt(i-1); j < data.charAt(i-1); j++) validChars.add(j); 
+			if (c == '-') {
+//				System.out.println(data.charAt(i-1)+"->"+data.charAt(i+1));
+				for (char j = (char) (data.charAt(i-1)+1); j < data.charAt(i+1) - 1; j++) {
+					validChars.add(j);
+				}
+			}
 			else if (c == '\\') continue; 
 			else validChars.add(c);
 		}
 	}
-	private static void deccumulateChars(String data, ArrayList<Character> validChars) {
+	private static void deccumulateChars(String data, HashSet<Character> validChars) {
 		for (int i = 0; i < data.length(); i++) {
 			char c = data.charAt(i);
-			if (c == '-') for (char j = data.charAt(i-1); j < data.charAt(i-1); j++) validChars.remove( validChars.indexOf(j) ); 
+			if (c == '-') for (char j = data.charAt(i-1); j < data.charAt(i-1); j++) validChars.remove(j); 
 			else if (c == '\\') continue; 
-			else validChars.remove( validChars.indexOf(c) );
+			else validChars.remove(c);
+			
 		}
 	}
 
