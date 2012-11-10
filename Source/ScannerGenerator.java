@@ -79,7 +79,7 @@ public class ScannerGenerator {
 		for (int i=0;i<chunks.length;++i) chunks[i] = chunks[i].replaceAll("<SPACE>", "\\ "); // replace spaceholder with '\ ' again
 		
 		String token = chunks[0];
-		HashSet<Character> validChars = new HashSet<Character>(255);
+		HashSet<Character> validChars = new HashSet<Character>();
 		
 		if ( tokens.containsKey(token) ) System.out.println("Token repeat Error!");
 		else if (chunks.length == 2) {
@@ -133,7 +133,9 @@ public class ScannerGenerator {
 	private static void deccumulateChars(String data, HashSet<Character> validChars) {
 		for (int i = 0; i < data.length(); i++) {
 			char c = data.charAt(i);
-			if (c == '-') for (char j = data.charAt(i-1); j < data.charAt(i-1); j++) validChars.remove(j); 
+			if (c == '-') for (char j = data.charAt(i-1); j < data.charAt(i+1); j++) {
+				validChars.remove(j); 
+			}
 			else if (c == '\\') continue; 
 			else validChars.remove(c);
 			

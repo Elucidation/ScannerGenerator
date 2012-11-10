@@ -34,10 +34,10 @@ Input Spec File has:
 
 Results in a HashMap< String, HashSet<Character> > as shown below:
 
-	$UPPER : [D, E, F, G, A, B, C, L, M, N, O, H, I, J, K, U, T, W, V, Q, P, S, R, X, Z, f, g, d, e, b, c, n, o, l, m, j, k, h, i, w, v, u, t, s, r, q, p, x]
+	$UPPER : [D, E, F, G, A, B, C, L, M, N, O, H, I, J, K, U, T, W, V, Q, P, S, R, X, Z]
 	$DIGIT : [3, 2, 1, 0, 7, 6, 5, 4, 9]
 	$CHAR : [D, E, F, G, A, B, C, L, M, N, O, H, I, J, K, U, T, W, V, Q, P, S, R, X, Z, f, g, d, e, b, c, a, n, o, l, m, j, k, h, i, w, v, u, t, s, r, q, p, z, x]
-	$LOWER : [D, E, F, G, B, C, L, M, N, O, H, I, J, K, U, T, W, V, Q, P, S, R, X, f, g, d, e, b, c, a, n, o, l, m, j, k, h, i, w, v, u, t, s, r, q, p, z, x]
+	$LOWER : [f, g, d, e, b, c, a, n, o, l, m, j, k, h, i, w, v, u, t, s, r, q, p, z, x]
 	$NON-ZERO : [3, 2, 1, 7, 6, 5, 4, 9]
 
 Since we're using a HashSet to store the data there is no order, however we get O(1) in/out ops which is all we'd ever use when checking via DFA Table.

@@ -6,7 +6,6 @@ package Source;
  *
  */
 public class NFA {
-	private static final Exception ParseError = new Exception();
 	//Variables
 	public State entry;
 	public State exit;

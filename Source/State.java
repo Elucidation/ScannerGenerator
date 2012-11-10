@@ -6,7 +6,7 @@ public class State {
 	int stateNum;
 	boolean isFinal;
 	
-	private ArrayList<Integer> oChar = new ArrayList<Integer>(255);
+	private ArrayList<Boolean> oChar = new ArrayList<Boolean>(255);
 	private ArrayList<State> oEmpty = new ArrayList<State>();
 	
 	public void addepsilonEdge(State next) {
