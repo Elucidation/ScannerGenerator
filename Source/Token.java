@@ -1,3 +1,4 @@
+package Source;
 public class Token {
 	String type;
 	Object data;
