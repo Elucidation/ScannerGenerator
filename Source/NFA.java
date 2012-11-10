@@ -6,9 +6,17 @@ package Source;
  *
  */
 public class NFA {
+	private static final Exception ParseError = new Exception();
 	//Variables
 	public State entry;
 	public State exit;
+	
+	/**
+	 * Empty NFA
+	 */
+	public NFA() {
+		this(new State(), new State());
+	}
 	
 	/**
 	 * Set a up  NFA 'Node'
@@ -26,7 +34,7 @@ public class NFA {
 	 * @return
 	 */
 	public NFA createChar(char c) {
-		State etnry = new State();
+		State entry = new State();
 		State exit = new State();
 		exit.isFinal = true;
 		entry.addCharEdge(c, exit);
@@ -97,9 +105,4 @@ public class NFA {
 		
 	}
 	
-	
-	
-	
-	
-
 }
