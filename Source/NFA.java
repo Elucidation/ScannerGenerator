@@ -10,6 +10,11 @@ public class NFA {
 	public State entry;
 	public State exit;
 	
+	public static NFA parse(String line) {
+		// TODO Auto-generated method stub
+		return new NFA(new State(), new State());
+	}
+	
 	/**
 	 * Set a up  NFA 'Node'
 	 * @param entry
@@ -96,4 +101,5 @@ public class NFA {
 		return new NFA(entry, exit);
 		
 	}
+	
 }
