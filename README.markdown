@@ -1,3 +1,5 @@
+This is an example experimental Branch by Sam, to show how branches work.
+
 Usage
 ---
 Run Main.java or ScannerGenerator.jar package like so:
