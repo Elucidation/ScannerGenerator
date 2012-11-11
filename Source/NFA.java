@@ -1,9 +1,9 @@
 package Source;
 
 /**
- * 
+ * NFA class, utilizes generator types 1-5 from http://www.cs.may.ie/staff/jpower/Courses/Previous/parsing/node5.html
  * @author Ron brown
- *
+ * @author Sam
  */
 public class NFA {
 	private static final Exception ParseError = new Exception();
@@ -63,7 +63,8 @@ public class NFA {
 	}
 	
 	/**
-	 * Creates an NFA that matches a sequence
+	 * Creates an NFA that matches a sequence/concatenation/series
+	 * as in, ->first->next->
 	 * @param first
 	 * @param next
 	 * @return

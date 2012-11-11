@@ -24,11 +24,10 @@ public class ScannerGenerator {
 		
 		// Read each line
 		String line;
-		NFA partialNFA = NFA.epsilon();
 		// Parse Character Classes
 		HashMap<String,HashSet<Character>> tokens = new HashMap<String,HashSet<Character>>();
 		while( (line = in.readLine()) != null && !line.isEmpty() ) {
-			if (isValid(line)) {
+			if (isValidCharClass(line)) {
 				System.out.println("Parsing Character Class: "+line);
 				parseCharClass(line,tokens);
 			}
@@ -37,14 +36,15 @@ public class ScannerGenerator {
 			System.out.println( e.getKey() + "("+e.getValue().size()+") : " + e.getValue().toString());
 		}
 		
+		// For each line, generate an NFA
 		// Parse Identifiers
+		NFA partialNFA = NFA.epsilon();
 		while( (line = in.readLine()) != null && !line.isEmpty() ) {
-			if (isValid(line)) {
-				parseIdentifier(line);
-			}
+			System.out.println("Parsing Identifier: "+line);
+			parseIdentifier(line);			
 		}
 
-		// For each line, generate an NFA
+		
 
 		in.close();
 		System.out.println("Finished parsing specification file.");
@@ -66,7 +66,7 @@ public class ScannerGenerator {
 	 * @param line
 	 * @return
 	 */
-	private static boolean isValid(String line) {
+	private static boolean isValidCharClass(String line) {
 		String k = line.replaceAll("\\\\ ", "<SPACE>"); // replace '\ ' with '<SPACE>' so split doesn't affect it
 		if ( !k.matches("(\\$([\\w-]+) [^\\s]+ IN \\$\\w+$)|(\\$([\\w-]+) [^\\s]+$)") ) return false;
 		int n=k.split(" ").length;
@@ -137,7 +137,11 @@ public class ScannerGenerator {
 	}
 
 	public static void parseIdentifier(String line) {
-		// TODO Auto-generated method stub
+		line.replaceAll("\\ ", "<SPACE>"); // replace '\ ' with '<SPACE>' so split doesn't affect it
+		String name = line.substring( 0, line.indexOf(' ') );;
+		String val = line.substring(line.indexOf(' '), line.length()).replaceAll(" ", ""); // remove all spaces
+		val = val.replaceAll("<SPACE>","\\ "); // replace '\ ' with '<SPACE>' so split doesn't affect it
+		System.out.println(name + "=" + val);
 		
 	}
 }
