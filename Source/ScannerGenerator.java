@@ -1,5 +1,9 @@
 package Source;
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Paint;
+import java.awt.Stroke;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.HashMap;
@@ -9,12 +13,16 @@ import java.util.Stack;
 
 import javax.swing.JFrame;
 
+import org.apache.commons.collections15.Transformer;
 import org.apache.commons.collections15.set.ListOrderedSet;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
+import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 public class ScannerGenerator {
 	public static final char EPS = '\0';// placeholder for graph edges char value when epsilon edge
@@ -160,14 +168,24 @@ public class ScannerGenerator {
 		System.out.println("  Trying to Recursively Parse '"+val+"' for NFA '"+name+"'...");
 		RecursiveParser rp = new RecursiveParser(val,tokens);
 		NFA partialNFA = rp.getNFA();
-		DirectedSparseMultigraph<State, Character> dgraph = generateGraph(partialNFA);
+		DirectedSparseMultigraph<State, String> dgraph = generateGraph(partialNFA);
 		System.out.println(dgraph);
 //		System.out.println("Entry: "+partialNFA.entry);
 //		System.out.println("Exit: "+partialNFA.entry);
-		Layout<State, Character> layout = new CircleLayout<State, Character>(dgraph);
-		BasicVisualizationServer<State, Character> viz = new BasicVisualizationServer<State, Character>(layout);
-		viz.setPreferredSize(new Dimension(350,500));
-		JFrame frame = new JFrame("Partial NFA '"+name+"'");
+		Layout<State, String> layout = new CircleLayout<State, String>(dgraph);
+		BasicVisualizationServer<State, String> viz = new BasicVisualizationServer<State, String>(layout);
+		viz.setPreferredSize(new Dimension(600,600));
+		viz.getRenderContext().setVertexLabelTransformer(new Transformer<State,String>() {public String transform(State s) {return "S"+s.stateNum;} });
+		viz.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
+		Transformer<State,Paint> vertexPaint = new Transformer<State,Paint>() {
+			public Paint transform(State s) {
+				return s.isFinal ? Color.GREEN : Color.cyan; 
+			}
+		};
+		viz.getRenderContext().setEdgeLabelTransformer(new Transformer<String,String>() {public String transform(String s) {return s.substring(0,1);} });
+		viz.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
+//		viz.getRenderContext().setEdgeStrokeTransformer(new Transformer<Character,Stroke>() {public Stroke transform(Character c) {return new BasicStroke();} });
+		JFrame frame = new JFrame("Partial NFA '"+name+"', REGEX: "+val);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().add(viz);
 		frame.pack();
@@ -181,9 +199,9 @@ public class ScannerGenerator {
 	 * @param partialNFA
 	 * @return
 	 */
-	private static DirectedSparseMultigraph<State, Character> generateGraph(
+	private static DirectedSparseMultigraph<State, String> generateGraph(
 			NFA partialNFA) {
-		DirectedSparseMultigraph<State, Character> g = new DirectedSparseMultigraph<State, Character>();
+		DirectedSparseMultigraph<State, String> g = new DirectedSparseMultigraph<State, String>();
 		Stack<State> v = new Stack<State>();
 		ListOrderedSet<State> visited = new ListOrderedSet<State>();
 		//HashSet()s
@@ -196,18 +214,18 @@ public class ScannerGenerator {
 			// Get new connected nodes
 			ListOrderedSet<State> x = new ListOrderedSet<State>();
 			x.addAll( cState.getCharEdges().values() );
+			x.addAll( cState.getEpsEdges() );
 			x.removeAll(visited); // disjoint
 			System.out.println(cState + " : " + x );
-			
 			v.addAll( x ); // add new nodes
 			
 			for ( Entry<Character, State> e : cState.getCharEdges().entrySet() ) {
-				g.addEdge(e.getKey(), cState, e.getValue());
+				g.addEdge(e.getKey()+"("+cState.stateNum+"->"+e.getValue().stateNum+")", cState, e.getValue(), EdgeType.DIRECTED);
 			}
 			
-//			for ( State other : cState.getEpsEdges() ) { 
-//				g.addEdge(EPS, cState, other, EdgeType.DIRECTED);
-//			}
+			for ( State other : cState.getEpsEdges() ) { 
+				g.addEdge(EPS+"("+cState.stateNum+"->"+other.stateNum+")", cState, other, EdgeType.DIRECTED);
+			}
 		}
 		return g;
 	}

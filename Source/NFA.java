@@ -28,7 +28,7 @@ public class NFA {
 	 * @return
 	 */
 	public static NFA createChar(char c) {
-		System.out.println("NFA CHAR '"+c+"'");
+//		System.out.println("NFA CHAR '"+c+"'");
 		State entry = new State();
 		State exit = new State();
 		exit.isFinal = true;
@@ -43,7 +43,7 @@ public class NFA {
 	 * @return
 	 */
 	public static NFA createCharClass(HashSet<Character> chars) {
-		System.out.println("NFA CHARCLASS '"+chars+"'");
+//		System.out.println("NFA CHARCLASS '"+chars+"'");
 		State entry = new State();
 		State exit = new State();
 		exit.isFinal = true;

@@ -85,5 +85,10 @@ public class State implements Comparable<State> {
 	public int hashCode() {
 		return stateNum;
 	}
+
+	public static void resetNumCounter() {
+		// TODO Auto-generated method stub
+		stateNumCounter = 0;
+	}
 	
 }

@@ -16,6 +16,7 @@ public class RecursiveParser {
 	public RecursiveParser(String val, HashMap<String, HashSet<Character>> tokens) {
 		this.data = val;
 		this.tokens = tokens;
+		State.resetNumCounter();
 	}
 	
 	public NFA getNFA() throws ParseError {
@@ -97,8 +98,8 @@ public class RecursiveParser {
 		if (c == '$') {
 			// Is an $identifier
 			int i = 0;
-			while ( i<data.length() && !ID_DELIMS.contains( c = data.charAt(++i) )  ) {}
-			String id = data.substring(0, i--);
+			while ( ++i<data.length() && !ID_DELIMS.contains( c = data.charAt(i) )  ) {}
+			String id = data.substring(0, i);
 			if (!tokens.containsKey(id)) throw new ParseError("Token '"+id+"' not found in generated token map!");
 			return Symbol.CHARCLASS;
 		}
@@ -127,7 +128,7 @@ public class RecursiveParser {
 		case CHARCLASS:
 			// Is an $identifier
 			int i = 0;
-			while ( i<data.length() && !ID_DELIMS.contains( data.charAt(++i) )  ) {}
+			while ( ++i<data.length() && !ID_DELIMS.contains( data.charAt(i) )  ) {}
 			token = data.substring(0,i);
 			data = data.substring( i ); // clip off token
 			break;
