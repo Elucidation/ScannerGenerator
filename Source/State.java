@@ -3,7 +3,9 @@ package Source;
 import java.util.*;
 
 public class State {
-//	int stateNum;
+
+	static int stateNumCounter = 0;
+	int stateNum;
 	boolean isFinal;
 	
 	private HashMap<Character,State> charEdges = new HashMap<Character,State>(256);
@@ -36,8 +38,17 @@ public class State {
 			addCharEdge(iterator.next(), next);
 		}
 	}
-	
+	public State(int statenum) {
+		stateNum = statenum;
+	}
 	public State() {
+		stateNum = stateNumCounter++;
+	}
+	
+	@Override
+	public String toString() {
+		return "State [isFinal=" + isFinal + ", charEdges=" + charEdges.size()
+				+ ", epsEdges=" + epsEdges.size() + "]";
 	}
 	
 	/*public boolean match(String s) {

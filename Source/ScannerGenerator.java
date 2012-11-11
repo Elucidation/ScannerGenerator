@@ -152,6 +152,8 @@ public class ScannerGenerator {
 		System.out.println("  Trying to Recursively Parse '"+val+"' for NFA '"+name+"'...");
 		RecursiveParser rp = new RecursiveParser(val,tokens);
 		NFA partialNFA = rp.getNFA();
+		System.out.println("Entry: "+partialNFA.entry);
+		System.out.println("Exit: "+partialNFA.entry);
 		System.out.println("  Finished Recursive Parse.");
 		
 	}
