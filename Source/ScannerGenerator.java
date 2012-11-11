@@ -24,7 +24,7 @@ public class ScannerGenerator {
 		
 		// Read each line
 		String line;
-		NFA partialNFA = new NFA();
+		NFA partialNFA = NFA.epsilon();
 		// Parse Character Classes
 		HashMap<String,HashSet<Character>> tokens = new HashMap<String,HashSet<Character>>();
 		while( (line = in.readLine()) != null && !line.isEmpty() ) {
@@ -67,10 +67,11 @@ public class ScannerGenerator {
 	 * @return
 	 */
 	private static boolean isValid(String line) {
-		if ( !line.matches("\\$([\\w-]+)\\ (.+)") ) return false;
-//		if ( line.charAt(0) != '$') return false;
-//		line.
-		return true;
+		String k = line.replaceAll("\\\\ ", "<SPACE>"); // replace '\ ' with '<SPACE>' so split doesn't affect it
+		if ( !k.matches("(\\$([\\w-]+) [^\\s]+ IN \\$\\w+$)|(\\$([\\w-]+) [^\\s]+$)") ) return false;
+		int n=k.split(" ").length;
+		if ( n == 2 || n == 4 ) return true;
+		return false;
 	}
 	
 	
@@ -120,10 +121,7 @@ public class ScannerGenerator {
 	private static void accumulateChars(String data, HashSet<Character> validChars) {
 		for (int i = 0; i < data.length(); i++) {
 			char c = data.charAt(i);
-			if (c == '-') {
-//				System.out.println(data.charAt(i-1)+"->"+data.charAt(i+1));
-				for (char j = (char) (data.charAt(i-1)+1); j < data.charAt(i+1) - 1; j++) validChars.add(j);
-			}
+			if (c == '-') for (char j = (char) (data.charAt(i-1)+1); j < data.charAt(i+1); j++) validChars.add(j);
 			else if (c == '\\') continue; 
 			else validChars.add(c);
 		}
@@ -131,7 +129,7 @@ public class ScannerGenerator {
 	private static void deccumulateChars(String data, HashSet<Character> validChars) {
 		for (int i = 0; i < data.length(); i++) {
 			char c = data.charAt(i);
-			if (c == '-') for (char j = (char) (data.charAt(i-1)+1); j < data.charAt(i+1)-1; j++) validChars.remove(j);
+			if (c == '-') for (char j = (char) (data.charAt(i-1)+1); j < data.charAt(i+1); j++) validChars.remove(j);
 			else if (c == '\\') continue; 
 			else validChars.remove(c);
 			

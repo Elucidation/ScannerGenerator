@@ -12,13 +12,6 @@ public class NFA {
 	public State exit;
 	
 	/**
-	 * Empty NFA
-	 */
-	public NFA() {
-		this(new State(), new State());
-	}
-	
-	/**
 	 * Set a up  NFA 'Node'
 	 * @param entry
 	 * @param exit
@@ -33,7 +26,7 @@ public class NFA {
 	 * @param c
 	 * @return
 	 */
-	public NFA createChar(char c) {
+	public static NFA createChar(char c) {
 		State entry = new State();
 		State exit = new State();
 		exit.isFinal = true;
@@ -46,7 +39,7 @@ public class NFA {
 	 * Create epislon transition
 	 * @return
 	 */
-	public NFA epsilon() {
+	public static NFA epsilon() {
 		State entry = new State();
 		State exit = new State();
 		
@@ -61,7 +54,7 @@ public class NFA {
 	 * @param nfa
 	 * @return
 	 */
-	public NFA repetition(NFA nfa) {
+	public static NFA repetition(NFA nfa) {
 		nfa.exit.addepsilonEdge(nfa.entry);
 		nfa.entry.addepsilonEdge(nfa.exit);
 		
@@ -75,7 +68,7 @@ public class NFA {
 	 * @param next
 	 * @return
 	 */
-	public NFA sequence(NFA first, NFA next) {
+	public static NFA sequence(NFA first, NFA next) {
 		first.exit.isFinal = false;
 		next.exit.isFinal = true;
 		first.exit.addepsilonEdge(next.entry);
@@ -88,7 +81,7 @@ public class NFA {
 	 * @param bottom
 	 * @return
 	 */
-	public NFA or(NFA top, NFA bottom) {
+	public static NFA or(NFA top, NFA bottom) {
 		top.exit.isFinal = false;
 		bottom.exit.isFinal = false;
 		
