@@ -2,14 +2,14 @@ package Source;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.Stack;
 
 public class ScannerGenerator {
-	
-	public ScannerGenerator() {}
-
 	/**
 	 * Generates DFATable from Specification File
 	 * 
@@ -38,10 +38,9 @@ public class ScannerGenerator {
 		
 		// For each line, generate an NFA
 		// Parse Identifiers
-		NFA partialNFA = NFA.epsilon();
 		while( (line = in.readLine()) != null && !line.isEmpty() ) {
 			System.out.println("Parsing Identifier: "+line);
-			parseIdentifier(line);			
+			parseIdentifier(line,tokens);			
 		}
 
 		
@@ -75,7 +74,7 @@ public class ScannerGenerator {
 	}
 	
 	
-	public static void parseCharClass(String line, HashMap<String, HashSet<Character>> tokens) throws Exception {
+	public static void parseCharClass(String line, HashMap<String, HashSet<Character>> tokens) throws ParseError {
 		line.replaceAll("\\ ", "<SPACE>"); // replace '\ ' with '<SPACE>' so split doesn't affect it
 		String[] chunks = line.split(" ");
 		for (int i=0;i<chunks.length;++i) chunks[i] = chunks[i].replaceAll("<SPACE>", "\\ "); // replace spaceholder with '\ ' again
@@ -99,6 +98,7 @@ public class ScannerGenerator {
 		else {
 			System.out.println("Wierd Chunks (n="+chunks.length+")! : " + line);
 			for (String s : chunks) System.out.println(":: "+ s);
+			throw new ParseError("Bad Specificiation Line: "+line);
 		}
 		
 		tokens.put(token, validChars);
@@ -135,13 +135,19 @@ public class ScannerGenerator {
 			
 		}
 	}
-
-	public static void parseIdentifier(String line) {
+	
+	public static void parseIdentifier(String line, HashMap<String,HashSet<Character>> tokens) throws ParseError {
 		line.replaceAll("\\ ", "<SPACE>"); // replace '\ ' with '<SPACE>' so split doesn't affect it
 		String name = line.substring( 0, line.indexOf(' ') );;
 		String val = line.substring(line.indexOf(' '), line.length()).replaceAll(" ", ""); // remove all spaces
 		val = val.replaceAll("<SPACE>","\\ "); // replace '\ ' with '<SPACE>' so split doesn't affect it
 		System.out.println(name + "=" + val);
+		
+		RecursiveParser rp = new RecursiveParser(val,tokens);
+		while (rp.peekToken() != null) {
+			System.out.println(rp.peekToken());
+			rp.matchAnyToken();
+		}
 		
 	}
 }

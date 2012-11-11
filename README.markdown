@@ -41,3 +41,18 @@ Results in a HashMap< String, HashSet<Character> > as shown below:
 	$NON-ZERO(9) : [3, 2, 1, 7, 6, 5, 4, 9, 8]
 
 Since we're using a HashSet to store the data there is no order, however we get O(1) in/out ops which is all we'd ever use when checking via DFA Table.
+
+Identifier Parsing
+---
+
+When doing ```Parsing Identifier: $FLOAT ($DIGIT)+ \. ($DIGIT)+```, the value ```($DIGIT)+\.($DIGIT)+``` is tokenized like so
+
+	L_PAREN
+	CHARCLASS
+	R_PAREN
+	ONE_OR_MORE
+	SPECIAL_CHAR
+	L_PAREN
+	CHARCLASS
+	R_PAREN
+	ONE_OR_MORE
