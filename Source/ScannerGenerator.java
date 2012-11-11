@@ -34,7 +34,7 @@ public class ScannerGenerator {
 			}
 		}
 		for (Entry<String, HashSet<Character>> e : tokens.entrySet()) {
-			System.out.println( e.getKey() + " : " + e.getValue().toString());
+			System.out.println( e.getKey() + "("+e.getValue().size()+") : " + e.getValue().toString());
 		}
 		
 		// Parse Identifiers
