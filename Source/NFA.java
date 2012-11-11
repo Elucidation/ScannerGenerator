@@ -1,5 +1,7 @@
 package Source;
 
+import java.util.HashSet;
+
 /**
  * NFA class, utilizes generator types 1-5 from http://www.cs.may.ie/staff/jpower/Courses/Previous/parsing/node5.html
  * @author Ron brown
@@ -36,7 +38,21 @@ public class NFA {
 	}
 	
 	/**
-	 * Create epislon transition
+	 * Create NFA pair with edges for all chars in charclass
+	 * @param charclass
+	 * @return
+	 */
+	public static NFA createCharClass(HashSet<Character> chars) {
+		State entry = new State();
+		State exit = new State();
+		exit.isFinal = true;
+		entry.addSetCharEdges(chars, exit); 
+		
+		return new NFA(entry, exit);
+	}
+	
+	/**
+	 * Create epsilon transition
 	 * @return
 	 */
 	public static NFA epsilon() {
@@ -50,11 +66,22 @@ public class NFA {
 	}
 	
 	/**
+	 * Creates NFA that matches 1 or more, i.e. a+
+	 * @param nfa
+	 * @return
+	 */
+	public static NFA oneOrMore(NFA nfa) {
+		nfa.exit.addepsilonEdge(nfa.entry);
+		return nfa;
+		
+	}
+	
+	/**
 	 * Creates NFA that matches 0 or more, i.e. a*
 	 * @param nfa
 	 * @return
 	 */
-	public static NFA repetition(NFA nfa) {
+	public static NFA zeroOrMore(NFA nfa) {
 		nfa.exit.addepsilonEdge(nfa.entry);
 		nfa.entry.addepsilonEdge(nfa.exit);
 		
@@ -80,7 +107,7 @@ public class NFA {
 	 * Creates an NFA that matches the OR operator
 	 * @param top
 	 * @param bottom
-	 * @return
+	 * @return Combined NFA
 	 */
 	public static NFA or(NFA top, NFA bottom) {
 		top.exit.isFinal = false;

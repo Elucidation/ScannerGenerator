@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 
 public class RecursiveParser {
+	private static final boolean DEBUG = false;
 	private String data;
 	private HashMap<String, HashSet<Character>> tokens;
 	private static List<Character> ID_DELIMS = Arrays.asList('\\', '|', '(',')','[',']','*','+');
@@ -17,64 +18,76 @@ public class RecursiveParser {
 		this.tokens = tokens;
 	}
 	
-	public NFA expr() throws ParseError {
-		System.out.println("EXPR");
+	public NFA getNFA() throws ParseError {
+		return expr();
+	}
+	
+	private NFA expr() throws ParseError {
+		if (DEBUG) System.out.println("EXPR");
 		NFA t = term();
 		Symbol sym = peekToken();
 		if (sym == Symbol.UNION) {
 			matchToken(Symbol.UNION);
-			expr();
+			NFA t2 = expr();
+			t = NFA.or(t, t2);
 		} else if (sym == Symbol.CHR || sym == Symbol.SPECIAL_CHAR || sym == Symbol.L_PAREN) {
-			expr();
+			t = NFA.sequence(t, expr() );
 		}
 		return t;
 	}
 
 	private NFA term() throws ParseError {
-		System.out.println("TERM");
+		if (DEBUG) System.out.println("TERM");
 		NFA t = base();
 		Symbol sym=peekToken();
 		if ( sym == Symbol.ZERO_OR_MORE) {
-			countStar();
+			t = countStar(t);
 		} else if ( sym == Symbol.ONE_OR_MORE) {
-			countPlus();
+			t = countPlus(t);
 		}
+		return t;
 		
 	}
 	
 	private NFA base() throws ParseError {
-		System.out.println("BASE");
+		if (DEBUG) System.out.println("BASE");
+		NFA t;
+		String token;
 		Symbol sym = peekToken(); 
 		switch (sym) {
 		case CHARCLASS:
-			NFA t = NFA.createChar(data.charAt(0));
-			matchToken(Symbol.CHARCLASS);
+			token = matchToken(Symbol.CHARCLASS);
+			t = NFA.createCharClass(tokens.get(token));
 			break;
 		case CHR:
-			matchToken(Symbol.CHR);
+			token = matchToken(Symbol.CHR);
+			t = NFA.createChar(token.charAt(0));
 			break;
 		case SPECIAL_CHAR:
-			matchToken(Symbol.SPECIAL_CHAR);
+			token = matchToken(Symbol.SPECIAL_CHAR);
+			t = NFA.createChar(token.charAt(1));
 			break;
 		case L_PAREN:
 			matchToken(Symbol.L_PAREN);
-			expr();
+			t = expr();
 			matchToken(Symbol.R_PAREN);
 			break;
 		default:
-			break;
+			throw new ParseError("base() was passed unexpected token + '"+sym+"' for "+data);
 		}
 		return t;
 	}
 	
-	private void countStar() throws ParseError {
-		System.out.println("ZERO OR MORE");
+	private NFA countStar(NFA in) throws ParseError {
+		if (DEBUG) System.out.println("ZERO OR MORE");
 		matchToken(Symbol.ZERO_OR_MORE);
+		return NFA.zeroOrMore(in);
 	}
 	
-	private void countPlus() throws ParseError {
-		System.out.println("ONE OR MORE");
+	private NFA countPlus(NFA in) throws ParseError {
+		if (DEBUG) System.out.println("ONE OR MORE");
 		matchToken(Symbol.ONE_OR_MORE);
+		return NFA.oneOrMore(in);
 	}
 	
 	
@@ -134,7 +147,7 @@ public class RecursiveParser {
 		default:
 			throw new ParseError("Something Wierd was matched with matchAnyToken : '"+sym+"' for '"+data+"'!");
 		}
-		System.out.println(" MATCH: "+token);
+		if (DEBUG) System.out.println(" MATCH: "+token);
 		return token;
 	}
 

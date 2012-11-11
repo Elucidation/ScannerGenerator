@@ -141,18 +141,18 @@ public class ScannerGenerator {
 		String name = line.substring( 0, line.indexOf(' ') );;
 		String val = line.substring(line.indexOf(' '), line.length()).replaceAll(" ", ""); // remove all spaces
 		val = val.replaceAll("<SPACE>","\\ "); // replace '\ ' with '<SPACE>' so split doesn't affect it
-		System.out.println(name + "=" + val);
+//		System.out.println(name + "=" + val);
 		
+//		RecursiveParser rp = new RecursiveParser(val,tokens);
+//		while (rp.peekToken() != null) {
+//			System.out.println(rp.peekToken());
+//			rp.matchAnyToken();
+//		}
+		
+		System.out.println("  Trying to Recursively Parse '"+val+"' for NFA '"+name+"'...");
 		RecursiveParser rp = new RecursiveParser(val,tokens);
-		while (rp.peekToken() != null) {
-			System.out.println(rp.peekToken());
-			rp.matchAnyToken();
-		}
-		
-		System.out.println("Trying to Recursively Parse '"+val+"'...");
-		rp = new RecursiveParser(val,tokens);
-		rp.expr();
-		System.out.println("Finished Recursive Parse.");
+		NFA partialNFA = rp.getNFA();
+		System.out.println("  Finished Recursive Parse.");
 		
 	}
 }
