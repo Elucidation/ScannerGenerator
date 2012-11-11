@@ -2,14 +2,22 @@ package Source;
 
 import java.util.*;
 
-public class State {
-
+public class State implements Comparable<State> {
+	
 	static int stateNumCounter = 0;
 	int stateNum;
 	boolean isFinal;
 	
 	private HashMap<Character,State> charEdges = new HashMap<Character,State>(256);
 	private ArrayList<State> epsEdges = new ArrayList<State>();
+	
+	public HashMap<Character, State> getCharEdges() {
+		return charEdges;
+	}
+
+	public ArrayList<State> getEpsEdges() {
+		return epsEdges;
+	}
 	
 	/**
 	 * Add epsilon edge from this state to next
@@ -47,22 +55,35 @@ public class State {
 	
 	@Override
 	public String toString() {
-		return "State [isFinal=" + isFinal + ", charEdges=" + charEdges.size()
-				+ ", epsEdges=" + epsEdges.size() + "]";
+		ArrayList<String> connectedStates = new ArrayList<String>();
+		ArrayList<String> connectedStatesEps = new ArrayList<String>();
+		for ( State state : charEdges.values() ) connectedStates.add("S"+state.stateNum);
+		for ( State state : epsEdges ) connectedStatesEps.add("S"+state.stateNum);
+		return "<S"+stateNum+" "+(isFinal ? "FINAL" : "") + (charEdges.isEmpty() ? "" : ", charEdges =" + connectedStates) 
+				+ (epsEdges.isEmpty() ? "" : ", epsEdges=" + connectedStatesEps) + ">";
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		// TODO Auto-generated method stub
+//		System.out.println(this + " equals "+obj);
+		if (obj.getClass() == this.getClass()) return equals((State)obj);
+		else return super.equals(obj);
 	}
 	
-	/*public boolean match(String s) {
-		
-		return matches(s, new ArrayList());
+	public boolean equals(State other) {
+//		System.out.println("Equals sSTATE "+other);
+		return other.stateNum == stateNum;
+	}
+	@Override
+	public int compareTo(State other) {
+//		System.out.println("Compare State: "+other);
+		return other.stateNum - stateNum;
 	}
 	
-	private boolean matches(String s, ArrayList visited) {
-		
-		return false;
+	@Override
+	public int hashCode() {
+		return stateNum;
 	}
-	*/
-	
-	
-	
 	
 }

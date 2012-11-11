@@ -58,5 +58,10 @@ public class Main {
 		out.close();
 		System.out.println("Finished writing tokens! All Done.");
 		
+		// Table Wlaker
+//		State a = new State(3);
+//		State b = new State(3);
+//		System.out.println(a + " == " + b + " : " + (a.equals(b)) );
+		
 	}
 }

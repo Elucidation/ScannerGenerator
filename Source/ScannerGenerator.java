@@ -1,15 +1,23 @@
 package Source;
+import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Stack;
 
+import javax.swing.JFrame;
+
+import org.apache.commons.collections15.set.ListOrderedSet;
+
+import edu.uci.ics.jung.algorithms.layout.CircleLayout;
+import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+import edu.uci.ics.jung.visualization.BasicVisualizationServer;
+
 public class ScannerGenerator {
+	public static final char EPS = '\0';// placeholder for graph edges char value when epsilon edge
 	/**
 	 * Generates DFATable from Specification File
 	 * 
@@ -152,9 +160,55 @@ public class ScannerGenerator {
 		System.out.println("  Trying to Recursively Parse '"+val+"' for NFA '"+name+"'...");
 		RecursiveParser rp = new RecursiveParser(val,tokens);
 		NFA partialNFA = rp.getNFA();
-		System.out.println("Entry: "+partialNFA.entry);
-		System.out.println("Exit: "+partialNFA.entry);
+		DirectedSparseMultigraph<State, Character> dgraph = generateGraph(partialNFA);
+		System.out.println(dgraph);
+//		System.out.println("Entry: "+partialNFA.entry);
+//		System.out.println("Exit: "+partialNFA.entry);
+		Layout<State, Character> layout = new CircleLayout<State, Character>(dgraph);
+		BasicVisualizationServer<State, Character> viz = new BasicVisualizationServer<State, Character>(layout);
+		viz.setPreferredSize(new Dimension(350,500));
+		JFrame frame = new JFrame("Partial NFA '"+name+"'");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().add(viz);
+		frame.pack();
+		frame.setVisible(true);
 		System.out.println("  Finished Recursive Parse.");
 		
+	}
+	
+	/**
+	 * Creates a visualizable Directed Sparse Multipgraph of the partial DFA
+	 * @param partialNFA
+	 * @return
+	 */
+	private static DirectedSparseMultigraph<State, Character> generateGraph(
+			NFA partialNFA) {
+		DirectedSparseMultigraph<State, Character> g = new DirectedSparseMultigraph<State, Character>();
+		Stack<State> v = new Stack<State>();
+		ListOrderedSet<State> visited = new ListOrderedSet<State>();
+		//HashSet()s
+		v.add(partialNFA.entry);
+		while (!v.isEmpty()) {
+			State cState = v.pop();
+			if (visited.contains(cState)) continue; // skip visited
+			visited.add(cState);
+			
+			// Get new connected nodes
+			ListOrderedSet<State> x = new ListOrderedSet<State>();
+			x.addAll( cState.getCharEdges().values() );
+			x.removeAll(visited); // disjoint
+			System.out.println(cState + " : " + x );
+			
+			v.addAll( x ); // add new nodes
+			
+			for ( Entry<Character, State> e : cState.getCharEdges().entrySet() ) {
+				g.addEdge(e.getKey(), cState, e.getValue());
+			}
+			
+//			for ( State other : cState.getEpsEdges() ) { 
+//				g.addEdge(EPS, cState, other, EdgeType.DIRECTED);
+//			}
+		}
+		return g;
 	}
 }
