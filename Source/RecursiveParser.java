@@ -17,9 +17,9 @@ public class RecursiveParser {
 		this.tokens = tokens;
 	}
 	
-	public void expr() throws ParseError {
+	public NFA expr() throws ParseError {
 		System.out.println("EXPR");
-		term();
+		NFA t = term();
 		Symbol sym = peekToken();
 		if (sym == Symbol.UNION) {
 			matchToken(Symbol.UNION);
@@ -27,16 +27,12 @@ public class RecursiveParser {
 		} else if (sym == Symbol.CHR || sym == Symbol.SPECIAL_CHAR || sym == Symbol.L_PAREN) {
 			expr();
 		}
-	}
-	
-	public void term() throws ParseError {
-		System.out.println("TERM");
-		factor();
+		return t;
 	}
 
-	private void factor() throws ParseError {
-		System.out.println("FACTOR");
-		base();
+	private NFA term() throws ParseError {
+		System.out.println("TERM");
+		NFA t = base();
 		Symbol sym=peekToken();
 		if ( sym == Symbol.ZERO_OR_MORE) {
 			countStar();
@@ -46,11 +42,12 @@ public class RecursiveParser {
 		
 	}
 	
-	private void base() throws ParseError {
+	private NFA base() throws ParseError {
 		System.out.println("BASE");
 		Symbol sym = peekToken(); 
 		switch (sym) {
 		case CHARCLASS:
+			NFA t = NFA.createChar(data.charAt(0));
 			matchToken(Symbol.CHARCLASS);
 			break;
 		case CHR:
@@ -67,6 +64,7 @@ public class RecursiveParser {
 		default:
 			break;
 		}
+		return t;
 	}
 	
 	private void countStar() throws ParseError {
@@ -105,18 +103,19 @@ public class RecursiveParser {
 		}
 	}
 
-	private void matchToken(Symbol sym) throws ParseError {
+	private String matchToken(Symbol sym) throws ParseError {
 		if (peekToken() != sym) throw new ParseError("matchToken Fails with '"+sym+"' for '"+data+"'!");
-		matchAnyToken();
+		return matchAnyToken();
 	}
-	public void matchAnyToken() throws ParseError {
+	public String matchAnyToken() throws ParseError {
 		Symbol sym = peekToken();
+		String token;
 		switch(sym) {
 		case CHARCLASS:
 			// Is an $identifier
 			int i = 0;
 			while ( i<data.length() && !ID_DELIMS.contains( data.charAt(++i) )  ) {}
-			System.out.println(" MATCH: "+data.substring(0,i));
+			token = data.substring(0,i);
 			data = data.substring( i ); // clip off token
 			break;
 		case L_PAREN:
@@ -125,16 +124,18 @@ public class RecursiveParser {
 		case ONE_OR_MORE:
 		case UNION:
 		case CHR:
-			System.out.println(" MATCH: "+data.charAt(0));
+			token = data.substring(0,1);
 			data = data.substring(1);
 			break;
 		case SPECIAL_CHAR:
-			System.out.println(" MATCH: "+data.substring(0,2));
+			token = data.substring(0,2);
 			data = data.substring(2);
 			break;
 		default:
-			
+			throw new ParseError("Something Wierd was matched with matchAnyToken : '"+sym+"' for '"+data+"'!");
 		}
+		System.out.println(" MATCH: "+token);
+		return token;
 	}
 
 }

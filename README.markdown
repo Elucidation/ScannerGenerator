@@ -60,11 +60,10 @@ When doing ```Parsing Identifier: $FLOAT ($DIGIT)+ \. ($DIGIT)+```, the value ``
 
 The logic is as follows (spaces/tabs ignored, <EPS> stands for nothing):
 
-	<expr>   = <term> '|' <expr>  |  <term> | <term> <expr>
-	<term>   = <factor>
-	<factor> = <base> <count>
-	<count>  = '*' | '+' | <EPS>
-	<base>   = <char> |  '\' <char>   |  '(' <expr> ')'  
+	<expr>  = <term> '|' <expr>  |  <term> | <term> <expr>
+	<term>  = <base> <count>
+	<count> = '*' | '+' | <EPS>
+	<base>  = <char> |  '\' <char>   |  '(' <expr> ')'  
 
 So a set of runs:
 
