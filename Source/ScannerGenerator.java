@@ -4,14 +4,20 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Paint;
 import java.awt.Stroke;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
+import java.sql.Time;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Stack;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 import org.apache.commons.collections15.Transformer;
@@ -23,11 +29,12 @@ import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
+import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 public class ScannerGenerator {
-	public static final char EPS = '\0';// placeholder for graph edges char value when epsilon edge
+	public static final char EPS = '\u03B5';// placeholder for graph edges char value when epsilon edge
 	/**
 	 * Generates DFATable from Specification File
 	 * 
@@ -174,12 +181,17 @@ public class ScannerGenerator {
 		System.out.println(dgraph);
 //		System.out.println("Entry: "+partialNFA.entry);
 //		System.out.println("Exit: "+partialNFA.entry);
-		drawGraph(dgraph, "Partial NFA '"+name+"', REGEX: "+val  );
+		drawGraph(dgraph, name, "Partial NFA '"+name+"', REGEX: "+val  );
 		System.out.println("  Finished Recursive Parse.");
 		
 	}
-	
-	private static void drawGraph(DirectedSparseMultigraph<State, String> dgraph, String graphName) {
+	/**
+	 * Draws graph to JFrame for partial NFA 'name' with title 'title'
+	 * @param dgraph
+	 * @param name
+	 * @param title
+	 */
+	private static void drawGraph(DirectedSparseMultigraph<State, String> dgraph, String name, String title) {
 		Layout<State, String> layout = new KKLayout<State, String>(dgraph);
 		BasicVisualizationServer<State, String> viz = new BasicVisualizationServer<State, String>(layout);
 		viz.setPreferredSize(new Dimension(600,600));
@@ -193,11 +205,42 @@ public class ScannerGenerator {
 		viz.getRenderContext().setEdgeLabelTransformer(new Transformer<String,String>() {public String transform(String s) {return s;} });
 		viz.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
 //		viz.getRenderContext().setEdgeStrokeTransformer(new Transformer<Character,Stroke>() {public Stroke transform(Character c) {return new BasicStroke();} });
-		JFrame frame = new JFrame(graphName);
+		
+		
+//		drawImage(viz,title);
+		saveImage(viz,name);
+	}
+
+	private static void drawImage(BasicVisualizationServer<State, String> viz,
+			String title) {
+		JFrame frame = new JFrame(title);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().add(viz);
 		frame.pack();
 		frame.setVisible(true);
+	}
+
+	private static void saveImage(BasicVisualizationServer<State, String> viz,String name) {
+		VisualizationImageServer<State, String> imageViz =
+			    new VisualizationImageServer<State, String>(viz.getGraphLayout(),
+			        viz.getGraphLayout().getSize());
+		imageViz.setRenderContext(viz.getRenderContext());
+		
+		BufferedImage image = (BufferedImage) imageViz.getImage(
+			    new Point2D.Double(viz.getGraphLayout().getSize().getWidth() / 2,
+			    viz.getGraphLayout().getSize().getHeight() / 2),
+			    new Dimension(viz.getGraphLayout().getSize()));
+		
+		File f = new File("Images");
+		if (!f.exists()) f.mkdirs();
+		
+		File outputfile = new File("Images/graph"+name+".png");
+
+		try {
+		    ImageIO.write(image, "png", outputfile);
+		} catch (IOException e) {
+		    System.out.println("Could not write graph "+name+" to image.");
+		}
 	}
 
 	/**
@@ -243,9 +286,8 @@ public class ScannerGenerator {
 			}
 			
 			for ( Entry<State,String> e : edges.entrySet()) {
-				char[] chars = e.getValue().toCharArray();
-				Arrays.sort(chars);
-				String edgeName = new String(chars).replaceAll(Character.toString(EPS), "<EPS>")+"[S"+cState.stateNum+"->S"+e.getKey().stateNum+"]";
+				String allChars = simplify(e.getValue());
+				String edgeName = allChars+"[S"+cState.stateNum+"->S"+e.getKey().stateNum+"]";
 				g.addEdge(edgeName, cState, e.getKey(), EdgeType.DIRECTED);
 			}
 //			for ( Entry<Character, State> e : cState.getCharEdges().entrySet() ) {
@@ -257,5 +299,23 @@ public class ScannerGenerator {
 //			}
 		}
 		return g;
+	}
+	
+	/**
+	 * Cleans up a list of characters for an edge into something resembling sexy
+	 * for example 'adbc\0' -> 'abcd<EPS>'
+	 * and entire alphabet -> 'a-z' or 'A-Z'
+	 * @param s
+	 * @return
+	 */
+	private static String simplify(String s) {
+		char[] chars = s.toCharArray();
+		Arrays.sort(chars);
+		s = new String(chars);
+//		s = s.replaceAll(Character.toString(EPS), "<EPS>");
+		s = s.replaceAll("abcdefghijklmnopqrstuvwxyz", "a-z");
+		s = s.replaceAll("ABCDEFGHIJKLMNOPQRSTUVXYZ", "A-Z");
+		s = s.replaceAll("0123456789", "0-9");
+		return s;
 	}
 }
