@@ -6,6 +6,7 @@ import java.awt.Paint;
 import java.awt.Stroke;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
@@ -17,6 +18,7 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.collections15.set.ListOrderedSet;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
+import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
@@ -172,7 +174,13 @@ public class ScannerGenerator {
 		System.out.println(dgraph);
 //		System.out.println("Entry: "+partialNFA.entry);
 //		System.out.println("Exit: "+partialNFA.entry);
-		Layout<State, String> layout = new CircleLayout<State, String>(dgraph);
+		drawGraph(dgraph, "Partial NFA '"+name+"', REGEX: "+val  );
+		System.out.println("  Finished Recursive Parse.");
+		
+	}
+	
+	private static void drawGraph(DirectedSparseMultigraph<State, String> dgraph, String graphName) {
+		Layout<State, String> layout = new KKLayout<State, String>(dgraph);
 		BasicVisualizationServer<State, String> viz = new BasicVisualizationServer<State, String>(layout);
 		viz.setPreferredSize(new Dimension(600,600));
 		viz.getRenderContext().setVertexLabelTransformer(new Transformer<State,String>() {public String transform(State s) {return "S"+s.stateNum;} });
@@ -182,18 +190,16 @@ public class ScannerGenerator {
 				return s.isFinal ? Color.GREEN : Color.cyan; 
 			}
 		};
-		viz.getRenderContext().setEdgeLabelTransformer(new Transformer<String,String>() {public String transform(String s) {return s.substring(0,1);} });
+		viz.getRenderContext().setEdgeLabelTransformer(new Transformer<String,String>() {public String transform(String s) {return s;} });
 		viz.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
 //		viz.getRenderContext().setEdgeStrokeTransformer(new Transformer<Character,Stroke>() {public Stroke transform(Character c) {return new BasicStroke();} });
-		JFrame frame = new JFrame("Partial NFA '"+name+"', REGEX: "+val);
+		JFrame frame = new JFrame(graphName);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().add(viz);
 		frame.pack();
 		frame.setVisible(true);
-		System.out.println("  Finished Recursive Parse.");
-		
 	}
-	
+
 	/**
 	 * Creates a visualizable Directed Sparse Multipgraph of the partial DFA
 	 * @param partialNFA
@@ -219,13 +225,36 @@ public class ScannerGenerator {
 			System.out.println(cState + " : " + x );
 			v.addAll( x ); // add new nodes
 			
+			HashMap<State,String> edges = new HashMap<>(); // Merges Edges for some state pair together
 			for ( Entry<Character, State> e : cState.getCharEdges().entrySet() ) {
-				g.addEdge(e.getKey()+"("+cState.stateNum+"->"+e.getValue().stateNum+")", cState, e.getValue(), EdgeType.DIRECTED);
+				// if edges has state in already, set edges[state] = edges[state]+new_character
+				State s = e.getValue();
+				if (edges.containsKey(e.getValue()))
+					edges.put(s,edges.remove(s) +e.getKey());
+				else
+					edges.put(s, Character.toString(e.getKey()));
+			}
+			for ( State other : cState.getEpsEdges() ) {
+				// if edges has state in already, set edges[state] = edges[state]+new_character
+				if ( edges.containsKey(other) )
+					edges.put(other, edges.remove(other)+EPS);
+				else
+					edges.put(other, Character.toString(EPS) );
 			}
 			
-			for ( State other : cState.getEpsEdges() ) { 
-				g.addEdge(EPS+"("+cState.stateNum+"->"+other.stateNum+")", cState, other, EdgeType.DIRECTED);
+			for ( Entry<State,String> e : edges.entrySet()) {
+				char[] chars = e.getValue().toCharArray();
+				Arrays.sort(chars);
+				String edgeName = new String(chars).replaceAll(Character.toString(EPS), "<EPS>")+"[S"+cState.stateNum+"->S"+e.getKey().stateNum+"]";
+				g.addEdge(edgeName, cState, e.getKey(), EdgeType.DIRECTED);
 			}
+//			for ( Entry<Character, State> e : cState.getCharEdges().entrySet() ) {
+//				g.addEdge(e.getKey()+"("+cState.stateNum+"->"+e.getValue().stateNum+")", cState, e.getValue(), EdgeType.DIRECTED);
+//			}
+			
+//			for ( State other : cState.getEpsEdges() ) { 
+//				g.addEdge(EPS+"("+cState.stateNum+"->"+other.stateNum+")", cState, other, EdgeType.DIRECTED);
+//			}
 		}
 		return g;
 	}
