@@ -25,7 +25,7 @@ public class RecursiveParser {
 			matchToken(Symbol.UNION);
 			expr();
 		} else if (sym == Symbol.CHR || sym == Symbol.SPECIAL_CHAR || sym == Symbol.L_PAREN) {
-			term();
+			expr();
 		}
 	}
 	

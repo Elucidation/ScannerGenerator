@@ -60,7 +60,7 @@ When doing ```Parsing Identifier: $FLOAT ($DIGIT)+ \. ($DIGIT)+```, the value ``
 
 The logic is as follows (spaces/tabs ignored, <EPS> stands for nothing):
 
-	<expr>   = <term> '|' <expr>  |  <term>
+	<expr>   = <term> '|' <expr>  |  <term> | <term> <expr>
 	<term>   = <factor>
 	<factor> = <base> <count>
 	<count>  = '*' | '+' | <EPS>
@@ -168,8 +168,24 @@ So a set of runs:
 	FACTOR
 	BASE
 	 MATCH: P
+	EXPR
 	TERM
 	FACTOR
 	BASE
 	 MATCH: R
+	EXPR
+	TERM
+	FACTOR
+	BASE
+	 MATCH: I
+	EXPR
+	TERM
+	FACTOR
+	BASE
+	 MATCH: N
+	EXPR
+	TERM
+	FACTOR
+	BASE
+	 MATCH: T
 	Finished Recursive Parse.
