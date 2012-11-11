@@ -4,11 +4,12 @@ import java.util.ArrayList;
 
 /**
  * TableWalker is initialized with a DFATable.
- * calling walkTable with an input char will cause TableWalker to update its state based on it's table
+ * calling walkTable with an input char will cause TableWalker to update its state based on its table
  *  and return a token auto-magically at the correct time.
  * @author Sam
  *
  */
+
 public class TableWalker {
 	private DFATable dfa;
 	private StringBuffer lastKnownValidToken;
