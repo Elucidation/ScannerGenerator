@@ -17,35 +17,69 @@ public class RecursiveParser {
 		this.tokens = tokens;
 	}
 	
-	public void term() throws ParseError {
-		factor();
-		t_tail();
+	public void expr() throws ParseError {
+		System.out.println("EXPR");
+		term();
+		Symbol sym = peekToken();
+		if (sym == Symbol.UNION) {
+			matchToken(Symbol.UNION);
+			expr();
+		} else if (sym == Symbol.CHR || sym == Symbol.SPECIAL_CHAR || sym == Symbol.L_PAREN) {
+			term();
+		}
 	}
-
-	private void t_tail() {
-		// TODO Auto-generated method stub
-		
+	
+	public void term() throws ParseError {
+		System.out.println("TERM");
+		factor();
 	}
 
 	private void factor() throws ParseError {
-//		if ( peekToken().equals("(") ) {
-//			matchToken("(");
-//			expr();
-//			matchToken(")");
-//		}
-//		else if (peekToken().equals("\\")) {
-//			matchToken("\\");
-//			matchAnyChar();
-//		} else {
-//			// Is a character
-//		}
-	}
-
-	private void expr() {
-		// TODO Auto-generated method stub
+		System.out.println("FACTOR");
+		base();
+		Symbol sym=peekToken();
+		if ( sym == Symbol.ZERO_OR_MORE) {
+			countStar();
+		} else if ( sym == Symbol.ONE_OR_MORE) {
+			countPlus();
+		}
 		
 	}
-
+	
+	private void base() throws ParseError {
+		System.out.println("BASE");
+		Symbol sym = peekToken(); 
+		switch (sym) {
+		case CHARCLASS:
+			matchToken(Symbol.CHARCLASS);
+			break;
+		case CHR:
+			matchToken(Symbol.CHR);
+			break;
+		case SPECIAL_CHAR:
+			matchToken(Symbol.SPECIAL_CHAR);
+			break;
+		case L_PAREN:
+			matchToken(Symbol.L_PAREN);
+			expr();
+			matchToken(Symbol.R_PAREN);
+			break;
+		default:
+			break;
+		}
+	}
+	
+	private void countStar() throws ParseError {
+		System.out.println("ZERO OR MORE");
+		matchToken(Symbol.ZERO_OR_MORE);
+	}
+	
+	private void countPlus() throws ParseError {
+		System.out.println("ONE OR MORE");
+		matchToken(Symbol.ONE_OR_MORE);
+	}
+	
+	
 	public Symbol peekToken() throws ParseError {
 		if (data.length() == 0) return null;
 		char c = data.charAt(0);
@@ -82,6 +116,7 @@ public class RecursiveParser {
 			// Is an $identifier
 			int i = 0;
 			while ( i<data.length() && !ID_DELIMS.contains( data.charAt(++i) )  ) {}
+			System.out.println(" MATCH: "+data.substring(0,i));
 			data = data.substring( i ); // clip off token
 			break;
 		case L_PAREN:
@@ -90,9 +125,11 @@ public class RecursiveParser {
 		case ONE_OR_MORE:
 		case UNION:
 		case CHR:
+			System.out.println(" MATCH: "+data.charAt(0));
 			data = data.substring(1);
 			break;
 		case SPECIAL_CHAR:
+			System.out.println(" MATCH: "+data.substring(0,2));
 			data = data.substring(2);
 			break;
 		default:

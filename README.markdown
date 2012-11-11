@@ -56,3 +56,120 @@ When doing ```Parsing Identifier: $FLOAT ($DIGIT)+ \. ($DIGIT)+```, the value ``
 	CHARCLASS
 	R_PAREN
 	ONE_OR_MORE
+
+
+The logic is as follows (spaces/tabs ignored, <EPS> stands for nothing):
+
+	<expr>   = <term> '|' <expr>  |  <term>
+	<term>   = <factor>
+	<factor> = <base> <count>
+	<count>  = '*' | '+' | <EPS>
+	<base>   = <char> |  '\' <char>   |  '(' <expr> ')'  
+
+So a set of runs:
+
+	Trying to Recursively Parse '$LOWER($LOWER|$DIGIT)*'...
+	EXPR
+	TERM
+	FACTOR
+	BASE
+	 MATCH: $LOWER
+	TERM
+	FACTOR
+	BASE
+	 MATCH: (
+	EXPR
+	TERM
+	FACTOR
+	BASE
+	 MATCH: $LOWER
+	 MATCH: |
+	EXPR
+	TERM
+	FACTOR
+	BASE
+	 MATCH: $DIGIT
+	 MATCH: )
+	ZERO OR MORE
+	 MATCH: *
+	Finished Recursive Parse.
+
+	Trying to Recursively Parse '($DIGIT)+'...
+	EXPR
+	TERM
+	FACTOR
+	BASE
+	 MATCH: (
+	EXPR
+	TERM
+	FACTOR
+	BASE
+	 MATCH: $DIGIT
+	 MATCH: )
+	ONE OR MORE
+	 MATCH: +
+	Finished Recursive Parse.
+
+	Trying to Recursively Parse '($DIGIT)+\.($DIGIT)+'...
+	EXPR
+	TERM
+	FACTOR
+	BASE
+	 MATCH: (
+	EXPR
+	TERM
+	FACTOR
+	BASE
+	 MATCH: $DIGIT
+	 MATCH: )
+	ONE OR MORE
+	 MATCH: +
+	TERM
+	FACTOR
+	BASE
+	 MATCH: \.
+	Finished Recursive Parse.
+
+	Trying to Recursively Parse '='...
+	EXPR
+	TERM
+	FACTOR
+	BASE
+	 MATCH: =
+	Finished Recursive Parse.
+
+	Trying to Recursively Parse '\+'...
+	EXPR
+	TERM
+	FACTOR
+	BASE
+	 MATCH: \+
+	Finished Recursive Parse.
+
+	Trying to Recursively Parse '-'...
+	EXPR
+	TERM
+	FACTOR
+	BASE
+	 MATCH: -
+	Finished Recursive Parse.
+
+	Trying to Recursively Parse '\*'...
+	EXPR
+	TERM
+	FACTOR
+	BASE
+	 MATCH: \*
+	Finished Recursive Parse.
+
+	Trying to Recursively Parse 'PRINT'...
+	EXPR
+	TERM
+	FACTOR
+	BASE
+	 MATCH: P
+	TERM
+	FACTOR
+	BASE
+	 MATCH: R
+	Finished Recursive Parse.

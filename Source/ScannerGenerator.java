@@ -149,5 +149,10 @@ public class ScannerGenerator {
 			rp.matchAnyToken();
 		}
 		
+		System.out.println("Trying to Recursively Parse '"+val+"'...");
+		rp = new RecursiveParser(val,tokens);
+		rp.expr();
+		System.out.println("Finished Recursive Parse.");
+		
 	}
 }
