@@ -2,8 +2,12 @@ package Source;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Paint;
+import java.awt.Shape;
 import java.awt.Stroke;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -24,13 +28,19 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.collections15.set.ListOrderedSet;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
+import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
+import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
+import edu.uci.ics.jung.visualization.renderers.EdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 public class ScannerGenerator {
@@ -192,21 +202,62 @@ public class ScannerGenerator {
 	 * @param title
 	 */
 	private static void drawGraph(DirectedSparseMultigraph<State, String> dgraph, String name, String title) {
-		Layout<State, String> layout = new KKLayout<State, String>(dgraph);
+		Layout<State, String> layout = new ISOMLayout<State, String>(dgraph);
 		BasicVisualizationServer<State, String> viz = new BasicVisualizationServer<State, String>(layout);
 		viz.setPreferredSize(new Dimension(600,600));
+		
+		// Vertex
+		final Font vertexFont = new Font("Times New Roman", Font.BOLD, 20);
+		Transformer<State, Font> vertexFontTransform = new Transformer<State, Font>() {
+			@Override
+			public Font transform(State arg0) {
+				// TODO Auto-generated method stub
+				return vertexFont;
+			}	
+		};
+		viz.getRenderContext().setVertexFontTransformer(vertexFontTransform );
+		
+		final Font edgeFont = new Font(Font.MONOSPACED, Font.PLAIN , 20);
+		Transformer<String, Font> edgeFontTransform = new Transformer<String, Font>() {
+			@Override
+			public Font transform(String s) {
+				// TODO Auto-generated method stub
+				return edgeFont;
+			}
+		};
+		viz.getRenderContext().setEdgeFontTransformer(edgeFontTransform);
+		
+		Transformer<State,Shape> vertexSize = new Transformer<State,Shape>(){
+            public Shape transform(State i){
+                Ellipse2D circle = new Ellipse2D.Double(-15, -15, 30, 30);
+                // in this case, the vertex is twice as large
+//                if(i == 2) return AffineTransform.getScaleInstance(2, 2).createTransformedShape(circle);
+//                else return circle;
+                return circle;
+            }
+        };
+        viz.getRenderContext().setVertexShapeTransformer(vertexSize);
+        
+		
 		viz.getRenderContext().setVertexLabelTransformer(new Transformer<State,String>() {public String transform(State s) {return "S"+s.stateNum;} });
 		viz.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
 		Transformer<State,Paint> vertexPaint = new Transformer<State,Paint>() {
 			public Paint transform(State s) {
-				return s.isFinal ? Color.GREEN : Color.cyan; 
+				if (s.stateNum ==0) return Color.GREEN;
+				return s.isFinal ? new Color(255, 120, 120) : Color.cyan; 
 			}
 		};
-		viz.getRenderContext().setEdgeLabelTransformer(new Transformer<String,String>() {public String transform(String s) {return s;} });
-		viz.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
-//		viz.getRenderContext().setEdgeStrokeTransformer(new Transformer<Character,Stroke>() {public Stroke transform(Character c) {return new BasicStroke();} });
+		viz.getRenderContext().setVertexFillPaintTransformer(vertexPaint); // Green state if final, blue otherwise
 		
-		
+		// Edge
+		viz.getRenderContext().setEdgeLabelTransformer(new Transformer<String,String>() {
+				public String transform(String s) {
+						return s.substring(0,s.indexOf('['));
+					} 
+			}); // Edge label
+//		viz.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<State,String>()); // Straight line edges
+//		viz.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.blue, true)); // no rotate of edge labels
+		viz.getRenderContext().setLabelOffset(5);
 //		drawImage(viz,title);
 		saveImage(viz,name);
 	}
@@ -225,6 +276,7 @@ public class ScannerGenerator {
 			    new VisualizationImageServer<State, String>(viz.getGraphLayout(),
 			        viz.getGraphLayout().getSize());
 		imageViz.setRenderContext(viz.getRenderContext());
+		imageViz.setRenderer(viz.getRenderer());
 		
 		BufferedImage image = (BufferedImage) imageViz.getImage(
 			    new Point2D.Double(viz.getGraphLayout().getSize().getWidth() / 2,
