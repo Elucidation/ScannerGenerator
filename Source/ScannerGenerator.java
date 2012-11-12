@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -73,9 +74,11 @@ public class ScannerGenerator {
 		
 		// For each line, generate an NFA
 		// Parse Identifiers
+		ArrayList<NFA> partialNFAs = new ArrayList<NFA>();
+		
 		while( (line = in.readLine()) != null && !line.isEmpty() ) {
 			System.out.println("Parsing Identifier: "+line);
-			parseIdentifier(line,tokens);			
+			partialNFAs.add( parseIdentifier(line,tokens) );
 		}
 
 		
@@ -85,7 +88,13 @@ public class ScannerGenerator {
 		
 		// Merge NFA's into BigNFA
 		System.out.println("Merging NFAs...");
-		// TODO :: Merge NFAs
+		NFA bigNFA = null;
+		for (NFA partialNFA : partialNFAs) {
+			if (bigNFA == null) bigNFA = partialNFA;
+			else bigNFA = NFA.or(bigNFA, partialNFA);
+		}
+		DirectedSparseMultigraph<State, String> dgraph = generateGraph(bigNFA);
+		drawGraph(dgraph, "BIGNFA", "BIGNFA for '"+specFile+"'");
 		System.out.println("Done merging.");
 
 		// Convert BigNFA
@@ -171,7 +180,7 @@ public class ScannerGenerator {
 		}
 	}
 	
-	public static void parseIdentifier(String line, HashMap<String,HashSet<Character>> tokens) throws ParseError {
+	public static NFA parseIdentifier(String line, HashMap<String,HashSet<Character>> tokens) throws ParseError {
 		line.replaceAll("\\ ", "<SPACE>"); // replace '\ ' with '<SPACE>' so split doesn't affect it
 		String name = line.substring( 0, line.indexOf(' ') );;
 		String val = line.substring(line.indexOf(' '), line.length()).replaceAll(" ", ""); // remove all spaces
@@ -188,12 +197,10 @@ public class ScannerGenerator {
 		RecursiveParser rp = new RecursiveParser(val,tokens);
 		NFA partialNFA = rp.getNFA();
 		DirectedSparseMultigraph<State, String> dgraph = generateGraph(partialNFA);
-		System.out.println(dgraph);
-//		System.out.println("Entry: "+partialNFA.entry);
-//		System.out.println("Exit: "+partialNFA.entry);
+//		System.out.println(dgraph);
 		drawGraph(dgraph, name, "Partial NFA '"+name+"', REGEX: "+val  );
-		System.out.println("  Finished Recursive Parse.");
-		
+		System.out.println("  Finished Recursive Parse. (Partial NFA image saved to 'Images/graph"+name+".png'");
+		return partialNFA;
 	}
 	/**
 	 * Draws graph to JFrame for partial NFA 'name' with title 'title'
@@ -243,7 +250,7 @@ public class ScannerGenerator {
 		viz.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
 		Transformer<State,Paint> vertexPaint = new Transformer<State,Paint>() {
 			public Paint transform(State s) {
-				if (s.stateNum ==0) return Color.GREEN;
+				if (s.isStart) return Color.GREEN;
 				return s.isFinal ? new Color(255, 120, 120) : Color.cyan; 
 			}
 		};

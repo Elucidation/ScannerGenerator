@@ -7,6 +7,9 @@ public class State implements Comparable<State> {
 	static int stateNumCounter = 0;
 	int stateNum;
 	boolean isFinal;
+	boolean isStart;
+//	static int groupNumCounter = 0;
+//	int groupNum; // iterates on each stateNum reset, Differentiates between States from different partial NFAs but with same stateNum
 	
 	private HashMap<Character,State> charEdges = new HashMap<Character,State>(256);
 	private ArrayList<State> epsEdges = new ArrayList<State>();
@@ -51,6 +54,7 @@ public class State implements Comparable<State> {
 	}
 	public State() {
 		stateNum = stateNumCounter++;
+//		groupNum = groupNumCounter;
 	}
 	
 	@Override
@@ -73,22 +77,26 @@ public class State implements Comparable<State> {
 	
 	public boolean equals(State other) {
 //		System.out.println("Equals sSTATE "+other);
-		return other.stateNum == stateNum;
+		return other.stateNum == stateNum;// && other.groupNum == groupNum;
 	}
 	@Override
 	public int compareTo(State other) {
 //		System.out.println("Compare State: "+other);
+//		if (other.groupNum == groupNum) 
 		return other.stateNum - stateNum;
+//		else
+//			return other.groupNum - groupNum;
 	}
 	
 	@Override
 	public int hashCode() {
-		return stateNum;
+		return stateNum;// + 9997*groupNum;
 	}
 
 	public static void resetNumCounter() {
 		// TODO Auto-generated method stub
 		stateNumCounter = 0;
+//		groupNumCounter++;
 	}
 	
 }

@@ -16,7 +16,7 @@ public class RecursiveParser {
 	public RecursiveParser(String val, HashMap<String, HashSet<Character>> tokens) {
 		this.data = val;
 		this.tokens = tokens;
-		State.resetNumCounter();
+//		State.resetNumCounter();
 	}
 	
 	public NFA getNFA() throws ParseError {

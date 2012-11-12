@@ -20,6 +20,8 @@ public class NFA {
 	public NFA(State entry, State exit) {
 		this.entry = entry;
 		this.exit = exit;
+		this.entry.isStart = true;
+		this.exit.isFinal = true;
 	}
 	
 	/**
@@ -31,6 +33,7 @@ public class NFA {
 //		System.out.println("NFA CHAR '"+c+"'");
 		State entry = new State();
 		State exit = new State();
+		entry.isStart = true;
 		exit.isFinal = true;
 		entry.addCharEdge(c, exit);
 		
@@ -46,6 +49,7 @@ public class NFA {
 //		System.out.println("NFA CHARCLASS '"+chars+"'");
 		State entry = new State();
 		State exit = new State();
+		entry.isStart = true;
 		exit.isFinal = true;
 		entry.addSetCharEdges(chars, exit); 
 		
@@ -61,6 +65,7 @@ public class NFA {
 		State exit = new State();
 		
 		entry.addepsilonEdge(exit);
+		entry.isStart = true;
 		exit.isFinal = true;
 		return new NFA(entry, exit);
 		
@@ -100,6 +105,7 @@ public class NFA {
 	public static NFA sequence(NFA first, NFA next) {
 		first.exit.isFinal = false;
 		next.exit.isFinal = true;
+		next.entry.isStart = false;
 		first.exit.addepsilonEdge(next.entry);
 		return new NFA(first.entry, next.exit);
 	}
@@ -113,11 +119,14 @@ public class NFA {
 	public static NFA or(NFA top, NFA bottom) {
 		top.exit.isFinal = false;
 		bottom.exit.isFinal = false;
+		top.entry.isStart = false;
+		bottom.entry.isStart = false;
 		
 		State entry = new State();
 		State exit = new State();
 		
 		exit.isFinal = true;
+		entry.isStart = true;
 		entry.addepsilonEdge(top.entry);
 		entry.addepsilonEdge(bottom.entry);
 		
