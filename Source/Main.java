@@ -3,7 +3,6 @@ package Source;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 
 // Use java -jar <this>
@@ -12,9 +11,9 @@ public class Main {
 	
 	/**
 	 * @param args
-	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		// Parameters passed in
 		if (args.length < 2) {
 			System.out.println("USAGE: ScannerGenerator <SPECIFICIATION_FILE> <INPUT_FILE> [<OUTPUT_FILE>]");
@@ -28,12 +27,12 @@ public class Main {
 		// Generate DFA table from regex specification file
 		System.out.println("Generating DFA Table for specification file '"+specificationFilename+"'...");
 		DFATable dfaTable = ScannerGenerator.generateDFA(specificationFilename);
-		System.out.println("Done generating DFA Table.");
+		System.out.println("Done generating DFA Table.\n");
 
 		// Build scanner using DFA table on input file
 		System.out.println("Initializing TableWalker with DFA Table...");
 		TableWalker tableWalker = new TableWalker(dfaTable);
-		System.out.println("Done initializing TableWalker.");
+		System.out.println("Done initializing TableWalker.\n");
 
 		// Main driver
 		System.out.println("Walking Table with input file '"+inputFilename+"'...");
@@ -50,7 +49,7 @@ public class Main {
 			}
 		}
 		in.close();
-		System.out.println("Finished Walking Table! Found "+tokenStringList.size()+" tokens.");
+		System.out.println("Finished Walking Table! Found "+tokenStringList.size()+" tokens.\n");
 		
 		// Write tokens to output file , writing tokens to '"+outputFilename+"'
 		System.out.println("Writing tokens to output file '"+outputFilename+"'...");
@@ -58,6 +57,11 @@ public class Main {
 		for (String tokenString : tokenStringList) out.write(tokenString);
 		out.close();
 		System.out.println("Finished writing tokens! All Done.");
+		
+		// Table Wlaker
+//		State a = new State(3);
+//		State b = new State(3);
+//		System.out.println(a + " == " + b + " : " + (a.equals(b)) );
 		
 	}
 	

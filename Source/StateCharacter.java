@@ -5,6 +5,7 @@ package Source;
  *
  */
 public class StateCharacter implements Comparable<StateCharacter> {
+	
 	private State state;
 	private char character;
 
@@ -23,6 +24,11 @@ public class StateCharacter implements Comparable<StateCharacter> {
 //		if (o == this) return 0; // same object
 		if (equals(o)) return 0; // same state & char
 		return 1; // no match
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.state.hashCode() + 31*this.character;
 	}
 	
 	
