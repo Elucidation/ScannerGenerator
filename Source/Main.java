@@ -14,6 +14,78 @@ public class Main {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
+		//Testing Ron
+		//Testing (a|b)*abb
+		State zero = new State();
+		State one = new State();
+		State two = new State();
+		State three = new State();
+		State four = new State();
+		State five = new State();
+		State six = new State();
+		State seven = new State();
+		State eight = new State();
+		State nine = new State();
+		State ten = new State();
+		
+		zero.isStart = true;
+		zero.addepsilonEdge(one);
+		zero.addepsilonEdge(seven);
+		
+		one.addepsilonEdge(two);
+		one.addepsilonEdge(four);
+		
+		two.addCharEdge('a', three);
+		four.addCharEdge('b', five);
+		
+		three.addepsilonEdge(six);
+		five.addepsilonEdge(six);
+		
+		six.addepsilonEdge(one);
+		six.addepsilonEdge(seven);
+		
+		seven.addCharEdge('a', eight);
+		eight.addCharEdge('b', nine);
+		nine.addCharEdge('b', ten);
+		ten.isFinal = true;
+		
+		//one.addepsilonEdge(next)
+		
+		/*four.isStart = false;
+		four.isFinal = false;
+		
+		one.isStart = true;
+		one.isFinal = false;
+		
+		two.isStart = false;
+		two.isFinal = false;
+		
+		three.isStart = false;
+		three.isFinal = true;
+		*/
+		//Construct test NFA
+		/*one.addCharEdge('a', two);
+		one.addepsilonEdge(three);
+		one.addepsilonEdge(four);
+		four.addCharEdge('a', three);
+		two.addCharEdge('a', two);
+		two.addCharEdge('b', three);
+		two.addepsilonEdge(one);*/
+		
+		/*NFA n = new NFA(one, two);
+		NFA n1 = new NFA(two, three);*/
+		//n.entry.addCharEdge(c, next)
+		
+		//n.createChar('a');
+		//n1.epsilon();
+		
+		NFA n = new NFA(zero, ten);
+		
+		DFATable d = new DFATable(n);
+		
+		
+		//one.
+		
 		// Parameters passed in
 		if (args.length < 2) {
 			System.out.println("USAGE: ScannerGenerator <SPECIFICIATION_FILE> <INPUT_FILE> [<OUTPUT_FILE>]");
@@ -31,23 +103,23 @@ public class Main {
 
 		// Build scanner using DFA table on input file
 		System.out.println("Initializing TableWalker with DFA Table...");
-		TableWalker tableWalker = new TableWalker(dfaTable);
+		//TableWalker tableWalker = new TableWalker(dfaTable);
 		System.out.println("Done initializing TableWalker.\n");
 
-		// Main driver
+		// Main driver, Feeds characters from input file to table Walker
 		System.out.println("Walking Table with input file '"+inputFilename+"'...");
 		FileInputStream in = new FileInputStream(inputFilename);
 		char c;
 		Token token;
 		ArrayList<String> tokenStringList = new ArrayList<String>();
-		while (  (c = (char)in.read()) != EOF  ) {
-			token = tableWalker.walkTable(c);
+		/*while (  (c = (char)in.read()) != EOF  ) {
+			token = tableWalker.walkTable(c);									// The auto-magical table walking routine is here!
 			if (token != null) {
 				String tokenString = "TOKEN!: "+token;
 				System.out.println(tokenString);
 				tokenStringList.add(tokenString);
 			}
-		}
+		}*/
 		in.close();
 		System.out.println("Finished Walking Table! Found "+tokenStringList.size()+" tokens.\n");
 		
@@ -64,55 +136,4 @@ public class Main {
 //		System.out.println(a + " == " + b + " : " + (a.equals(b)) );
 		
 	}
-	
-//	/**
-//	 * Creates output file from a run QueryEngine instance
-//	 * @param s
-//	 * @param outfilename String filename including ending (ex. 'out-small.txt')
-//	 */
-//	public static void writeOutput(QueryEngine q, String outputFilename) {		
-//		try {
-//			// Create file
-//			FileWriter fstream = new FileWriter(outputFilename);
-//			BufferedWriter out = new BufferedWriter(fstream);
-//			out.write("input document: "+q.s.getFilename()+"\n");
-//			
-//			out.write("\n1. Most frequent string: '"+q.getTop()+"'");
-//			out.write("\n2. Top 17 Most frequent strings: "+q.getTopK(17));
-//			out.write("\n3. Number of Tokens");
-//			out.write("\n     VARs="+q.getVarCount());
-//			out.write("\n     INTs="+q.getIntCount());
-//			out.write("\n   FLOATs="+q.getFloatCount());
-//			if (q.s.getInts().size() > 0) // Safety check, not related to q-engine
-//				out.write("\n4. [min, max] of INT  : ["+q.minInt()+","+q.maxInt()+"]");
-//			if (q.s.getFloats().size() > 0)
-//				out.write("\n5. [min, max] of FLOAT: ["+q.minFloat()+","+q.maxFloat()+"]");
-////			out.write("\n6. All quotes:" + q.getQuotes());
-//			out.write("\n6. All "+q.getQuotes().size()+" quotes :");
-//			for (String quote : q.getQuotes())
-//				out.write("\n     " + quote);
-//			out.write("\n7. Number of VAR+(INT OR FLOAT) token occurrences: " + q.getNumVarNums()+"\n");
-//			
-//			// VAR
-//			out.write("\nVAR(" + q.getVarCount() + ") :\n");
-//			for (Entry<Object, Integer> e : q.getSortedVars())
-//				out.write(e.getKey() + ", " + e.getValue() + "\n");
-//
-//			// INT
-//			out.write("\nINT(" + q.getIntCount() + ") :\n");
-//			for (Entry<Object, Integer> e : q.s.getInts().entrySet())
-//				out.write(e.getKey() + ", " + e.getValue() + "\n");
-//
-//			// FLOAT
-//			out.write("\nFLOAT(" + q.getFloatCount() + ") :\n");
-//			for (Entry<Object, Integer> e : q.s.getFloats().entrySet())
-//				out.write(e.getKey() + ", " + e.getValue() + "\n");
-//			
-//			// Close the output stream
-//			out.close();
-//			System.out.println("All Output written to '"+outputFilename+"'");
-//		} catch (Exception e) {// Catch exception if any
-//			System.err.println("Error: " + e.getMessage());
-//		}
-//	}
 }

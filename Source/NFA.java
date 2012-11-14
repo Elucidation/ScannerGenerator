@@ -1,14 +1,18 @@
 package Source;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
 /**
- * 
+ * NFA class, utilizes generator types 1-5 from http://www.cs.may.ie/staff/jpower/Courses/Previous/parsing/node5.html
  * @author Ron brown
- *
+ * @author Sam
  */
 public class NFA {
 	//Variables
 	public State entry;
 	public State exit;
+	public static ArrayList<Character> charList = new ArrayList<Character>();
 	
 	/**
 	 * Set a up  NFA 'Node'
@@ -18,6 +22,8 @@ public class NFA {
 	public NFA(State entry, State exit) {
 		this.entry = entry;
 		this.exit = exit;
+		this.entry.isStart = true;
+		this.exit.isFinal = true;
 	}
 	
 	/**
@@ -25,26 +31,71 @@ public class NFA {
 	 * @param c
 	 * @return
 	 */
-	public NFA createChar(char c) {
-		State etnry = new State();
+	public static NFA createChar(char c) {
+//		System.out.println("NFA CHAR '"+c+"'");
+		State entry = new State();
 		State exit = new State();
+		entry.isStart = true;
 		exit.isFinal = true;
 		entry.addCharEdge(c, exit);
+		charList.add(c);
+		return new NFA(entry, exit);
+	}
+	
+	public static NFA createChar(char c, State exit) {
+		State entry = new State();
+		
+		entry.isStart = true;
+		exit.isFinal = true;
+		entry.addCharEdge(c, exit);
+		charList.add(c);
+		return new NFA(entry, exit);
+	}
+	
+	
+	/**
+	 * Create NFA pair with edges for all chars in charclass
+	 * @param charclass
+	 * @return
+	 */
+	public static NFA createCharClass(HashSet<Character> chars) {
+//		System.out.println("NFA CHARCLASS '"+chars+"'");
+		State entry = new State();
+		State exit = new State();
+		entry.isStart = true;
+		exit.isFinal = true;
+		entry.addSetCharEdges(chars, exit); 
 		
 		return new NFA(entry, exit);
 	}
 	
 	/**
-	 * Create epislon transition
+	 * Create epsilon transition
 	 * @return
 	 */
-	public NFA epsilon() {
+	public static NFA epsilon() {
 		State entry = new State();
 		State exit = new State();
 		
 		entry.addepsilonEdge(exit);
+		entry.isStart = true;
 		exit.isFinal = true;
 		return new NFA(entry, exit);
+		
+	}
+	
+	/*public static NFA epsilon(State next) {
+		
+	}*/
+	
+	/**
+	 * Creates NFA that matches 1 or more, i.e. a+
+	 * @param nfa
+	 * @return
+	 */
+	public static NFA oneOrMore(NFA nfa) {
+		nfa.exit.addepsilonEdge(nfa.entry);
+		return nfa;
 		
 	}
 	
@@ -53,7 +104,7 @@ public class NFA {
 	 * @param nfa
 	 * @return
 	 */
-	public NFA repetition(NFA nfa) {
+	public static NFA zeroOrMore(NFA nfa) {
 		nfa.exit.addepsilonEdge(nfa.entry);
 		nfa.entry.addepsilonEdge(nfa.exit);
 		
@@ -62,14 +113,16 @@ public class NFA {
 	}
 	
 	/**
-	 * Creates an NFA that matches a sequence
+	 * Creates an NFA that matches a sequence/concatenation/series
+	 * as in, ->first->next->
 	 * @param first
 	 * @param next
 	 * @return
 	 */
-	public NFA sequence(NFA first, NFA next) {
+	public static NFA sequence(NFA first, NFA next) {
 		first.exit.isFinal = false;
 		next.exit.isFinal = true;
+		next.entry.isStart = false;
 		first.exit.addepsilonEdge(next.entry);
 		return new NFA(first.entry, next.exit);
 	}
@@ -78,16 +131,19 @@ public class NFA {
 	 * Creates an NFA that matches the OR operator
 	 * @param top
 	 * @param bottom
-	 * @return
+	 * @return Combined NFA
 	 */
-	public NFA or(NFA top, NFA bottom) {
+	public static NFA or(NFA top, NFA bottom) {
 		top.exit.isFinal = false;
 		bottom.exit.isFinal = false;
+		top.entry.isStart = false;
+		bottom.entry.isStart = false;
 		
 		State entry = new State();
 		State exit = new State();
 		
 		exit.isFinal = true;
+		entry.isStart = true;
 		entry.addepsilonEdge(top.entry);
 		entry.addepsilonEdge(bottom.entry);
 		
@@ -97,9 +153,4 @@ public class NFA {
 		
 	}
 	
-	
-	
-	
-	
-
 }
