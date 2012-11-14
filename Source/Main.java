@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 // Use java -jar <this>
 public class Main {
@@ -58,10 +59,7 @@ public class Main {
 		out.close();
 		System.out.println("Finished writing tokens! All Done.");
 		
-		// Table Wlaker
-//		State a = new State(3);
-//		State b = new State(3);
-//		System.out.println(a + " == " + b + " : " + (a.equals(b)) );
+		// Table Walker
 		
 	}
 }

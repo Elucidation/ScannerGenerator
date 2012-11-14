@@ -5,7 +5,7 @@ package Source;
  *
  */
 public class StateCharacter implements Comparable<StateCharacter> {
-	
+
 	private State state;
 	private char character;
 
@@ -14,8 +14,15 @@ public class StateCharacter implements Comparable<StateCharacter> {
 		this.character = c;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		// TODO Auto-generated method stub
+		if (obj.getClass() == this.getClass()) return equals((StateCharacter)obj);
+		else return super.equals(obj);
+	}
+	
 	public boolean equals(StateCharacter o) {
-		if (this.character == o.character && state==o.state) return true; // same state & char
+		if (this.character == o.character && state.equals(o.state) ) return true; // same state & char
 		return false; // no match
 	}
 	

@@ -69,23 +69,17 @@ public class State implements Comparable<State> {
 
 	@Override
 	public boolean equals(Object obj) {
-		// TODO Auto-generated method stub
-//		System.out.println(this + " equals "+obj);
 		if (obj.getClass() == this.getClass()) return equals((State)obj);
 		else return super.equals(obj);
 	}
 	
 	public boolean equals(State other) {
-//		System.out.println("Equals sSTATE "+other);
 		return other.stateNum == stateNum;// && other.groupNum == groupNum;
 	}
+	
 	@Override
 	public int compareTo(State other) {
-//		System.out.println("Compare State: "+other);
-//		if (other.groupNum == groupNum) 
 		return other.stateNum - stateNum;
-//		else
-//			return other.groupNum - groupNum;
 	}
 	
 	@Override
@@ -94,7 +88,6 @@ public class State implements Comparable<State> {
 	}
 
 	public static void resetNumCounter() {
-		// TODO Auto-generated method stub
 		stateNumCounter = 0;
 //		groupNumCounter++;
 	}
