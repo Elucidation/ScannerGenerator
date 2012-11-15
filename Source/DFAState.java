@@ -5,28 +5,11 @@ import java.util.HashMap;
 
 public class DFAState extends State {
 	
-	private State next;
+	//private State next;
 	private ArrayList<State> adjacentList;
-	private char transition;
+	//private char transition;
+	private HashMap<Character, DFAState> charStateList = new HashMap<Character, DFAState>();
 	
-	public char getTransition() {
-		return transition;
-	}
-
-
-	public void setTransition(char transition) {
-		this.transition = transition;
-	}
-
-
-	public State getNext() {
-		return next;
-	}
-
-
-	public void setNext(State next) {
-		this.next = next;
-	}
 
 
 	public ArrayList<State> getAdjacentList() {
@@ -38,6 +21,13 @@ public class DFAState extends State {
 		this.adjacentList = adjacentList;
 	}
 	
+	public void addToCharStateList(DFAState s, char c) {
+		charStateList.put(c, s);
+	}
+	
+	public HashMap<Character, DFAState> getCharStateList() {
+		return this.charStateList;
+	}
 	
 	public DFAState() {
 		super();
@@ -45,11 +35,6 @@ public class DFAState extends State {
 	}
 	
 	
-	public DFAState(State s, ArrayList<State> adjacentList, char transition) {
-		this.next = next;
-		this.adjacentList = adjacentList;
-		this.transition = transition;
-	}
 	
 
 

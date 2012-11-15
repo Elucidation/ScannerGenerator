@@ -8,18 +8,37 @@ public  class State implements Comparable<State> {
         int stateNum;
         boolean isFinal;
         boolean isStart;
+        boolean visited = false;
 //      static int groupNumCounter = 0;
 //      int groupNum; // iterates on each stateNum reset, Differentiates between States from different partial NFAs but with same stateNum
         
         private HashMap<Character,State> charEdges = new HashMap<Character,State>(256);
         private ArrayList<State> epsEdges = new ArrayList<State>();
+        private ArrayList<State> adjacentList;
+        
+        public ArrayList<State> getAdjacentList() {
+    		return adjacentList;
+    	}
+
+
+    	public void setAdjacentList(ArrayList<State> adjacentList) {
+    		this.adjacentList = adjacentList;
+    	}
         
         public HashMap<Character, State> getCharEdges() {
                 return charEdges;
         }
+        
+        public void setCharEdges(HashMap<Character,State> charEdges) {
+        	this.charEdges = charEdges;
+        }
 
         public ArrayList<State> getEpsEdges() {
                 return epsEdges;
+        }
+        
+        public void setEpsEdges(ArrayList<State> epsEdges) {
+        	this.epsEdges = epsEdges;	
         }
         
         /**

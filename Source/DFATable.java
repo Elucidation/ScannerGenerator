@@ -49,54 +49,118 @@ public class DFATable extends HashMap<StateCharacter, State> {
 	
 	public DFATable (NFA n) {
 		State s = n.entry;
+		State aState = someFunction(s);
+		for(Entry<Character, State> entry : aState.getCharEdges().entrySet()) {
+			State k = someFunction(entry.getValue());
+			//System.out.println(k);
+		}
+		
+		for(Entry<Character, State> entry : aState.getCharEdges().entrySet()) {
+			//State k = someFunction(entry.getValue());
+			System.out.println(entry.getValue().getCharEdges());
+		}
+		//System.out.println(aState);
+		
 		//StateCharacter startState = new StateCharacter(s, a);
+		/*DFAState aState = new DFAState();
+		ArrayList<State> epislonTransitions = getEpsilonAdjList(s);
+		if(!doesContain(epislonTransitions, s)) {
+			epislonTransitions.add(s);
+		}
+		aState.setAdjacentList(epislonTransitions);
+		
+		for(State state : epislonTransitions) {
+			HashMap<Character, State> alphabetListAdjacent = 
+					state.getCharEdges();
+
+			
+			
+			for(Entry<Character, State> e : alphabetListAdjacent.entrySet()) {
+				System.out.println(e);	
+			}
+		}*/
+		
+		
+		/*
+		State aState = new State();
+		ArrayList<State> epislonTransitions = getEpsilonAdjList(s);
+		if(!doesContain(epislonTransitions, s)) {
+			epislonTransitions.add(s);
+		}
+		aState.setAdjacentList(epislonTransitions);
 		
 		ArrayList[] dLitt = construct(s);
 		
 		for(int i = 0; i < 26; i++) {
 			if(dLitt[i] != null) {
 				ArrayList<State> constructList = dLitt[i];
-				ArrayList<State> test = construct(constructList, (char)(i + 'a'));
-				State state = new State();
-				StateCharacter anotherState = new StateCharacter(s, (char)(i + 'a'));
-				this.ourTable.put(anotherState, state);
-				System.out.println((char)(i + 'a'));
-				System.out.println(test);
-				/*for(State state : test) {
-					
-					System.out.println(state);
-				}*/
-				//System.out.println((char)(i + 'a'));
-				//System.out.println(dLitt[i]);
+				ArrayList<State> setFromState = construct(constructList, (char)(i + 'a'), s);
+				State newState = new State();
+				
+				newState.setAdjacentList(setFromState);
+				aState.addCharEdge( (char)(i + 'a'), newState);
+				
 			}
 		}
 		
-		//Now for recursion
+		for(Entry<Character, State> entr : aState.getCharEdges().entrySet()) {
+			System.out.println(entr);
+		}
 		
-		//epsilon list
+		*/
+		//System.out.println(aState.toString());
 		
-		
-		//System.out.println(adjList);
-		
-		//A.set
-		
-	/*	for(State state : A.getAdjacentList()) {
-			//Get list of adjacnet States from that char
-			HashMap<Character, State> alphabetListAdjacent = state.getCharEdges();
-			for(Entry<Character, State> e : alphabetListAdjacent.entrySet()) {
-				char c = e.getKey();
-				ArrayList<State> epsilonTransition = moveEpislon(e.getValue());
-				//System.out.println(c + " " + e.getValue());
-			}
+		/*for(int k = 0; k < ourTable.size(); k++) {
+			
+			
 		}*/
-		
-		//Now find what A Conncets to
-		//System.out.println(adjEEdges);
-		
-		//construct(n.entry);
-		
 
 	}
+	
+	private State someFunction(State s) {
+		State aState = new State();
+		ArrayList<State> epislonTransitions = getEpsilonAdjList(s);
+		if(!doesContain(epislonTransitions, s)) {
+			epislonTransitions.add(s);
+		}
+		aState.setAdjacentList(epislonTransitions);
+		
+		ArrayList[] dLitt = construct(s);
+		
+		for(int i = 0; i < 26; i++) {
+			if(dLitt[i] != null) {
+				ArrayList<State> constructList = dLitt[i];
+				ArrayList<State> setFromState = construct(constructList, (char)(i + 'a'), s);
+				ArrayList<State> eClosuers = new ArrayList<State>();
+				State newState = new State();
+				
+				newState.setAdjacentList(setFromState);
+				//Do e-closuer on setFromState
+				
+				for(State state : setFromState) {
+					ArrayList<State> eTrans = getEpsilonAdjList(state);
+					for(State st : eTrans) {
+						if(!doesContain(eClosuers, st)) {
+							eClosuers.add(st);
+						}
+					}
+				}
+				newState.setEpsEdges(eClosuers);
+				aState.addCharEdge( (char)(i + 'a'), newState);
+				//System.out.println(setFromState);
+				
+				/*for(State state : test) {
+					if(!state.isFinal) {
+						construct(state);
+					}
+				}*/
+			}
+		}
+		aState.visited = true;
+		return aState;
+	}
+	
+	
 	
 	
 	/**
@@ -108,9 +172,6 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		ArrayList<State> eClosuerForS = s.getEpsEdges();
 		ArrayList<State> adjEEdges = new ArrayList<State>();
 		
-		/*if(eClosuerForS.size() > 0) {
-			adjEEdges.add(s);
-		}*/
 		//Find the states that A connects to
 		for(State a : eClosuerForS) {
 			if(!doesContain(adjEEdges, a)) {
@@ -145,7 +206,7 @@ public class DFATable extends HashMap<StateCharacter, State> {
 	 * @param adjList
 	 * @return
 	 */
-	public ArrayList<State> construct(ArrayList<State> adjList, char c) {
+	public ArrayList<State> construct(ArrayList<State> adjList, char c, State source) {
 		
 		ArrayList<State> returnList = new ArrayList<State>();
 		for(State state : adjList) {
@@ -166,6 +227,15 @@ public class DFATable extends HashMap<StateCharacter, State> {
 				}
 			}
 		}
+		
+		for(State st : returnList) {
+			
+				State state = new State();
+				StateCharacter anotherState = new StateCharacter(source, c);
+				this.ourTable.put(anotherState, state);
+				
+			}
+		
 		
 		return returnList;
 	}
@@ -222,31 +292,17 @@ public class DFATable extends HashMap<StateCharacter, State> {
 				
 				
 			}
-			/*for(int i = 0; i < 26; i++) {
-				if(dLitt[i] != null) {
-					ArrayList<State> stList = dLitt[i];
-					for(State stateEntry : stList) {
-						//fList = construct(stateEntry);
-						System.out.println(stateEntry);
-					}
-				}
-				//System.out.println(dLitt[i]);
-			}*/
 			
-			
-			
-			//dLitt = construct()
-			
-			/*for(StateCharacter sc : cListFromEntry) {
-				System.out.println(sc.getState() + " "+ sc.getCharacter());
-			}*/
-			/*for(State st : charList) {
-				if(!doesContain(cListFromEntry, st)) {
-					cListFromEntry.add(st);
-				}
-			}*/
 			
 		}
+		
+		for(int i = 0; i < 26; i++) {
+			if(dLitt[i] != null) {
+				State state = new State();
+				StateCharacter anotherState = new StateCharacter(s, (char)(i + 'a'));
+				this.ourTable.put(anotherState, state);
+				}
+			}
 		
 		
 		return dLitt;
@@ -258,12 +314,7 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		System.out.println("State: " + s + " Adjacent Edges " + eClosuerForS );
 		eClosuerForS.add(s);
 		
-		/*HashMap<Character, State> alphabetListAdjacent = s.getCharEdges();
-		Set<Character> cList = alphabetListAdjacent.keySet();
 		
-		for(char c : cList) {
-			
-		}*/
 		if(eClosuerForS.size() > 0) {
 			if(!tmpDFA.containsKey(s)) {
 				tmpDFA.put(s, eClosuerForS);
@@ -370,50 +421,6 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		
 	}
 
-	/*public DFATable(int initialSize) {
-		super(initialSize);
-		
-	}
 	
-	public DFATable(NFA nfa) {
-		//ArrayList<State> eClosuerS = nfa.entry.getEpsEdges();
-		construct(nfa);
-		//Minimize
-	}
-	
-	private void construct(NFA nfa) {
-		
-	}
-	
-	private void eClosuerS(State s) {
-		ArrayList<State> eClosuerStates = s.getEpsEdges();
-	}
-	
-	public DFATable(DFAState initialState, ArrayList<DFAState> dfaStates, int initialSize) {
-		this.initialState = initialState;
-		generateTable(dfaStates);
-		//this.table = new HashMap[initialSize];
-		
-		
-	}
-
-	private void generateTable(ArrayList<DFAState> dfaStates) {
-		this.table = new HashMap[dfaStates.size()];
-		HashMap<Character,State> cEdges;
-		int id;
-		for(int i = 0; i < dfaStates.size(); i++) {
-			cEdges = dfaStates.get(i).getCharEdges();
-			id = dfaStates.get(i).stateNum;
-			this.table[id] = new HashMap<StateCharacter, State>();
-			
-			//Entry<String, HashSet<Character>> s = cEdges.entrySet();
-			for(int k = 0; k < cEdges.size(); k++) {
-				Set<HashMap.Entry<Character, State>> s = cEdges.entrySet();
-				this.table[id].put(cEdges.entrySet(), value)
-			}
-		}
-		
-		
-	}*/
 
 }
