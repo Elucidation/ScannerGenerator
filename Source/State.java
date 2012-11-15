@@ -9,6 +9,8 @@ public  class State implements Comparable<State> {
         boolean isFinal;
         boolean isStart;
         boolean visited = false;
+        
+        
 //      static int groupNumCounter = 0;
 //      int groupNum; // iterates on each stateNum reset, Differentiates between States from different partial NFAs but with same stateNum
         

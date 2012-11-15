@@ -18,6 +18,7 @@ public class DFATable extends HashMap<StateCharacter, State> {
 	private HashMap<State, ArrayList<State>> tmpDFA = new HashMap<State, ArrayList<State>>();
 	private DFAState currentState;
 	private DFAState initialState;
+	private ArrayList<Character> langList;
 	
 	/*
 	 * e-closure(s)
@@ -47,77 +48,72 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		// TODO :: Everything about DFA Table
 	}
 	
+	/**
+	 * Creates a DFA and then the DFATable from the NFA
+	 * @param n
+	 */
 	public DFATable (NFA n) {
+		
+		
 		State s = n.entry;
-		State aState = someFunction(s);
-		for(Entry<Character, State> entry : aState.getCharEdges().entrySet()) {
-			State k = someFunction(entry.getValue());
-			//System.out.println(k);
+		this.langList = generateAlphabet(s);
+		
+		for(Character c : langList) {
+			System.out.println(c);
 		}
 		
-		for(Entry<Character, State> entry : aState.getCharEdges().entrySet()) {
-			//State k = someFunction(entry.getValue());
-			System.out.println(entry.getValue().getCharEdges());
-		}
-		//System.out.println(aState);
-		
-		//StateCharacter startState = new StateCharacter(s, a);
-		/*DFAState aState = new DFAState();
-		ArrayList<State> epislonTransitions = getEpsilonAdjList(s);
-		if(!doesContain(epislonTransitions, s)) {
-			epislonTransitions.add(s);
-		}
-		aState.setAdjacentList(epislonTransitions);
-		
-		for(State state : epislonTransitions) {
-			HashMap<Character, State> alphabetListAdjacent = 
-					state.getCharEdges();
-
-			
-			
-			for(Entry<Character, State> e : alphabetListAdjacent.entrySet()) {
-				System.out.println(e);	
-			}
-		}*/
-		
-		
-		/*
-		State aState = new State();
-		ArrayList<State> epislonTransitions = getEpsilonAdjList(s);
-		if(!doesContain(epislonTransitions, s)) {
-			epislonTransitions.add(s);
-		}
-		aState.setAdjacentList(epislonTransitions);
-		
-		ArrayList[] dLitt = construct(s);
-		
-		for(int i = 0; i < 26; i++) {
-			if(dLitt[i] != null) {
-				ArrayList<State> constructList = dLitt[i];
-				ArrayList<State> setFromState = construct(constructList, (char)(i + 'a'), s);
-				State newState = new State();
-				
-				newState.setAdjacentList(setFromState);
-				aState.addCharEdge( (char)(i + 'a'), newState);
-				
-			}
-		}
-		
-		for(Entry<Character, State> entr : aState.getCharEdges().entrySet()) {
-			System.out.println(entr);
-		}
-		
-		*/
-		//System.out.println(aState.toString());
-		
-		/*for(int k = 0; k < ourTable.size(); k++) {
-			
-			
-		}*/
 
 	}
 	
-	private State someFunction(State s) {
+	
+	private ArrayList<Character> generateAlphabet(State start) {
+		
+		ArrayList<Character> characters = new ArrayList<Character>();
+		if(start.visited) {
+			return characters;
+		}
+		
+		HashMap<Character, State> alphabetListAdjacent = start.getCharEdges();
+		if(alphabetListAdjacent.size() > 0) {
+			for(Entry<Character, State> entry: alphabetListAdjacent.entrySet()) {
+				entry.getValue().visited = true;
+				if(!doesContain(characters, entry.getKey())) {
+					characters.add(entry.getKey());
+				}
+				ArrayList<Character> charactersSub = generateAlphabet(entry.getValue());
+				
+				for(char ch : charactersSub) {
+					if(!doesContain(characters, ch)) {
+						characters.add(ch);
+					}
+				}
+
+			}
+			return characters;
+		}
+		else {
+			ArrayList<State> eList = start.getEpsEdges();
+			for(State state : eList) {
+				ArrayList<Character> charactersSub = generateAlphabet(state);
+				state.visited = true;
+				for(char ch : charactersSub) {
+					if(!doesContain(characters, ch)) {
+						characters.add(ch);
+					}
+				}
+			}
+			return characters;
+		}
+	
+
+	}
+	
+	/**
+	 * Create DFA Function
+	 * @param s
+	 * @return
+	 */
+	private State createDFA(State s) {
 		State aState = new State();
 		ArrayList<State> epislonTransitions = getEpsilonAdjList(s);
 		if(!doesContain(epislonTransitions, s)) {
@@ -125,6 +121,7 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		}
 		aState.setAdjacentList(epislonTransitions);
 		
+		//Creates array of characters
 		ArrayList[] dLitt = construct(s);
 		
 		for(int i = 0; i < 26; i++) {
@@ -161,8 +158,6 @@ public class DFATable extends HashMap<StateCharacter, State> {
 	}
 	
 	
-	
-	
 	/**
 	 * 
 	 * @param s
@@ -183,6 +178,7 @@ public class DFATable extends HashMap<StateCharacter, State> {
 					adjEEdges.add(sa);
 				}
 			}
+			
 		}		return adjEEdges;
 	}
 	
@@ -192,9 +188,25 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		return adjStates;
 	}
 	
+	/**
+	 * Determins if the State K is within the State List s
+	 * @param s
+	 * @param k
+	 * @return
+	 */
 	private boolean doesContain(ArrayList<State> s, State k) {
 		for(State state : s) {
 			if(state.equals(k)) 
+				return true;
+		}
+		
+		return false;
+	}
+	
+	private boolean doesContain(ArrayList<Character> s, char c) {
+		
+		for(char ch : s) {
+			if(ch == c)
 				return true;
 		}
 		
@@ -308,62 +320,6 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		return dLitt;
 	}
 	
-	public void constructOLD(State s) {
-		//getEpsEdges gives a list of states accessable with epislon transitions
-		ArrayList<State> eClosuerForS = s.getEpsEdges();
-		System.out.println("State: " + s + " Adjacent Edges " + eClosuerForS );
-		eClosuerForS.add(s);
-		
-		
-		if(eClosuerForS.size() > 0) {
-			if(!tmpDFA.containsKey(s)) {
-				tmpDFA.put(s, eClosuerForS);
-			}
-		}
-		for(State a : eClosuerForS) {
-			//Get list of adjacnet States from that char
-			HashMap<Character, State> alphabetListAdjacent = a.getCharEdges();
-			
-			for(Entry<Character, State> e : alphabetListAdjacent.entrySet()) {
-				char c = e.getKey();
-				
-				
-				//Find all transitions from that letter
-				ArrayList<State> aList = moveChar(a, c);
-				
-				ArrayList<State> eClosuerForSb;// = new ArrayList<State>();
-				HashMap<Character, State> dfaNode = new HashMap<Character, State>();
-				
-				//Go through aList and find all adjacent e transitions
-				for(State aa : aList) {
-					eClosuerForSb = new ArrayList<State>();
-					eClosuerForSb.add(aa);
-					//if(!eClosuerForSb.contains(aa)) {
-					eClosuerForSb.addAll(moveEpislon(aa));
-						
-						//dfaNode.put(c, aa);
-						System.out.println(aa);
-					//}
-					
-					if(!tmpDFA.containsKey(aa)) {
-						tmpDFA.put(aa, eClosuerForSb);
-					}
-					
-					//State B = new State();
-					//B.addSetCharEdges(dfaNode, new State());
-					
-				}//End For
-				
-			}//End For
-			
-			
-			
-			
-		}//End For
-		
-		
-		
-	}
 	
 	
 	
