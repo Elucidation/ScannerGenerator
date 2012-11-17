@@ -19,6 +19,9 @@ public class DFATable extends HashMap<StateCharacter, State> {
 	private DFAState currentState;
 	private DFAState initialState;
 	private ArrayList<Character> langList;
+	private ArrayList<DFAState> dfaStateList = new ArrayList<DFAState>();
+	
+	private State startState;
 	
 	/*
 	 * e-closure(s)
@@ -43,9 +46,14 @@ public class DFATable extends HashMap<StateCharacter, State> {
 	 */
 	//
 	
+	
 	public DFATable() {
 		super();
 		// TODO :: Everything about DFA Table
+	}
+	
+	public State getStartState() {
+		return this.startState;
 	}
 	
 	/**
@@ -55,15 +63,135 @@ public class DFATable extends HashMap<StateCharacter, State> {
 	public DFATable (NFA n) {
 		
 		
+		
+		//Get all the characters for the language
 		State s = n.entry;
 		this.langList = generateAlphabet(s);
 		
-		for(Character c : langList) {
+		/*for(Character c : langList) {
 			System.out.println(c);
-		}
+		}*/
+		
+		 recurseStatesWill(s);	
+		
 		
 
+		//ArrayList<State> eClousers = getEpsilonAdjList(s);
+	
+		//System.out.println(dfaStates);
+		for(DFAState st : this.dfaStateList) {
+			//recurseStates(st);
+			System.out.println(st);
+		}
 	}
+	
+	
+	
+	/**
+	 * 
+	 * @param s
+	 * @return
+	 */
+	
+	public DFAState recurseStates(State s) {
+		boolean foundChar = false;
+		ArrayList<State> eClousers = getEpsilonAdjList(s);
+		DFAState state = new DFAState();
+		if(eClousers.size() > 0) {
+			
+			state.setEpsEdges(eClousers);
+			state.addepsilonEdge(state);
+			
+			if(doesContain(this.dfaStateList, state)) {
+				return state;
+			}
+			else {
+				this.dfaStateList.add(state);
+				
+			}
+		}
+		for(char c : this.langList) {
+			
+			ArrayList<State> adjList = getCharAdjList(s, c);
+			for(State d : adjList) {
+				foundChar = true;
+				DFAState dfaState = new DFAState();
+				ArrayList<State> eClousersTest = getEpsilonAdjList(d);
+				dfaState.setEpsEdges(eClousersTest);
+				dfaState.addepsilonEdge(dfaState);
+				
+				if(!doesContain(this.dfaStateList, dfaState)) {
+					state.addToCharStateList(dfaState, c);
+				}
+				else {
+					return recurseStates(d);
+				}
+			}
+		}
+		
+		if(!foundChar) {
+			if(!s.isFinal || eClousers.size() > 0) {
+				for(State st: eClousers) {
+					return recurseStates(st);
+				}
+			}
+		}
+		
+		
+		return state;
+	}
+	
+	
+	public void recurseStatesWill(State s) {
+		if(s.visited)
+			return;
+		ArrayList<State> eClousers = getEpsilonAdjList(s);
+		ArrayList<State> eClousers2 = getEpsilonAdjList(s);
+		eClousers.add(s);
+		DFAState currentState = new DFAState();
+		currentState.setAdjacentList(eClousers);
+		
+		
+		
+		ArrayList<State> tmpList = new ArrayList<State>();
+		//ArrayList<State> tmpDFA = new ArrayList
+		for(char c : this.langList) {
+			
+			for(State ss: eClousers2) {
+				
+				for(Entry<Character, State> cc : ss.getCharEdges().entrySet()) {
+					if(c == cc.getKey()) {
+						tmpList.add(cc.getValue());
+						
+					}
+				}//
+				
+				for(State tmpState : tmpList) {
+					ArrayList<State> tmpEClose = getEpsilonAdjList(tmpState);
+					DFAState tmpDFAState = new DFAState();
+					tmpEClose.add(tmpDFAState);
+					tmpDFAState.setAdjacentList(tmpEClose);
+					//tmpDFAState.addepsilonEdge(tmpDFAState);
+					
+					if(!doesContain(this.dfaStateList, tmpDFAState)) {
+						this.dfaStateList.add(tmpDFAState);
+						
+					}
+					else {
+						currentState.addCharEdge(c, tmpDFAState);
+					}
+				}
+				
+				//if(ss.isFinal == false) {
+					//recurseStatesWill(ss);
+				//}
+					ss.visited = true;
+			}
+		}
+	}
+	
+	
+	
 	
 	
 	private ArrayList<Character> generateAlphabet(State start) {
@@ -108,54 +236,7 @@ public class DFATable extends HashMap<StateCharacter, State> {
 
 	}
 	
-	/**
-	 * Create DFA Function
-	 * @param s
-	 * @return
-	 */
-	private State createDFA(State s) {
-		State aState = new State();
-		ArrayList<State> epislonTransitions = getEpsilonAdjList(s);
-		if(!doesContain(epislonTransitions, s)) {
-			epislonTransitions.add(s);
-		}
-		aState.setAdjacentList(epislonTransitions);
-		
-		//Creates array of characters
-		ArrayList[] dLitt = construct(s);
-		
-		for(int i = 0; i < 26; i++) {
-			if(dLitt[i] != null) {
-				ArrayList<State> constructList = dLitt[i];
-				ArrayList<State> setFromState = construct(constructList, (char)(i + 'a'), s);
-				ArrayList<State> eClosuers = new ArrayList<State>();
-				State newState = new State();
-				
-				newState.setAdjacentList(setFromState);
-				//Do e-closuer on setFromState
-				
-				for(State state : setFromState) {
-					ArrayList<State> eTrans = getEpsilonAdjList(state);
-					for(State st : eTrans) {
-						if(!doesContain(eClosuers, st)) {
-							eClosuers.add(st);
-						}
-					}
-				}
-				newState.setEpsEdges(eClosuers);
-				aState.addCharEdge( (char)(i + 'a'), newState);
-				//System.out.println(setFromState);
-				
-				/*for(State state : test) {
-					if(!state.isFinal) {
-						construct(state);
-					}
-				}*/
-			}
-		}
-		aState.visited = true;
-		return aState;
-	}
+	
 	
 	
 	/**
@@ -182,11 +263,33 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		}		return adjEEdges;
 	}
 	
-	private ArrayList<State> getCharAdjList(State s, char c) {
-		ArrayList<State> adjStates = new ArrayList<State>();
+	/**
+	 * Finds all transition states from this state
+	 * @param state
+	 * @param c
+	 * @return
+	 */
+	private ArrayList<State> getCharAdjList(State state, char c) {
+		HashMap<Character, State> alphabetListAdjacent = 
+				state.getCharEdges();
 		
-		return adjStates;
+		ArrayList<State> rList = new ArrayList<State>();
+		
+		
+		for(Entry<Character, State> e : alphabetListAdjacent.entrySet()) {
+			//See if there is a char transition
+			if(e.getKey() == c) {
+				//DFAState dState = new DFAState();
+				//dState.setEpsEdges(e.getValue().getEpsEdges());
+				rList.add(e.getValue());
+			}
+			
+		}
+		
+		return rList;
 	}
+
+	
 	
 	/**
 	 * Determins if the State K is within the State List s
@@ -202,6 +305,22 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		
 		return false;
 	}
+	
+	
+	private boolean doesContain(ArrayList<DFAState> s, DFAState k) {
+		for(State state : s) {
+			for(State subState : state.getAdjacentList()) {
+				if(state.equals(k)) 
+					return true;
+				}
+			}
+			
+			
+			
+		
+		return false;
+	}
+
 	
 	private boolean doesContain(ArrayList<Character> s, char c) {
 		
@@ -252,6 +371,9 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		return returnList;
 	}
 	
+	
+	
+	/*
 	public ArrayList[] construct(State s) {
 		ArrayList<State> adjList = getEpsilonAdjList(s);
 		ArrayList<State> trackList = getEpsilonAdjList(s);
@@ -319,11 +441,7 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		
 		return dLitt;
 	}
-	
-	
-	
-	
-	
+		*/
 	/**
 	 * This function finds all epislon moves from this state
 	 * @param state
@@ -352,31 +470,13 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		return rList;
 	}
 	
-	/**
-	 * Finds all transition states from this state
-	 * @param state
-	 * @param c
-	 * @return
-	 */
-	private ArrayList<State> moveChar(State state, char c) {
-		HashMap<Character, State> alphabetListAdjacent = 
-				state.getCharEdges();
-		
-		ArrayList<State> rList = new ArrayList<State>();
-		
-		
-		for(Entry<Character, State> e : alphabetListAdjacent.entrySet()) {
-			//See if there is a char transition
-			if(e.getKey() == c) {
-				rList.add(e.getValue());
-			}
-			
-		}
-		
-		return rList;
-		
-	}
 
 	
+	
 
+
+	
+   
+	
+	
 }
