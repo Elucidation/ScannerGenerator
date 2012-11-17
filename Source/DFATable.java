@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -81,7 +82,12 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		//System.out.println(dfaStates);
 		for(DFAState st : this.dfaStateList) {
 			//recurseStates(st);
-			System.out.println(st);
+			System.out.println(st + " is linked to:");
+			Iterator<Entry<Character,State>> myIt = st.getCharEdges().entrySet().iterator();
+			while(myIt.hasNext()){
+				Entry<Character,State> myEnt = myIt.next();
+				System.out.println(myEnt.getValue() + " on " + myEnt.getKey());
+			}
 		}
 	}
 	
@@ -110,13 +116,8 @@ public class DFATable extends HashMap<StateCharacter, State> {
 						tmpList.add(cc.getValue());
 						
 					}
-				}//
+				}
 				
-			
-				
-				//if(ss.isFinal == false) {
-					//recurseStatesWill(ss);
-				//}
 					ss.visited = true;
 			}
 			tmpDFAState = new DFAState();
@@ -158,17 +159,17 @@ public class DFATable extends HashMap<StateCharacter, State> {
 					}
 					if(theFinalOne.getCharEdges().size() ==0){
 						this.dfaStateList.add(tmpDFAState);
-						createLink(dfa,c,tmpDFAState);
+						createLink(dfa,c,tmpDFAState,dfaStateList);
 					}
 					else{
 						this.dfaStateList.add(tmpDFAState);
-						createLink(dfa,c,tmpDFAState);
+						createLink(dfa,c,tmpDFAState,dfaStateList);
 						recurseWillAgain(tmpDFAState.getAdjacentList());
 					}
 				}
 				else{
 				this.dfaStateList.add(tmpDFAState);
-				createLink(dfa,c,tmpDFAState);
+				createLink(dfa,c,tmpDFAState,dfaStateList);
 				recurseWillAgain(tmpDFAState.getAdjacentList());
 				
 				}
@@ -378,78 +379,7 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		return returnList;
 	}
 	
-	
-	
-	/*
-	public ArrayList[] construct(State s) {
-		ArrayList<State> adjList = getEpsilonAdjList(s);
-		ArrayList<State> trackList = getEpsilonAdjList(s);
-		//Char transition list from inital
-		ArrayList<StateCharacter> cListFromEntry = new ArrayList<StateCharacter>();
-		ArrayList[] dLitt= new ArrayList[26];
-		ArrayList[] fList = new ArrayList[26];
-		for(State state : adjList) {
-			ArrayList<State> charList = new ArrayList<State>();
-			//Get the char
-			HashMap<Character, State> alphabetListAdjacent = state.getCharEdges();
-			for(Entry<Character, State> e : alphabetListAdjacent.entrySet()) {
-				char c = e.getKey();
-				ArrayList<State> currentChars = new ArrayList<State>();
-				StateCharacter sc = new StateCharacter(e.getValue(), e.getKey());
-				cListFromEntry.add(sc);
-				
-				//RE-construct
-				charList = new ArrayList<State>();
-				//System.out.println("Looking for transitions for char: " + c);
-				charList = moveChar(e.getValue(), e.getKey());
-				ArrayList<State> eTransitionsFromChar = getEpsilonAdjList(e.getValue());
-				
-				if(dLitt[c - 'a'] == null) {
-					dLitt[c - 'a'] = new ArrayList<State>();
-					for(State ss : trackList) {
-						currentChars.add(ss);
-					}
-					//currentChars = trackList;
-				}else {
-					currentChars = dLitt[c - 'a'];
-				}
-				
-				if(!doesContain(currentChars, e.getValue())) {
-					currentChars.add(e.getValue());
-				}
-				
-				for(State ss : charList) {
-					if(!doesContain(currentChars, ss)) {
-						currentChars.add(ss);
-					}
-				}
-				for(State ss : eTransitionsFromChar) {
-					if(!doesContain(currentChars, ss)) {
-						currentChars.add(ss);
-					}
-				}
-				
-				dLitt[c - 'a'] = currentChars;
-				
-				
-			}
-			
-			
-		}
-		
-		for(int i = 0; i < 26; i++) {
-			if(dLitt[i] != null) {
-				State state = new State();
-				StateCharacter anotherState = new StateCharacter(s, (char)(i + 'a'));
-				this.ourTable.put(anotherState, state);
-				}
-			}
-		
-		
-		return dLitt;
-	}
-		*/
-	/**
+		/**
 	 * This function finds all epislon moves from this state
 	 * @param state
 	 * @return
@@ -514,15 +444,10 @@ public class DFATable extends HashMap<StateCharacter, State> {
 	}
 
 	
-	public void createLink(ArrayList<State> dfa,char c, DFAState tmpDFAState){
+	public void createLink(ArrayList<State> dfa,char c, DFAState tmpDFAState,ArrayList<DFAState> DFAList){
 		DFAState toFind = new DFAState();
 		toFind.setAdjacentList(dfa);
-		ArrayList<DFAState> dummyList = new ArrayList<DFAState>();
-		dummyList.add(toFind);
-		DFAState real = davidGet(dummyList, tmpDFAState);
-		if(real==null){
-			System.out.println("shit");
-		}
+		DFAState real = davidGet(DFAList, toFind);
 		real.addCharEdge(c, tmpDFAState);
 	}
 
