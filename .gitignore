@@ -2,3 +2,4 @@
 .project
 *.class
 *_Output.txt
+Images/*

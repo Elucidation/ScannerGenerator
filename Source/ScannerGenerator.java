@@ -208,7 +208,7 @@ public class ScannerGenerator {
 	 * @param name
 	 * @param title
 	 */
-	private static void drawGraph(DirectedSparseMultigraph<State, String> dgraph, String name, String title) {
+	public static void drawGraph(DirectedSparseMultigraph<State, String> dgraph, String name, String title) {
 		Layout<State, String> layout = new ISOMLayout<State, String>(dgraph);
 		BasicVisualizationServer<State, String> viz = new BasicVisualizationServer<State, String>(layout);
 		viz.setPreferredSize(new Dimension(600,600));
@@ -307,7 +307,7 @@ public class ScannerGenerator {
 	 * @param partialNFA
 	 * @return
 	 */
-	private static DirectedSparseMultigraph<State, String> generateGraph(
+	public static DirectedSparseMultigraph<State, String> generateGraph(
 			NFA partialNFA) {
 		DirectedSparseMultigraph<State, String> g = new DirectedSparseMultigraph<State, String>();
 		Stack<State> v = new Stack<State>();
