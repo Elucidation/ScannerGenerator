@@ -85,63 +85,6 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		}
 	}
 	
-	
-	
-	/**
-	 * 
-	 * @param s
-	 * @return
-	 */
-	
-	public DFAState recurseStates(State s) {
-		boolean foundChar = false;
-		ArrayList<State> eClousers = getEpsilonAdjList(s);
-		DFAState state = new DFAState();
-		if(eClousers.size() > 0) {
-			
-			state.setEpsEdges(eClousers);
-			state.addepsilonEdge(state);
-			
-			if(doesContain(this.dfaStateList, state)) {
-				return state;
-			}
-			else {
-				this.dfaStateList.add(state);
-				
-			}
-		}
-		for(char c : this.langList) {
-			
-			ArrayList<State> adjList = getCharAdjList(s, c);
-			for(State d : adjList) {
-				foundChar = true;
-				DFAState dfaState = new DFAState();
-				ArrayList<State> eClousersTest = getEpsilonAdjList(d);
-				dfaState.setEpsEdges(eClousersTest);
-				dfaState.addepsilonEdge(dfaState);
-				
-				if(!doesContain(this.dfaStateList, dfaState)) {
-					state.addToCharStateList(dfaState, c);
-				}
-				else {
-					return recurseStates(d);
-				}
-			}
-		}
-		
-		if(!foundChar) {
-			if(!s.isFinal || eClousers.size() > 0) {
-				for(State st: eClousers) {
-					return recurseStates(st);
-				}
-			}
-		}
-		
-		
-		return state;
-	}
-	
-	
 	public void recurseStatesWill(State s) {
 		if(s.visited)
 			return;
@@ -199,8 +142,33 @@ public class DFATable extends HashMap<StateCharacter, State> {
 				
 			}
 			if(!davidEquals(this.dfaStateList, tmpDFAState)) {
+				for(State n:tmpDFAState.getAdjacentList()){
+					if(n.isFinal){
+						tmpDFAState.isFinal = true;
+					}
+				}
+				
+				if(tmpDFAState.isFinal){
+					//check for char edges, stop if there are none
+					State theFinalOne = new State();
+					for (State m:tmpDFAState.getAdjacentList()){
+						if(m.isFinal){
+							theFinalOne = m;
+						}
+					}
+					if(theFinalOne.getCharEdges().size() ==0){
+						this.dfaStateList.add(tmpDFAState);
+					}
+					else{
+						this.dfaStateList.add(tmpDFAState);
+						recurseWillAgain(tmpDFAState.getAdjacentList());
+					}
+				}
+				else{
 				this.dfaStateList.add(tmpDFAState);
 				recurseWillAgain(tmpDFAState.getAdjacentList());
+				
+				}
 				
 			}
 			else {
@@ -523,7 +491,7 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		DFAState toCompareTo = (DFAState)obj;
 		
 		for(State m: toCompareTo.getAdjacentList()){
-			if(!obj2.getAdjacentList().contains(m)){
+			if((!obj2.getAdjacentList().contains(m))||(obj2.getAdjacentList().size() != toCompareTo.getAdjacentList().size())){
 				return false;
 			}
 		}
