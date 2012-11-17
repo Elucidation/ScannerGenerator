@@ -38,7 +38,7 @@ public class TableWalker {
 		currentToken.append(c);
 		currentState = dfa.get(new StateCharacter(currentState,c));
 		
-		if(currentState == null){
+		if(currentState == null){ 
 			int numCharactersUndealtWith = currentToken.length() - lastKnownValidToken.length();
 			StringBuffer newCurrentToken = new StringBuffer();
 			for(int i=0;i<numCharactersUndealtWith;i++){
