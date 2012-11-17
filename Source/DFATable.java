@@ -158,14 +158,17 @@ public class DFATable extends HashMap<StateCharacter, State> {
 					}
 					if(theFinalOne.getCharEdges().size() ==0){
 						this.dfaStateList.add(tmpDFAState);
+						createLink(dfa,c,tmpDFAState);
 					}
 					else{
 						this.dfaStateList.add(tmpDFAState);
+						createLink(dfa,c,tmpDFAState);
 						recurseWillAgain(tmpDFAState.getAdjacentList());
 					}
 				}
 				else{
 				this.dfaStateList.add(tmpDFAState);
+				createLink(dfa,c,tmpDFAState);
 				recurseWillAgain(tmpDFAState.getAdjacentList());
 				
 				}
@@ -508,6 +511,19 @@ public class DFATable extends HashMap<StateCharacter, State> {
 			return null;
 		
 		
+	}
+
+	
+	public void createLink(ArrayList<State> dfa,char c, DFAState tmpDFAState){
+		DFAState toFind = new DFAState();
+		toFind.setAdjacentList(dfa);
+		ArrayList<DFAState> dummyList = new ArrayList<DFAState>();
+		dummyList.add(toFind);
+		DFAState real = davidGet(dummyList, tmpDFAState);
+		if(real==null){
+			System.out.println("shit");
+		}
+		real.addCharEdge(c, tmpDFAState);
 	}
 
 	
