@@ -103,7 +103,9 @@ public class Main {
 
 		// Build scanner using DFA table on input file
 		System.out.println("Initializing TableWalker with DFA Table...");
-		//TableWalker tableWalker = new TableWalker(dfaTable);
+	
+
+		TableWalker tableWalker = new TableWalker(d,d.getStartState() );
 		System.out.println("Done initializing TableWalker.\n");
 
 		// Main driver, Feeds characters from input file to table Walker

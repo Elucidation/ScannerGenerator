@@ -22,8 +22,7 @@ public class DFATable extends HashMap<StateCharacter, State> {
 	private ArrayList<Character> langList;
 	private ArrayList<DFAState> dfaStateList = new ArrayList<DFAState>();
 	
-	private State startState;
-	
+
 	/*
 	 * e-closure(s)
 	 * Set of NFA States reachable from NFA state s on e-transition alone
@@ -54,7 +53,7 @@ public class DFATable extends HashMap<StateCharacter, State> {
 	}
 	
 	public State getStartState() {
-		return this.startState;
+		return dfaStateList.get(0);
 	}
 	
 	/**
@@ -87,6 +86,7 @@ public class DFATable extends HashMap<StateCharacter, State> {
 			while(myIt.hasNext()){
 				Entry<Character,State> myEnt = myIt.next();
 				System.out.println(myEnt.getValue() + " on " + myEnt.getKey());
+				this.put(new StateCharacter(st, myEnt.getKey()), myEnt.getValue());
 			}
 		}
 	}
@@ -452,6 +452,7 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		real.addCharEdge(c, tmpDFAState);
 	}
 
+	
 	
 	
 
