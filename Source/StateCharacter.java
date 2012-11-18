@@ -1,4 +1,7 @@
 package Source;
+
+import java.util.ArrayList;
+
 /**
  * A key consisting of a State and a single character
  * @author Sam
@@ -44,8 +47,13 @@ public final class StateCharacter implements Comparable<StateCharacter> {
 		return state;
 	}
 
-        public char getCharacter() {
-                return character;
-        }
+    public char getCharacter() {
+            return character;
+    }
+    
+    @Override
+    public String toString() {
+            return "SC<S"+state.stateNum+","+character+">";
+    }
 
 }

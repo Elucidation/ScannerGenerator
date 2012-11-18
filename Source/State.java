@@ -19,6 +19,7 @@ public  class State implements Comparable<State> {
         private ArrayList<State> adjacentList;
 		public String tokenName;
         
+		public boolean halfVisited;
         public ArrayList<State> getAdjacentList() {
     		return adjacentList;
     	}

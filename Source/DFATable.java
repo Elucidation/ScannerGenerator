@@ -68,11 +68,13 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		State s = n.entry;
 		this.langList = generateAlphabet(s);
 		
-		/*for(Character c : langList) {
-			System.out.println(c);
-		}*/
+		System.out.println(" AlphabeT: [");
+		for(Character c : langList) {
+			System.out.print("'"+c + "' ");
+		}
+		System.out.println("]\n");
 		
-		 recurseStatesWill(s);	
+		recurseStatesWill(s);	
 		
 		
 
@@ -143,9 +145,11 @@ public class DFATable extends HashMap<StateCharacter, State> {
 				
 			}
 			if(!davidEquals(this.dfaStateList, tmpDFAState)) {
+				
 				for(State n:tmpDFAState.getAdjacentList()){
 					if(n.isFinal){
 						tmpDFAState.isFinal = true;
+						tmpDFAState.tokenName = n.tokenName;
 					}
 				}
 				
@@ -175,9 +179,10 @@ public class DFATable extends HashMap<StateCharacter, State> {
 				
 			}
 			else {
+				if(tmpDFAState.getAdjacentList() != null){
 				DFAState toLinkTo = davidGet(this.dfaStateList,tmpDFAState);
 				createLink(dfa,c,toLinkTo);
-			}
+			}}
 		}
 	
 	}
@@ -189,14 +194,14 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		}
 		
 		HashMap<Character, State> alphabetListAdjacent = start.getCharEdges();
+//		System.out.println("GENALPH: "+start.getCharEdges().keySet());
 		if(alphabetListAdjacent.size() > 0) {
 			for(Entry<Character, State> entry: alphabetListAdjacent.entrySet()) {
-				entry.getValue().visited = true;
 				if(!doesContain(characters, entry.getKey())) {
 					characters.add(entry.getKey());
 				}
 				ArrayList<Character> charactersSub = generateAlphabet(entry.getValue());
-				
+				entry.getValue().visited = true;
 				for(char ch : charactersSub) {
 					if(!doesContain(characters, ch)) {
 						characters.add(ch);
@@ -208,7 +213,10 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		}
 		else {
 			ArrayList<State> eList = start.getEpsEdges();
+//			for(State state : eList) {state.halfVisited = false;}
 			for(State state : eList) {
+				if (state.halfVisited) continue;
+				state.halfVisited = true;
 				ArrayList<Character> charactersSub = generateAlphabet(state);
 				state.visited = true;
 				for(char ch : charactersSub) {
@@ -232,9 +240,6 @@ public class DFATable extends HashMap<StateCharacter, State> {
 	 * @return
 	 */
 	private ArrayList<State> getEpsilonAdjList(State s) {
-		if(s.stateNum == 6){
-			s.stateNum = 6;
-		}
 		ArrayList<State> eClosuerForS = s.getEpsEdges();
 		ArrayList<State> adjEEdges = new ArrayList<State>();
 		

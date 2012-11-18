@@ -68,9 +68,9 @@ public class ScannerGenerator {
 				parseCharClass(line,tokens);
 			}
 		}
-		for (Entry<String, HashSet<Character>> e : tokens.entrySet()) {
-			System.out.println( e.getKey() + "("+e.getValue().size()+") : " + e.getValue().toString());
-		}
+//		for (Entry<String, HashSet<Character>> e : tokens.entrySet()) {
+//			System.out.println( e.getKey() + "("+e.getValue().size()+") : " + e.getValue().toString());
+//		}
 		
 		// For each line, generate an NFA
 		// Parse Identifiers
@@ -107,7 +107,7 @@ public class ScannerGenerator {
 	 * @return
 	 */
 	private static boolean isValidCharClass(String line) {
-		String k = line.replaceAll("\\\\ ", "<SPACE>"); // replace '\ ' with '<SPACE>' so split doesn't affect it
+		String k = line.replaceAll("\\\\ ", "<SPACE>").replaceAll("\t"," "); // replace '\ ' with '<SPACE>' so split doesn't affect it
 		if ( !k.matches("(\\$([\\w-]+) [^\\s]+ IN \\$\\w+$)|(\\$([\\w-]+) [^\\s]+$)") ) return false;
 		int n=k.split(" ").length;
 		if ( n == 2 || n == 4 ) return true;
@@ -331,7 +331,7 @@ public class ScannerGenerator {
 			x.addAll( cState.getCharEdges().values() );
 			x.addAll( cState.getEpsEdges() );
 			x.removeAll(visited); // disjoint
-			System.out.println(cState + " : " + x );
+//			System.out.println(cState + " : " + x );
 			v.addAll( x ); // add new nodes
 			
 			HashMap<State,String> edges = new HashMap<State, String>(); // Merges Edges for some state pair together
