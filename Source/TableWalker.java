@@ -36,6 +36,7 @@ public class TableWalker {
 	private State startState;// I need a way to get this from the dfa table.
 	private State currentState;
 	private ArrayList<Token> returnList = new ArrayList<Token>();
+	private String lastKnownValidTokenType;
 
 	public TableWalker(DFATable dfaTable, State start) {
 		this.dfa = dfaTable;
@@ -73,6 +74,7 @@ public class TableWalker {
 		 */
 		if (currentState.isFinal) {
 			lastKnownValidToken = new StringBuffer(currentToken);
+			lastKnownValidTokenType = currentState.tokenName;
 		} else {
 			lastKnownValidToken = new StringBuffer();
 		}
@@ -134,7 +136,7 @@ public class TableWalker {
 			 * actual Token class and add it to our returnList.
 			 */
 			if (lastKnownValidToken.length() != 0) {
-				Token newToken = new Token(null, lastKnownValidToken);
+				Token newToken = new Token(lastKnownValidTokenType, lastKnownValidToken);
 				returnList.add(newToken);// How do we know what type the token
 											// is?
 			}
@@ -248,7 +250,7 @@ public class TableWalker {
 				 * of the valid token.
 				 */
 				if (lastKnownValidToken.length() != 0) {
-					returnList.add(new Token(null, lastKnownValidToken));
+					returnList.add(new Token(lastKnownValidTokenType, lastKnownValidToken));
 					reEvaluate(newCurrentToken);
 				}
 				/*
