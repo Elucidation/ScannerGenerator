@@ -4,10 +4,10 @@ package Source;
  * @author Sam
  *
  */
-public class StateCharacter implements Comparable<StateCharacter> {
-
-	private State state;
-	private char character;
+public final class StateCharacter implements Comparable<StateCharacter> {
+        
+        final private State state;
+        final private char character;
 
 	public StateCharacter(State s, char c) {
 		this.state = s;
@@ -44,8 +44,8 @@ public class StateCharacter implements Comparable<StateCharacter> {
 		return state;
 	}
 
-	public char getCharacter() {
-		return character;
-	}
+        public char getCharacter() {
+                return character;
+        }
 
 }

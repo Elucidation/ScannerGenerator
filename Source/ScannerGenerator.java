@@ -98,7 +98,7 @@ public class ScannerGenerator {
 		System.out.println("Converting NFA to DFA...");
 		// TODO :: Convert BigNFA to DFA
 		System.out.println("Done converting.");
-		return new DFATable();
+		return new DFATable(bigNFA);
 	}
 	
 	/**
@@ -334,7 +334,7 @@ public class ScannerGenerator {
 			System.out.println(cState + " : " + x );
 			v.addAll( x ); // add new nodes
 			
-			HashMap<State,String> edges = new HashMap<>(); // Merges Edges for some state pair together
+			HashMap<State,String> edges = new HashMap<State, String>(); // Merges Edges for some state pair together
 			for ( Entry<Character, State> e : cState.getCharEdges().entrySet() ) {
 				// if edges has state in already, set edges[state] = edges[state]+new_character
 				State s = e.getValue();

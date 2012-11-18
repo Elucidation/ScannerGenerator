@@ -12,6 +12,7 @@ public class NFA {
 	//Variables
 	public State entry;
 	public State exit;
+	public static ArrayList<Character> charList = new ArrayList<Character>();
 	
 	/**
 	 * Set a up an NFA merge tree
@@ -47,9 +48,20 @@ public class NFA {
 		entry.isStart = true;
 		exit.isFinal = true;
 		entry.addCharEdge(c, exit);
-		
+		charList.add(c);
 		return new NFA(entry, exit);
 	}
+	
+	public static NFA createChar(char c, State exit) {
+		State entry = new State();
+		
+		entry.isStart = true;
+		exit.isFinal = true;
+		entry.addCharEdge(c, exit);
+		charList.add(c);
+		return new NFA(entry, exit);
+	}
+	
 	
 	/**
 	 * Create NFA pair with edges for all chars in charclass
