@@ -385,6 +385,8 @@ public class DFATable extends HashMap<StateCharacter, State> {
 	
 	public boolean customEquals(DFAState obj, DFAState obj2){
 		DFAState toCompareTo = (DFAState)obj;
+		if ( (toCompareTo.getAdjacentList() == null) || (obj.getAdjacentList() == null) )
+			return toCompareTo.getAdjacentList() == obj.getAdjacentList();
 		
 		for(State m: toCompareTo.getAdjacentList()){
 			if((!obj2.getAdjacentList().contains(m))||(obj2.getAdjacentList().size() != toCompareTo.getAdjacentList().size())){

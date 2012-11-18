@@ -104,8 +104,8 @@ public class Main {
 
 		// Build scanner using DFA table on input file
 		System.out.println("Initializing TableWalker with DFA Table...");
-//		TableWalker tableWalker = new TableWalker(dfaTable,dfaTable.getStartState() );
-		TableWalker tableWalker = new TableWalker(d,d.getStartState() );
+		TableWalker tableWalker = new TableWalker(dfaTable,dfaTable.getStartState() );
+//		TableWalker tableWalker = new TableWalker(d,d.getStartState() );
 		System.out.println(tableWalker);
 		System.out.println("Done initializing TableWalker.\n");
 //
@@ -126,7 +126,7 @@ public class Main {
 			}
 			if (tokens != null) {
 				for (Token token: tokens) {
-					String tokenString = "TOKEN!: "+token;
+					String tokenString = "TOKEN!: "+token+"\n";
 					System.out.println(tokenString);
 					tokenStringList.add(tokenString);
 				}

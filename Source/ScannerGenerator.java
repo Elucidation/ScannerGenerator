@@ -101,7 +101,7 @@ public class ScannerGenerator {
 		System.out.println("Converting NFA to DFA...");
 		// TODO :: Convert BigNFA to DFA
 		System.out.println("Done converting.");
-		return new DFATable();
+		return new DFATable(bigNFA);
 	}
 	
 	/**
