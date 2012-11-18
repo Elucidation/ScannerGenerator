@@ -157,22 +157,20 @@ public class DFATable extends HashMap<StateCharacter, State> {
 							theFinalOne = m;
 						}
 					}
-					if(theFinalOne.getCharEdges().size() ==0){
-						this.dfaStateList.add(tmpDFAState);
-						createLink(dfa,c,tmpDFAState);
-					}
-					else{
-						this.dfaStateList.add(tmpDFAState);
-						createLink(dfa,c,tmpDFAState);
+					this.dfaStateList.add(tmpDFAState);
+					createLink(dfa,c,tmpDFAState);
+					if(checkTransitions(tmpDFAState)){
 						recurseWillAgain(tmpDFAState.getAdjacentList());
 					}
+				
 				}
 				else{
 					createLink(dfa,c,tmpDFAState);
 
 				this.dfaStateList.add(tmpDFAState);
-				recurseWillAgain(tmpDFAState.getAdjacentList());
-				
+				if(checkTransitions(tmpDFAState)){
+					recurseWillAgain(tmpDFAState.getAdjacentList());
+				}				
 				}
 				
 			}
@@ -414,6 +412,24 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		toFind.setAdjacentList(dfa);
 		DFAState real = davidGet(dfaStateList, toFind);
 		real.addCharEdge(c, tmpDFAState);
+	}
+	
+	public boolean checkTransitions(DFAState state){
+		for(char c : this.langList) {
+			Iterator<Entry<Character,State>> myIt = state.getCharEdges().entrySet().iterator();
+			boolean didIFindMyChar = false;
+			while(myIt.hasNext()){
+				Entry<Character,State> myEnt = myIt.next();
+				if(myEnt.getKey() == c){
+					didIFindMyChar = true;
+				}
+			}
+			if(didIFindMyChar == false){
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 }
