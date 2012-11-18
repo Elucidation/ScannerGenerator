@@ -83,9 +83,10 @@ public class Main {
 		
 		DFATable d = new DFATable(n);
 		
+		System.out.println(d);
 		
-		//one.
-		
+//		//one.
+//		
 		// Parameters passed in
 		if (args.length < 2) {
 			System.out.println("USAGE: ScannerGenerator <SPECIFICIATION_FILE> <INPUT_FILE> [<OUTPUT_FILE>]");
@@ -103,35 +104,49 @@ public class Main {
 
 		// Build scanner using DFA table on input file
 		System.out.println("Initializing TableWalker with DFA Table...");
-	
-
+//		TableWalker tableWalker = new TableWalker(dfaTable,dfaTable.getStartState() );
 		TableWalker tableWalker = new TableWalker(d,d.getStartState() );
+		System.out.println(tableWalker);
 		System.out.println("Done initializing TableWalker.\n");
-
-		// Main driver, Feeds characters from input file to table Walker
+//
+//		// Main driver, Feeds characters from input file to table Walker
 		System.out.println("Walking Table with input file '"+inputFilename+"'...");
 		FileInputStream in = new FileInputStream(inputFilename);
 		char c;
-		Token token;
+		ArrayList<Token> tokens;
 		ArrayList<String> tokenStringList = new ArrayList<String>();
-		/*while (  (c = (char)in.read()) != EOF  ) {
-			token = tableWalker.walkTable(c);									// The auto-magical table walking routine is here!
-			if (token != null) {
-				String tokenString = "TOKEN!: "+token;
-				System.out.println(tokenString);
-				tokenStringList.add(tokenString);
+		boolean atEnd = false;
+		while (  !atEnd  ) {
+			c = (char)in.read();
+			try {
+				tokens = tableWalker.walkTable(c);									// The auto-magical table walking routine is here!
+			} catch (IllegalArgumentException e) {
+				System.out.println("Except "+c );
+				break;
 			}
-		}*/
+			if (tokens != null) {
+				for (Token token: tokens) {
+					String tokenString = "TOKEN!: "+token;
+					System.out.println(tokenString);
+					tokenStringList.add(tokenString);
+				}
+			}
+			else {
+				System.out.println("Null token return "+c );
+			}
+			if (c == EOF)
+				atEnd = true;
+		}
 		in.close();
 		System.out.println("Finished Walking Table! Found "+tokenStringList.size()+" tokens.\n");
-		
+//		
 		// Write tokens to output file , writing tokens to '"+outputFilename+"'
 		System.out.println("Writing tokens to output file '"+outputFilename+"'...");
 		BufferedWriter out = new BufferedWriter( new FileWriter(outputFilename) );
 		for (String tokenString : tokenStringList) out.write(tokenString);
 		out.close();
 		System.out.println("Finished writing tokens! All Done.");
-		
+//		
 		// Table Wlaker
 //		State a = new State(3);
 //		State b = new State(3);

@@ -163,7 +163,7 @@ public class TableWalker {
 			 */
 			
 			if(c==(char)65535){
-				if(currentToken.length() != 0){
+				if(currentToken.length() != 1){
 					throw new IllegalArgumentException(currentToken.toString() + " could not be recognized as part of a valid token.");
 				}
 			}
@@ -200,7 +200,9 @@ public class TableWalker {
 		 * move as far as we can through the dfa.
 		 */
 		for (int i = 0; i < currentToken.length(); i++) {
-
+			if(currentToken.charAt(i) == (char)65535){
+				return;
+			}
 			currentState = dfa.get(new StateCharacter(currentState,
 					currentToken.charAt(i)));
 

@@ -341,44 +341,6 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		return false;
 	}
 	
-	/**
-	 * 
-	 * @param adjList
-	 * @return
-	 */
-	public ArrayList<State> construct(ArrayList<State> adjList, char c, State source) {
-		
-		ArrayList<State> returnList = new ArrayList<State>();
-		for(State state : adjList) {
-			ArrayList<State> charList = new ArrayList<State>();
-			//Get the char
-			HashMap<Character, State> alphabetListAdjacent = state.getCharEdges();
-			for(Entry<Character, State> e : alphabetListAdjacent.entrySet()) {	
-				if(e.getKey() == c) {
-					returnList.add(e.getValue());
-					//System.out.println(e.getValue());
-				}
-				
-			}
-			ArrayList<State> eTransitionsFromChar = getEpsilonAdjList(state);
-			for(State ss : eTransitionsFromChar) {
-				if(!doesContain(returnList, ss)) {
-					returnList.add(ss);
-				}
-			}
-		}
-		
-		for(State st : returnList) {
-			
-				State state = new State();
-				StateCharacter anotherState = new StateCharacter(source, c);
-				this.ourTable.put(anotherState, state);
-				
-			}
-		
-		
-		return returnList;
-	}
 	
 		/**
 	 * This function finds all epislon moves from this state
@@ -451,14 +413,5 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		DFAState real = davidGet(dfaStateList, toFind);
 		real.addCharEdge(c, tmpDFAState);
 	}
-
-	
-	
-	
-
-
-	
-   
-	
 	
 }
