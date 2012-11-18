@@ -1,5 +1,6 @@
 package Source;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 /**
@@ -11,6 +12,16 @@ public class NFA {
 	//Variables
 	public State entry;
 	public State exit;
+	
+	/**
+	 * Set a up an NFA merge tree
+	 * @param entry
+	 * @param exit
+	 */
+	public NFA(State entry) {
+		this.entry = entry;
+		this.exit = null;
+	}
 	
 	/**
 	 * Set a up  NFA 'Node'
@@ -134,6 +145,15 @@ public class NFA {
 		bottom.exit.addepsilonEdge(exit);
 		return new NFA(entry, exit);
 		
+	}
+
+	public static NFA mergeNFAs(ArrayList<NFA> partialNFAs) {
+		State zero = new State();
+		zero.isStart = true;
+		for (NFA partialNFA : partialNFAs) {
+			zero.addepsilonEdge(partialNFA.entry);
+		}
+		return new NFA(zero);
 	}
 	
 }

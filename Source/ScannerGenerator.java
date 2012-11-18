@@ -88,11 +88,8 @@ public class ScannerGenerator {
 		
 		// Merge NFA's into BigNFA
 		System.out.println("Merging NFAs...");
-		NFA bigNFA = null;
-		for (NFA partialNFA : partialNFAs) {
-			if (bigNFA == null) bigNFA = partialNFA;
-			else bigNFA = NFA.or(bigNFA, partialNFA);
-		}
+		NFA bigNFA = NFA.mergeNFAs(partialNFAs);
+		
 		DirectedSparseMultigraph<State, String> dgraph = generateGraph(bigNFA);
 		drawGraph(dgraph, "BIGNFA", "BIGNFA for '"+specFile+"'");
 		System.out.println("Done merging.");
@@ -195,7 +192,7 @@ public class ScannerGenerator {
 		
 		System.out.println("  Trying to Recursively Parse '"+val+"' for NFA '"+name+"'...");
 		RecursiveParser rp = new RecursiveParser(val,tokens);
-		NFA partialNFA = rp.getNFA();
+		NFA partialNFA = rp.getNFA(name);
 		DirectedSparseMultigraph<State, String> dgraph = generateGraph(partialNFA);
 //		System.out.println(dgraph);
 		drawGraph(dgraph, name, "Partial NFA '"+name+"', REGEX: "+val  );
@@ -211,7 +208,7 @@ public class ScannerGenerator {
 	public static void drawGraph(DirectedSparseMultigraph<State, String> dgraph, String name, String title) {
 		Layout<State, String> layout = new ISOMLayout<State, String>(dgraph);
 		BasicVisualizationServer<State, String> viz = new BasicVisualizationServer<State, String>(layout);
-		viz.setPreferredSize(new Dimension(600,600));
+		viz.setPreferredSize(new Dimension(1000,1000));
 		
 		// Vertex
 		final Font vertexFont = new Font("Times New Roman", Font.BOLD, 20);
@@ -236,7 +233,11 @@ public class ScannerGenerator {
 		
 		Transformer<State,Shape> vertexSize = new Transformer<State,Shape>(){
             public Shape transform(State i){
-                Ellipse2D circle = new Ellipse2D.Double(-15, -15, 30, 30);
+            	Ellipse2D circle;
+            	if (i.tokenName != null)
+            		circle = new Ellipse2D.Double(-70, -30, 140, 60);
+            	else
+            		circle = new Ellipse2D.Double(-20, -20, 40, 40);
                 // in this case, the vertex is twice as large
 //                if(i == 2) return AffineTransform.getScaleInstance(2, 2).createTransformedShape(circle);
 //                else return circle;
@@ -246,7 +247,13 @@ public class ScannerGenerator {
         viz.getRenderContext().setVertexShapeTransformer(vertexSize);
         
 		
-		viz.getRenderContext().setVertexLabelTransformer(new Transformer<State,String>() {public String transform(State s) {return "S"+s.stateNum;} });
+		viz.getRenderContext().setVertexLabelTransformer(new Transformer<State,String>() {
+			public String transform(State s) {
+				if (s.tokenName != null)
+					return "S"+s.stateNum+":"+s.tokenName;
+				return "S"+s.stateNum;
+				} 
+			});
 		viz.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
 		Transformer<State,Paint> vertexPaint = new Transformer<State,Paint>() {
 			public Paint transform(State s) {
@@ -264,7 +271,7 @@ public class ScannerGenerator {
 			}); // Edge label
 //		viz.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<State,String>()); // Straight line edges
 //		viz.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.blue, true)); // no rotate of edge labels
-		viz.getRenderContext().setLabelOffset(5);
+//		viz.getRenderContext().setLabelOffset(5);
 //		drawImage(viz,title);
 		saveImage(viz,name);
 	}

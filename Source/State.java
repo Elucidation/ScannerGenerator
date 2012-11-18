@@ -8,6 +8,7 @@ public class State implements Comparable<State> {
 	int stateNum;
 	boolean isFinal;
 	boolean isStart;
+	String tokenName = null; // only if isFinal 
 //	static int groupNumCounter = 0;
 //	int groupNum; // iterates on each stateNum reset, Differentiates between States from different partial NFAs but with same stateNum
 	
