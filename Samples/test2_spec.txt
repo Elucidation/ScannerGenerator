@@ -1,0 +1,5 @@
+$LETTER [a-zA-Z]
+$DIGIT [0-9]
+
+$STATE    ($LETTER)($LETTER)
+$ID       ($LETTER)($DIGIT)

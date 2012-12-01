@@ -1,0 +1,6 @@
+$LETTER  ab
+
+$BLAH   (a|b)*abb
+$DOOP   c
+$GOO    (b)*cc
+$GAB    aba

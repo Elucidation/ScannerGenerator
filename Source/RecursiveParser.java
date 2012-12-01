@@ -19,8 +19,10 @@ public class RecursiveParser {
 //		State.resetNumCounter();
 	}
 	
-	public NFA getNFA() throws ParseError {
-		return expr();
+	public NFA getNFA(String name) throws ParseError {
+		NFA x = expr();
+		x.exit.tokenName = name;
+		return x;
 	}
 	
 	private NFA expr() throws ParseError {
