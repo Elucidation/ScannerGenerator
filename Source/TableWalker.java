@@ -146,14 +146,7 @@ public class TableWalker {
 			 * reevaluate the rest from the beginning.
 			 */
 			else {
-				System.out.println(currentToken.charAt(0) + " could not be recognized as part of any valid token");
 				throw new IllegalArgumentException(currentToken.charAt(0) + " could not be recognized as part of a valid token.");
-				/*currentState = startState;
-				StringBuffer withoutTheJunk = new StringBuffer();
-				for (int k = 1; k < currentToken.length(); k++) {
-					withoutTheJunk.append(currentToken.charAt(k));
-				}
-				currentToken = withoutTheJunk;*/
 			}
 
 			/*
@@ -260,14 +253,7 @@ public class TableWalker {
 				 * character, which can't possibly be good.
 				 */
 				else {
-
 					throw new IllegalArgumentException(currentToken.charAt(0) + " could not be recognized as part of a valid token.");
-					/*currentState = startState;
-					StringBuffer withoutTheJunk = new StringBuffer();
-					for (int k = 1; k < currentToken.length(); k++) {
-						withoutTheJunk.append(currentToken.charAt(k));
-					}
-					currentToken = withoutTheJunk;*/
 				}
 			}
 			/*

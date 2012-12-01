@@ -1,4 +1,4 @@
-$LETTER  abcdefghijklmnopqrstuvwxyz
+$LETTER  abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ=$,
 
 $KEYWORD_BEGIN   begin
 $KEYWORD_END  end
@@ -9,3 +9,5 @@ $KEYWORD_INTERS inters
 $KEYWORD_UNION union
 $KEYWORD_PRINT print
 $REGEX '(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|[|]|\*)*'
+$ASCII "(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|[|]|\*)*"
+$ID (a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)*
