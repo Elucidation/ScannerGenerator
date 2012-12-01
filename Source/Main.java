@@ -122,7 +122,7 @@ public class Main {
 			try {
 				tokens = tableWalker.walkTable(c);									// The auto-magical table walking routine is here!
 			} catch (IllegalArgumentException e) {
-				System.out.println("Except "+c );
+				System.out.println("Exception "+c );
 				break;
 			}
 			if (tokens != null) {

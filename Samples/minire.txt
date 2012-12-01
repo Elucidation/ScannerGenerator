@@ -1,0 +1,10 @@
+$LETTER  abcdefghijklmnopqrstuvwxyz
+
+$KEYWORD_BEGIN   begin
+$KEYWORD_END  end
+$KEYWORD_EQUALS =
+$KEYWORD_COMMA ,
+$KEYWORD_REPLACE replace
+$KEYWORD_INTERS inters
+$KEYWORD_UNION union
+$KEYWORD_PRINT print
