@@ -44,7 +44,12 @@ public class Main {
 		while (  !atEnd  ) {
 			c = (char)in.read();
 			try {
-				tokens = tableWalker.walkTable(c);									// The auto-magical table walking routine is here!
+				if(c!='\r'){
+					tokens = tableWalker.walkTable(c);	
+				}
+				else{
+					tokens = null;
+				}
 			} catch (IllegalArgumentException e) {
 				System.out.println("Exception "+c );
 				break;

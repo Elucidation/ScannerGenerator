@@ -1,6 +1,11 @@
-$LETTER  abcdefghijklmnopqrs tuvwxyz=$,ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789.\(\)|
+$LETTER  abcdefghijklmnopqrs tuvwxyz=$,_ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789.\(\)|#>!;
 
-$REGEX '(\(|\)|\||-|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|[|]|\*)*'
+$REGEX '(_|\(|\)|\||-|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|[|]|\*)*'
 $ASCII "(.|0|1|2|3|4|5|6|7|8|9|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|[|]|\*)*"
-$IDorKey (0|1|2|3|4|5|6|7|8|9|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)*
+$IDorKey (_|0|1|2|3|4|5|6|7|8|9|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)*
 $ID_EQUALS =
+$ID_HASH #
+$ID_ENDLINE ;
+$ID_OPENPAREN \(
+$ID_CLOSEPAREN \)
+$ID_SAVETO >!

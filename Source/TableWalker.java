@@ -59,8 +59,10 @@ public class TableWalker {
 		/*
 		 * Ignore whitespace!
 		 */
-		if((c==' ') || (c=='\t')||(c=='\n')){
-			return null;
+		boolean whiteSpace = false;
+		if((c==' ') || (c=='\t')||(c=='\n')||(c=='\r')){
+			//return null;
+			whiteSpace = true;
 		}
 		
 		/*
@@ -82,7 +84,9 @@ public class TableWalker {
 		 * Let's add the new character to the buffer of characters we're
 		 * considering.
 		 */
-		currentToken.append(c);
+		if(whiteSpace==false){
+			currentToken.append(c);
+		}
 
 		/*
 		 * We move to the next state based on the character we just took in,

@@ -83,11 +83,11 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		//System.out.println(dfaStates);
 		for(DFAState st : this.dfaStateList) {
 			//recurseStates(st);
-			System.out.println(st + " is linked to:");
+			//System.out.println(st + " is linked to:");
 			Iterator<Entry<Character,State>> myIt = st.getCharEdges().entrySet().iterator();
 			while(myIt.hasNext()){
 				Entry<Character,State> myEnt = myIt.next();
-				System.out.println(myEnt.getValue() + " on " + myEnt.getKey());
+				//System.out.println(myEnt.getValue() + " on " + myEnt.getKey());
 				this.put(new StateCharacter(st, myEnt.getKey()), myEnt.getValue());
 			}
 		}
