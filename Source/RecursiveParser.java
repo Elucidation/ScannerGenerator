@@ -242,7 +242,6 @@ public class RecursiveParser {
 		return t;
 	}
 
-
 	/**
 	 * 
 	 * <statement> -> ID = <exp> ;
@@ -276,7 +275,9 @@ public class RecursiveParser {
 			matchToken(Symbol.ASCII_STR);
 			matchToken(Symbol.IN);
 			t = fileNames();
-
+		case PRINT:
+			matchToken(Symbol.PRINT);
+			t = expressionList();
 		default:
 			throw new ParseError("statement() was passed unexpected token + '"+sym+"' for "+data);
 		}
