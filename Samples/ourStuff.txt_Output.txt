@@ -1,4 +1,0 @@
-TOKEN!: $BLAH = abb
-TOKEN!: $DOOP = c
-TOKEN!: $GOO = bcc
-TOKEN!: $GAB = aba

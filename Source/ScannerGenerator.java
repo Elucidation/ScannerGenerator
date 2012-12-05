@@ -25,24 +25,24 @@ import java.util.Stack;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.set.ListOrderedSet;
-
-import edu.uci.ics.jung.algorithms.layout.CircleLayout;
-import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
-import edu.uci.ics.jung.algorithms.layout.KKLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Context;
-import edu.uci.ics.jung.graph.util.EdgeType;
-import edu.uci.ics.jung.visualization.BasicVisualizationServer;
-import edu.uci.ics.jung.visualization.VisualizationImageServer;
-import edu.uci.ics.jung.visualization.decorators.EdgeShape;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
-import edu.uci.ics.jung.visualization.renderers.EdgeLabelRenderer;
-import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
+//import org.apache.commons.collections15.Transformer;
+//import org.apache.commons.collections15.set.ListOrderedSet;
+//
+//import edu.uci.ics.jung.algorithms.layout.CircleLayout;
+//import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
+//import edu.uci.ics.jung.algorithms.layout.KKLayout;
+//import edu.uci.ics.jung.algorithms.layout.Layout;
+//import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+//import edu.uci.ics.jung.graph.Graph;
+//import edu.uci.ics.jung.graph.util.Context;
+//import edu.uci.ics.jung.graph.util.EdgeType;
+//import edu.uci.ics.jung.visualization.BasicVisualizationServer;
+//import edu.uci.ics.jung.visualization.VisualizationImageServer;
+//import edu.uci.ics.jung.visualization.decorators.EdgeShape;
+//import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+//import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
+//import edu.uci.ics.jung.visualization.renderers.EdgeLabelRenderer;
+//import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 public class ScannerGenerator {
 	public static final char EPS = '\u03B5';// placeholder for graph edges char value when epsilon edge
@@ -90,15 +90,16 @@ public class ScannerGenerator {
 		System.out.println("Merging NFAs...");
 		NFA bigNFA = NFA.mergeNFAs(partialNFAs);
 		
-		DirectedSparseMultigraph<State, String> dgraph = generateGraph(bigNFA);
-		drawGraph(dgraph, "BIGNFA", "BIGNFA for '"+specFile+"'");
+//		DirectedSparseMultigraph<State, String> dgraph = generateGraph(bigNFA);
+//		drawGraph(dgraph, "BIGNFA", "BIGNFA for '"+specFile+"'");
 		System.out.println("Done merging.");
 
 		// Convert BigNFA
 		System.out.println("Converting NFA to DFA...");
+		DFATable dfa =new DFATable(bigNFA); 
 		// TODO :: Convert BigNFA to DFA
 		System.out.println("Done converting.");
-		return new DFATable(bigNFA);
+		return dfa;
 	}
 	
 	/**
@@ -193,9 +194,11 @@ public class ScannerGenerator {
 		System.out.println("  Trying to Recursively Parse '"+val+"' for NFA '"+name+"'...");
 		RecursiveParser rp = new RecursiveParser(val,tokens);
 		NFA partialNFA = rp.getNFA(name);
-		DirectedSparseMultigraph<State, String> dgraph = generateGraph(partialNFA);
+		
+		// Only used for drawing, Needs JUNG
+//		DirectedSparseMultigraph<State, String> dgraph = generateGraph(partialNFA);
 //		System.out.println(dgraph);
-		drawGraph(dgraph, name, "Partial NFA '"+name+"', REGEX: "+val  );
+//		drawGraph(dgraph, name, "Partial NFA '"+name+"', REGEX: "+val  );
 		System.out.println("  Finished Recursive Parse. (Partial NFA image saved to 'Images/graph"+name+".png'");
 		return partialNFA;
 	}
@@ -205,167 +208,167 @@ public class ScannerGenerator {
 	 * @param name
 	 * @param title
 	 */
-	public static void drawGraph(DirectedSparseMultigraph<State, String> dgraph, String name, String title) {
-		Layout<State, String> layout = new ISOMLayout<State, String>(dgraph);
-		BasicVisualizationServer<State, String> viz = new BasicVisualizationServer<State, String>(layout);
-		viz.setPreferredSize(new Dimension(1000,1000));
-		
-		// Vertex
-		final Font vertexFont = new Font("Times New Roman", Font.BOLD, 20);
-		Transformer<State, Font> vertexFontTransform = new Transformer<State, Font>() {
-			@Override
-			public Font transform(State arg0) {
-				// TODO Auto-generated method stub
-				return vertexFont;
-			}	
-		};
-		viz.getRenderContext().setVertexFontTransformer(vertexFontTransform );
-		
-		final Font edgeFont = new Font(Font.MONOSPACED, Font.PLAIN , 20);
-		Transformer<String, Font> edgeFontTransform = new Transformer<String, Font>() {
-			@Override
-			public Font transform(String s) {
-				// TODO Auto-generated method stub
-				return edgeFont;
-			}
-		};
-		viz.getRenderContext().setEdgeFontTransformer(edgeFontTransform);
-		
-		Transformer<State,Shape> vertexSize = new Transformer<State,Shape>(){
-            public Shape transform(State i){
-            	Ellipse2D circle;
-            	if (i.tokenName != null)
-            		circle = new Ellipse2D.Double(-70, -30, 140, 60);
-            	else
-            		circle = new Ellipse2D.Double(-20, -20, 40, 40);
-                // in this case, the vertex is twice as large
-//                if(i == 2) return AffineTransform.getScaleInstance(2, 2).createTransformedShape(circle);
-//                else return circle;
-                return circle;
-            }
-        };
-        viz.getRenderContext().setVertexShapeTransformer(vertexSize);
-        
-		
-		viz.getRenderContext().setVertexLabelTransformer(new Transformer<State,String>() {
-			public String transform(State s) {
-				if (s.tokenName != null)
-					return "S"+s.stateNum+":"+s.tokenName;
-				return "S"+s.stateNum;
-				} 
-			});
-		viz.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
-		Transformer<State,Paint> vertexPaint = new Transformer<State,Paint>() {
-			public Paint transform(State s) {
-				if (s.isStart) return Color.GREEN;
-				return s.isFinal ? new Color(255, 120, 120) : Color.cyan; 
-			}
-		};
-		viz.getRenderContext().setVertexFillPaintTransformer(vertexPaint); // Green state if final, blue otherwise
-		
-		// Edge
-		viz.getRenderContext().setEdgeLabelTransformer(new Transformer<String,String>() {
-				public String transform(String s) {
-						return s.substring(0,s.indexOf('['));
-					} 
-			}); // Edge label
-//		viz.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<State,String>()); // Straight line edges
-//		viz.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.blue, true)); // no rotate of edge labels
-//		viz.getRenderContext().setLabelOffset(5);
-//		drawImage(viz,title);
-		saveImage(viz,name);
-	}
+//	public static void drawGraph(DirectedSparseMultigraph<State, String> dgraph, String name, String title) {
+//		Layout<State, String> layout = new ISOMLayout<State, String>(dgraph);
+//		BasicVisualizationServer<State, String> viz = new BasicVisualizationServer<State, String>(layout);
+//		viz.setPreferredSize(new Dimension(1000,1000));
+//		
+//		// Vertex
+//		final Font vertexFont = new Font("Times New Roman", Font.BOLD, 20);
+//		Transformer<State, Font> vertexFontTransform = new Transformer<State, Font>() {
+//			@Override
+//			public Font transform(State arg0) {
+//				// TODO Auto-generated method stub
+//				return vertexFont;
+//			}	
+//		};
+//		viz.getRenderContext().setVertexFontTransformer(vertexFontTransform );
+//		
+//		final Font edgeFont = new Font(Font.MONOSPACED, Font.PLAIN , 20);
+//		Transformer<String, Font> edgeFontTransform = new Transformer<String, Font>() {
+//			@Override
+//			public Font transform(String s) {
+//				// TODO Auto-generated method stub
+//				return edgeFont;
+//			}
+//		};
+//		viz.getRenderContext().setEdgeFontTransformer(edgeFontTransform);
+//		
+//		Transformer<State,Shape> vertexSize = new Transformer<State,Shape>(){
+//            public Shape transform(State i){
+//            	Ellipse2D circle;
+//            	if (i.tokenName != null)
+//            		circle = new Ellipse2D.Double(-70, -30, 140, 60);
+//            	else
+//            		circle = new Ellipse2D.Double(-20, -20, 40, 40);
+//                // in this case, the vertex is twice as large
+////                if(i == 2) return AffineTransform.getScaleInstance(2, 2).createTransformedShape(circle);
+////                else return circle;
+//                return circle;
+//            }
+//        };
+//        viz.getRenderContext().setVertexShapeTransformer(vertexSize);
+//        
+//		
+//		viz.getRenderContext().setVertexLabelTransformer(new Transformer<State,String>() {
+//			public String transform(State s) {
+//				if (s.tokenName != null)
+//					return "S"+s.stateNum+":"+s.tokenName;
+//				return "S"+s.stateNum;
+//				} 
+//			});
+//		viz.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
+//		Transformer<State,Paint> vertexPaint = new Transformer<State,Paint>() {
+//			public Paint transform(State s) {
+//				if (s.isStart) return Color.GREEN;
+//				return s.isFinal ? new Color(255, 120, 120) : Color.cyan; 
+//			}
+//		};
+//		viz.getRenderContext().setVertexFillPaintTransformer(vertexPaint); // Green state if final, blue otherwise
+//		
+//		// Edge
+//		viz.getRenderContext().setEdgeLabelTransformer(new Transformer<String,String>() {
+//				public String transform(String s) {
+//						return s.substring(0,s.indexOf('['));
+//					} 
+//			}); // Edge label
+////		viz.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<State,String>()); // Straight line edges
+////		viz.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.blue, true)); // no rotate of edge labels
+////		viz.getRenderContext().setLabelOffset(5);
+////		drawImage(viz,title);
+//		saveImage(viz,name);
+//	}
 
-	private static void drawImage(BasicVisualizationServer<State, String> viz,
-			String title) {
-		JFrame frame = new JFrame(title);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().add(viz);
-		frame.pack();
-		frame.setVisible(true);
-	}
-
-	private static void saveImage(BasicVisualizationServer<State, String> viz,String name) {
-		VisualizationImageServer<State, String> imageViz =
-			    new VisualizationImageServer<State, String>(viz.getGraphLayout(),
-			        viz.getGraphLayout().getSize());
-		imageViz.setRenderContext(viz.getRenderContext());
-		imageViz.setRenderer(viz.getRenderer());
-		
-		BufferedImage image = (BufferedImage) imageViz.getImage(
-			    new Point2D.Double(viz.getGraphLayout().getSize().getWidth() / 2,
-			    viz.getGraphLayout().getSize().getHeight() / 2),
-			    new Dimension(viz.getGraphLayout().getSize()));
-		
-		File f = new File("Images");
-		if (!f.exists()) f.mkdirs();
-		
-		File outputfile = new File("Images/graph"+name+".png");
-
-		try {
-		    ImageIO.write(image, "png", outputfile);
-		} catch (IOException e) {
-		    System.out.println("Could not write graph "+name+" to image.");
-		}
-	}
+//	private static void drawImage(BasicVisualizationServer<State, String> viz,
+//			String title) {
+//		JFrame frame = new JFrame(title);
+//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		frame.getContentPane().add(viz);
+//		frame.pack();
+//		frame.setVisible(true);
+//	}
+//
+//	private static void saveImage(BasicVisualizationServer<State, String> viz,String name) {
+//		VisualizationImageServer<State, String> imageViz =
+//			    new VisualizationImageServer<State, String>(viz.getGraphLayout(),
+//			        viz.getGraphLayout().getSize());
+//		imageViz.setRenderContext(viz.getRenderContext());
+//		imageViz.setRenderer(viz.getRenderer());
+//		
+//		BufferedImage image = (BufferedImage) imageViz.getImage(
+//			    new Point2D.Double(viz.getGraphLayout().getSize().getWidth() / 2,
+//			    viz.getGraphLayout().getSize().getHeight() / 2),
+//			    new Dimension(viz.getGraphLayout().getSize()));
+//		
+//		File f = new File("Images");
+//		if (!f.exists()) f.mkdirs();
+//		
+//		File outputfile = new File("Images/graph"+name+".png");
+//
+//		try {
+//		    ImageIO.write(image, "png", outputfile);
+//		} catch (IOException e) {
+//		    System.out.println("Could not write graph "+name+" to image.");
+//		}
+//	}
 
 	/**
 	 * Creates a visualizable Directed Sparse Multipgraph of the partial DFA
 	 * @param partialNFA
 	 * @return
 	 */
-	public static DirectedSparseMultigraph<State, String> generateGraph(
-			NFA partialNFA) {
-		DirectedSparseMultigraph<State, String> g = new DirectedSparseMultigraph<State, String>();
-		Stack<State> v = new Stack<State>();
-		ListOrderedSet<State> visited = new ListOrderedSet<State>();
-		//HashSet()s
-		v.add(partialNFA.entry);
-		while (!v.isEmpty()) {
-			State cState = v.pop();
-			if (visited.contains(cState)) continue; // skip visited
-			visited.add(cState);
-			
-			// Get new connected nodes
-			ListOrderedSet<State> x = new ListOrderedSet<State>();
-			x.addAll( cState.getCharEdges().values() );
-			x.addAll( cState.getEpsEdges() );
-			x.removeAll(visited); // disjoint
-//			System.out.println(cState + " : " + x );
-			v.addAll( x ); // add new nodes
-			
-			HashMap<State,String> edges = new HashMap<State, String>(); // Merges Edges for some state pair together
-			for ( Entry<Character, State> e : cState.getCharEdges().entrySet() ) {
-				// if edges has state in already, set edges[state] = edges[state]+new_character
-				State s = e.getValue();
-				if (edges.containsKey(e.getValue()))
-					edges.put(s,edges.remove(s) +e.getKey());
-				else
-					edges.put(s, Character.toString(e.getKey()));
-			}
-			for ( State other : cState.getEpsEdges() ) {
-				// if edges has state in already, set edges[state] = edges[state]+new_character
-				if ( edges.containsKey(other) )
-					edges.put(other, edges.remove(other)+EPS);
-				else
-					edges.put(other, Character.toString(EPS) );
-			}
-			
-			for ( Entry<State,String> e : edges.entrySet()) {
-				String allChars = simplify(e.getValue());
-				String edgeName = allChars+"[S"+cState.stateNum+"->S"+e.getKey().stateNum+"]";
-				g.addEdge(edgeName, cState, e.getKey(), EdgeType.DIRECTED);
-			}
+//	public static DirectedSparseMultigraph<State, String> generateGraph(
+//			NFA partialNFA) {
+//		DirectedSparseMultigraph<State, String> g = new DirectedSparseMultigraph<State, String>();
+//		Stack<State> v = new Stack<State>();
+//		ListOrderedSet<State> visited = new ListOrderedSet<State>();
+//		//HashSet()s
+//		v.add(partialNFA.entry);
+//		while (!v.isEmpty()) {
+//			State cState = v.pop();
+//			if (visited.contains(cState)) continue; // skip visited
+//			visited.add(cState);
+//			
+//			// Get new connected nodes
+//			ListOrderedSet<State> x = new ListOrderedSet<State>();
+//			x.addAll( cState.getCharEdges().values() );
+//			x.addAll( cState.getEpsEdges() );
+//			x.removeAll(visited); // disjoint
+////			System.out.println(cState + " : " + x );
+//			v.addAll( x ); // add new nodes
+//			
+//			HashMap<State,String> edges = new HashMap<State, String>(); // Merges Edges for some state pair together
 //			for ( Entry<Character, State> e : cState.getCharEdges().entrySet() ) {
-//				g.addEdge(e.getKey()+"("+cState.stateNum+"->"+e.getValue().stateNum+")", cState, e.getValue(), EdgeType.DIRECTED);
+//				// if edges has state in already, set edges[state] = edges[state]+new_character
+//				State s = e.getValue();
+//				if (edges.containsKey(e.getValue()))
+//					edges.put(s,edges.remove(s) +e.getKey());
+//				else
+//					edges.put(s, Character.toString(e.getKey()));
 //			}
-			
-//			for ( State other : cState.getEpsEdges() ) { 
-//				g.addEdge(EPS+"("+cState.stateNum+"->"+other.stateNum+")", cState, other, EdgeType.DIRECTED);
+//			for ( State other : cState.getEpsEdges() ) {
+//				// if edges has state in already, set edges[state] = edges[state]+new_character
+//				if ( edges.containsKey(other) )
+//					edges.put(other, edges.remove(other)+EPS);
+//				else
+//					edges.put(other, Character.toString(EPS) );
 //			}
-		}
-		return g;
-	}
+//			
+//			for ( Entry<State,String> e : edges.entrySet()) {
+//				String allChars = simplify(e.getValue());
+//				String edgeName = allChars+"[S"+cState.stateNum+"->S"+e.getKey().stateNum+"]";
+//				g.addEdge(edgeName, cState, e.getKey(), EdgeType.DIRECTED);
+//			}
+////			for ( Entry<Character, State> e : cState.getCharEdges().entrySet() ) {
+////				g.addEdge(e.getKey()+"("+cState.stateNum+"->"+e.getValue().stateNum+")", cState, e.getValue(), EdgeType.DIRECTED);
+////			}
+//			
+////			for ( State other : cState.getEpsEdges() ) { 
+////				g.addEdge(EPS+"("+cState.stateNum+"->"+other.stateNum+")", cState, other, EdgeType.DIRECTED);
+////			}
+//		}
+//		return g;
+//	}
 	
 	/**
 	 * Cleans up a list of characters for an edge into something resembling sexy
