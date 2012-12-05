@@ -232,7 +232,7 @@ public class RecursiveParser {
 	 */
 	private NFA statementListTail() throws ParseError {
 		
-		if (peekToken() == Symbol.ID or Symbol.REPLACE or Symbol.RECURSIVE_REPLACE) {
+		if (peekToken() == Symbol.ID || Symbol.REPLACE || Symbol.RECURSIVE_REPLACE) {
 			t = statement();
 			t = NFA.sequence( statementListTail() );
 		} else
