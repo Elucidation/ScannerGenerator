@@ -36,6 +36,7 @@ public class TableWalker {
 	private State startState;// I need a way to get this from the dfa table.
 	private State currentState;
 	private ArrayList<Token> returnList = new ArrayList<Token>();
+	private String lastKnownValidTokenType;
 
 	public TableWalker(DFATable dfaTable, State start) {
 		this.dfa = dfaTable;
@@ -56,6 +57,15 @@ public class TableWalker {
 	 */
 	public ArrayList<Token> walkTable(char c) {
 		/*
+		 * Ignore whitespace!
+		 */
+		boolean whiteSpace = false;
+		if((c==' ') || (c=='\t')||(c=='\n')||(c=='\r')){
+			//return null;
+			whiteSpace = true;
+		}
+		
+		/*
 		 * Start by clearing out the return list, we don't want any entries from
 		 * previous runs sticking around.
 		 */
@@ -66,6 +76,7 @@ public class TableWalker {
 		 */
 		if (currentState.isFinal) {
 			lastKnownValidToken = new StringBuffer(currentToken);
+			lastKnownValidTokenType = currentState.tokenName;
 		} else {
 			lastKnownValidToken = new StringBuffer();
 		}
@@ -73,7 +84,9 @@ public class TableWalker {
 		 * Let's add the new character to the buffer of characters we're
 		 * considering.
 		 */
-		currentToken.append(c);
+		if(whiteSpace==false){
+			currentToken.append(c);
+		}
 
 		/*
 		 * We move to the next state based on the character we just took in,
@@ -127,7 +140,7 @@ public class TableWalker {
 			 * actual Token class and add it to our returnList.
 			 */
 			if (lastKnownValidToken.length() != 0) {
-				Token newToken = new Token(null, lastKnownValidToken);
+				Token newToken = new Token(lastKnownValidTokenType, lastKnownValidToken);
 				returnList.add(newToken);// How do we know what type the token
 											// is?
 			}
@@ -137,13 +150,7 @@ public class TableWalker {
 			 * reevaluate the rest from the beginning.
 			 */
 			else {
-				// Throw error!
-				currentState = startState;
-				StringBuffer withoutTheJunk = new StringBuffer();
-				for (int k = 1; k < currentToken.length(); k++) {
-					withoutTheJunk.append(currentToken.charAt(k));
-				}
-				currentToken = withoutTheJunk;
+				throw new IllegalArgumentException(currentToken.charAt(0) + " could not be recognized as part of a valid token.");
 			}
 
 			/*
@@ -154,12 +161,23 @@ public class TableWalker {
 			/*
 			 * And finally, return our returnList.
 			 */
+			
+			if(c==(char)65535){
+				if(currentToken.length() != 1){
+					throw new IllegalArgumentException(currentToken.toString() + " could not be recognized as part of a valid token.");
+				}
+			}
 			return returnList;
 		} else {
 			/*
 			 * Since the current state isn't null, we could potentially go on to
 			 * recognize a bigger token. So we just return null for now.
 			 */
+			if(c==(char)65535){
+				if(currentToken.length() != 0){
+					throw new IllegalArgumentException(currentToken.toString() + " could not be recognized as part of a valid token.");
+				}
+			}
 			return null;
 		}
 	}
@@ -182,7 +200,9 @@ public class TableWalker {
 		 * move as far as we can through the dfa.
 		 */
 		for (int i = 0; i < currentToken.length(); i++) {
-
+			if(currentToken.charAt(i) == (char)65535){
+				return;
+			}
 			currentState = dfa.get(new StateCharacter(currentState,
 					currentToken.charAt(i)));
 
@@ -228,7 +248,7 @@ public class TableWalker {
 				 * of the valid token.
 				 */
 				if (lastKnownValidToken.length() != 0) {
-					returnList.add(new Token(null, lastKnownValidToken));
+					returnList.add(new Token(lastKnownValidTokenType, lastKnownValidToken));
 					reEvaluate(newCurrentToken);
 				}
 				/*
@@ -237,14 +257,7 @@ public class TableWalker {
 				 * character, which can't possibly be good.
 				 */
 				else {
-
-					// Throw error!
-					currentState = startState;
-					StringBuffer withoutTheJunk = new StringBuffer();
-					for (int k = 1; k < currentToken.length(); k++) {
-						withoutTheJunk.append(currentToken.charAt(k));
-					}
-					currentToken = withoutTheJunk;
+					throw new IllegalArgumentException(currentToken.charAt(0) + " could not be recognized as part of a valid token.");
 				}
 			}
 			/*

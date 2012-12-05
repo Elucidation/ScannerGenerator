@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -21,8 +22,7 @@ public class DFATable extends HashMap<StateCharacter, State> {
 	private ArrayList<Character> langList;
 	private ArrayList<DFAState> dfaStateList = new ArrayList<DFAState>();
 	
-	private State startState;
-	
+
 	/*
 	 * e-closure(s)
 	 * Set of NFA States reachable from NFA state s on e-transition alone
@@ -53,7 +53,7 @@ public class DFATable extends HashMap<StateCharacter, State> {
 	}
 	
 	public State getStartState() {
-		return this.startState;
+		return dfaStateList.get(0);
 	}
 	
 	/**
@@ -68,11 +68,13 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		State s = n.entry;
 		this.langList = generateAlphabet(s);
 		
-		/*for(Character c : langList) {
-			System.out.println(c);
-		}*/
+		System.out.println(" AlphabeT: [");
+		for(Character c : langList) {
+			System.out.print("'"+c + "' ");
+		}
+		System.out.println("]\n");
 		
-		 recurseStatesWill(s);	
+		recurseStatesWill(s);	
 		
 		
 
@@ -81,119 +83,109 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		//System.out.println(dfaStates);
 		for(DFAState st : this.dfaStateList) {
 			//recurseStates(st);
-			System.out.println(st);
+			//System.out.println(st + " is linked to:");
+			Iterator<Entry<Character,State>> myIt = st.getCharEdges().entrySet().iterator();
+			while(myIt.hasNext()){
+				Entry<Character,State> myEnt = myIt.next();
+				//System.out.println(myEnt.getValue() + " on " + myEnt.getKey());
+				this.put(new StateCharacter(st, myEnt.getKey()), myEnt.getValue());
+			}
 		}
 	}
-	
-	
-	
-	/**
-	 * 
-	 * @param s
-	 * @return
-	 */
-	
-	public DFAState recurseStates(State s) {
-		boolean foundChar = false;
-		ArrayList<State> eClousers = getEpsilonAdjList(s);
-		DFAState state = new DFAState();
-		if(eClousers.size() > 0) {
-			
-			state.setEpsEdges(eClousers);
-			state.addepsilonEdge(state);
-			
-			if(doesContain(this.dfaStateList, state)) {
-				return state;
-			}
-			else {
-				this.dfaStateList.add(state);
-				
-			}
-		}
-		for(char c : this.langList) {
-			
-			ArrayList<State> adjList = getCharAdjList(s, c);
-			for(State d : adjList) {
-				foundChar = true;
-				DFAState dfaState = new DFAState();
-				ArrayList<State> eClousersTest = getEpsilonAdjList(d);
-				dfaState.setEpsEdges(eClousersTest);
-				dfaState.addepsilonEdge(dfaState);
-				
-				if(!doesContain(this.dfaStateList, dfaState)) {
-					state.addToCharStateList(dfaState, c);
-				}
-				else {
-					return recurseStates(d);
-				}
-			}
-		}
-		
-		if(!foundChar) {
-			if(!s.isFinal || eClousers.size() > 0) {
-				for(State st: eClousers) {
-					return recurseStates(st);
-				}
-			}
-		}
-		
-		
-		return state;
-	}
-	
 	
 	public void recurseStatesWill(State s) {
 		if(s.visited)
 			return;
 		ArrayList<State> eClousers = getEpsilonAdjList(s);
-		ArrayList<State> eClousers2 = getEpsilonAdjList(s);
-		eClousers.add(s);
 		DFAState currentState = new DFAState();
 		currentState.setAdjacentList(eClousers);
+		dfaStateList.add(currentState);
+		recurseWillAgain(eClousers);
 		
 		
-		
-		ArrayList<State> tmpList = new ArrayList<State>();
+	}
+	
+	public void recurseWillAgain(ArrayList<State> dfa){
+		ArrayList<State> tmpList;
+		DFAState tmpDFAState = new DFAState();
 		//ArrayList<State> tmpDFA = new ArrayList
 		for(char c : this.langList) {
-			
-			for(State ss: eClousers2) {
+			tmpList = new ArrayList<State>();
+			for(State ss: dfa) {
 				
 				for(Entry<Character, State> cc : ss.getCharEdges().entrySet()) {
 					if(c == cc.getKey()) {
 						tmpList.add(cc.getValue());
 						
 					}
-				}//
+				}
 				
-				for(State tmpState : tmpList) {
-					ArrayList<State> tmpEClose = getEpsilonAdjList(tmpState);
-					DFAState tmpDFAState = new DFAState();
-					tmpEClose.add(tmpDFAState);
+					ss.visited = true;
+			}
+			tmpDFAState = new DFAState();
+			ArrayList<State> tmpEClose = new ArrayList<State>();
+			for(State tmpState : tmpList) {
+				tmpEClose = getEpsilonAdjList(tmpState);
+				//tmpEClose.add(tmpDFAState);
+				
+				if(tmpDFAState.getAdjacentList() == null){
 					tmpDFAState.setAdjacentList(tmpEClose);
-					//tmpDFAState.addepsilonEdge(tmpDFAState);
-					
-					if(!doesContain(this.dfaStateList, tmpDFAState)) {
-						this.dfaStateList.add(tmpDFAState);
-						
+				}
+				else{
+					for(State toAdd:tmpEClose){
+					if(!doesContain(tmpDFAState.getAdjacentList(),toAdd)){
+						tmpDFAState.append(toAdd);
 					}
-					else {
-						currentState.addCharEdge(c, tmpDFAState);
+				}
+				}
+				
+				//tmpDFAState.setAdjacentList(tmpEClose);
+				//tmpDFAState.addepsilonEdge(tmpDFAState);
+				
+				
+			}
+			if(!davidEquals(this.dfaStateList, tmpDFAState)) {
+				
+				for(State n:tmpDFAState.getAdjacentList()){
+					if(n.isFinal){
+						tmpDFAState.isFinal = true;
+						tmpDFAState.tokenName = n.tokenName;
 					}
 				}
 				
-				//if(ss.isFinal == false) {
-					//recurseStatesWill(ss);
-				//}
-					ss.visited = true;
+				if(tmpDFAState.isFinal){
+					//check for char edges, stop if there are none
+					State theFinalOne = new State();
+					for (State m:tmpDFAState.getAdjacentList()){
+						if(m.isFinal){
+							theFinalOne = m;
+						}
+					}
+					this.dfaStateList.add(tmpDFAState);
+					createLink(dfa,c,tmpDFAState);
+					if(checkTransitions(tmpDFAState)){
+						recurseWillAgain(tmpDFAState.getAdjacentList());
+					}
+				
+				}
+				else{
+					createLink(dfa,c,tmpDFAState);
+
+				this.dfaStateList.add(tmpDFAState);
+				if(checkTransitions(tmpDFAState)){
+					recurseWillAgain(tmpDFAState.getAdjacentList());
+				}				
+				}
+				
 			}
+			else {
+				if(tmpDFAState.getAdjacentList() != null){
+				DFAState toLinkTo = davidGet(this.dfaStateList,tmpDFAState);
+				createLink(dfa,c,toLinkTo);
+			}}
 		}
+	
 	}
-	
-	
-	
-	
-	
 	private ArrayList<Character> generateAlphabet(State start) {
 		
 		ArrayList<Character> characters = new ArrayList<Character>();
@@ -202,14 +194,14 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		}
 		
 		HashMap<Character, State> alphabetListAdjacent = start.getCharEdges();
+//		System.out.println("GENALPH: "+start.getCharEdges().keySet());
 		if(alphabetListAdjacent.size() > 0) {
 			for(Entry<Character, State> entry: alphabetListAdjacent.entrySet()) {
-				entry.getValue().visited = true;
 				if(!doesContain(characters, entry.getKey())) {
 					characters.add(entry.getKey());
 				}
 				ArrayList<Character> charactersSub = generateAlphabet(entry.getValue());
-				
+				entry.getValue().visited = true;
 				for(char ch : charactersSub) {
 					if(!doesContain(characters, ch)) {
 						characters.add(ch);
@@ -221,7 +213,10 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		}
 		else {
 			ArrayList<State> eList = start.getEpsEdges();
+//			for(State state : eList) {state.halfVisited = false;}
 			for(State state : eList) {
+				if (state.halfVisited) continue;
+				state.halfVisited = true;
 				ArrayList<Character> charactersSub = generateAlphabet(state);
 				state.visited = true;
 				for(char ch : charactersSub) {
@@ -257,10 +252,27 @@ public class DFATable extends HashMap<StateCharacter, State> {
 			for(State sa : allEEdges) {
 				if(!doesContain(adjEEdges, sa)) {
 					adjEEdges.add(sa);
+					adjEEdges = findMore(sa,adjEEdges);
 				}
 			}
 			
-		}		return adjEEdges;
+			
+		}
+		if(!doesContain(adjEEdges,s)){
+			adjEEdges.add(s);
+		}
+		return adjEEdges;
+	}
+	
+	public ArrayList<State> findMore(State sa, ArrayList<State> adjEEdges){
+		ArrayList<State> saClosures = sa.getEpsEdges();
+		for(State m:saClosures){
+			if(!doesContain(adjEEdges,m)){
+				adjEEdges.add(m);
+				adjEEdges = findMore(m,adjEEdges);
+			}
+		}
+		return adjEEdges;
 	}
 	
 	/**
@@ -332,117 +344,8 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		return false;
 	}
 	
-	/**
-	 * 
-	 * @param adjList
-	 * @return
-	 */
-	public ArrayList<State> construct(ArrayList<State> adjList, char c, State source) {
-		
-		ArrayList<State> returnList = new ArrayList<State>();
-		for(State state : adjList) {
-			ArrayList<State> charList = new ArrayList<State>();
-			//Get the char
-			HashMap<Character, State> alphabetListAdjacent = state.getCharEdges();
-			for(Entry<Character, State> e : alphabetListAdjacent.entrySet()) {	
-				if(e.getKey() == c) {
-					returnList.add(e.getValue());
-					//System.out.println(e.getValue());
-				}
-				
-			}
-			ArrayList<State> eTransitionsFromChar = getEpsilonAdjList(state);
-			for(State ss : eTransitionsFromChar) {
-				if(!doesContain(returnList, ss)) {
-					returnList.add(ss);
-				}
-			}
-		}
-		
-		for(State st : returnList) {
-			
-				State state = new State();
-				StateCharacter anotherState = new StateCharacter(source, c);
-				this.ourTable.put(anotherState, state);
-				
-			}
-		
-		
-		return returnList;
-	}
 	
-	
-	
-	/*
-	public ArrayList[] construct(State s) {
-		ArrayList<State> adjList = getEpsilonAdjList(s);
-		ArrayList<State> trackList = getEpsilonAdjList(s);
-		//Char transition list from inital
-		ArrayList<StateCharacter> cListFromEntry = new ArrayList<StateCharacter>();
-		ArrayList[] dLitt= new ArrayList[26];
-		ArrayList[] fList = new ArrayList[26];
-		for(State state : adjList) {
-			ArrayList<State> charList = new ArrayList<State>();
-			//Get the char
-			HashMap<Character, State> alphabetListAdjacent = state.getCharEdges();
-			for(Entry<Character, State> e : alphabetListAdjacent.entrySet()) {
-				char c = e.getKey();
-				ArrayList<State> currentChars = new ArrayList<State>();
-				StateCharacter sc = new StateCharacter(e.getValue(), e.getKey());
-				cListFromEntry.add(sc);
-				
-				//RE-construct
-				charList = new ArrayList<State>();
-				//System.out.println("Looking for transitions for char: " + c);
-				charList = moveChar(e.getValue(), e.getKey());
-				ArrayList<State> eTransitionsFromChar = getEpsilonAdjList(e.getValue());
-				
-				if(dLitt[c - 'a'] == null) {
-					dLitt[c - 'a'] = new ArrayList<State>();
-					for(State ss : trackList) {
-						currentChars.add(ss);
-					}
-					//currentChars = trackList;
-				}else {
-					currentChars = dLitt[c - 'a'];
-				}
-				
-				if(!doesContain(currentChars, e.getValue())) {
-					currentChars.add(e.getValue());
-				}
-				
-				for(State ss : charList) {
-					if(!doesContain(currentChars, ss)) {
-						currentChars.add(ss);
-					}
-				}
-				for(State ss : eTransitionsFromChar) {
-					if(!doesContain(currentChars, ss)) {
-						currentChars.add(ss);
-					}
-				}
-				
-				dLitt[c - 'a'] = currentChars;
-				
-				
-			}
-			
-			
-		}
-		
-		for(int i = 0; i < 26; i++) {
-			if(dLitt[i] != null) {
-				State state = new State();
-				StateCharacter anotherState = new StateCharacter(s, (char)(i + 'a'));
-				this.ourTable.put(anotherState, state);
-				}
-			}
-		
-		
-		return dLitt;
-	}
-		*/
-	/**
+		/**
 	 * This function finds all epislon moves from this state
 	 * @param state
 	 * @return
@@ -470,13 +373,68 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		return rList;
 	}
 	
-
-	
 	
 
+	public boolean davidEquals(ArrayList<DFAState> dfaStates, DFAState proposedState){
+		for(State m:dfaStates){
+			if(customEquals(proposedState,(DFAState)m)){
+				return true;
+			}
+		}
+		
+		
+		return false;
+	}
+	
+	public boolean customEquals(DFAState obj, DFAState obj2){
+		DFAState toCompareTo = (DFAState)obj;
+		if ( (toCompareTo.getAdjacentList() == null) || (obj.getAdjacentList() == null) )
+			return toCompareTo.getAdjacentList() == obj.getAdjacentList();
+		
+		for(State m: toCompareTo.getAdjacentList()){
+			if((!obj2.getAdjacentList().contains(m))||(obj2.getAdjacentList().size() != toCompareTo.getAdjacentList().size())){
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public DFAState davidGet(ArrayList<DFAState> dfaStates, DFAState proposedState){
+		for(State m:dfaStates){
+			if(customEquals(proposedState,(DFAState)m)){
+				return (DFAState)m;
+			}
+		}
+		
+			return null;
+		
+		
+	}
 
 	
-   
+	public void createLink(ArrayList<State> dfa,char c, DFAState tmpDFAState){
+		DFAState toFind = new DFAState();
+		toFind.setAdjacentList(dfa);
+		DFAState real = davidGet(dfaStateList, toFind);
+		real.addCharEdge(c, tmpDFAState);
+	}
 	
+	public boolean checkTransitions(DFAState state){
+		for(char c : this.langList) {
+			Iterator<Entry<Character,State>> myIt = state.getCharEdges().entrySet().iterator();
+			boolean didIFindMyChar = false;
+			while(myIt.hasNext()){
+				Entry<Character,State> myEnt = myIt.next();
+				if(myEnt.getKey() == c){
+					didIFindMyChar = true;
+				}
+			}
+			if(didIFindMyChar == false){
+				return true;
+			}
+		}
+		
+		return false;
+	}
 	
 }

@@ -17,11 +17,16 @@ public  class State implements Comparable<State> {
         private HashMap<Character,State> charEdges = new HashMap<Character,State>(256);
         private ArrayList<State> epsEdges = new ArrayList<State>();
         private ArrayList<State> adjacentList;
+		public String tokenName;
         
+		public boolean halfVisited;
         public ArrayList<State> getAdjacentList() {
     		return adjacentList;
     	}
 
+        public void append(State toAdd){
+    		adjacentList.add(toAdd);
+    	}
 
     	public void setAdjacentList(ArrayList<State> adjacentList) {
     		this.adjacentList = adjacentList;

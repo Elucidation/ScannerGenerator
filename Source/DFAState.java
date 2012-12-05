@@ -10,6 +10,8 @@ public class DFAState extends State {
 	//private char transition;
 	private HashMap<Character, DFAState> charStateList = new HashMap<Character, DFAState>();
 	
+	
+	
 
 
 	/*public ArrayList<State> getAdjacentList() {
@@ -20,6 +22,7 @@ public class DFAState extends State {
 	public void setAdjacentList(ArrayList<State> adjacentList) {
 		this.adjacentList = adjacentList;
 	}*/
+	
 	
 	public void addToCharStateList(DFAState s, char c) {
 		charStateList.put(c, s);
