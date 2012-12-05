@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import Source.Parser.Keywords;
+
 public class RecursiveParser {
 	private static final boolean DEBUG = false;
 	private String data;
@@ -151,5 +153,203 @@ public class RecursiveParser {
 		if (DEBUG) System.out.println(" MATCH: "+token);
 		return token;
 	}
+	
+	
+	/**
+	 * Validates the length of the ID within a token
+	 * @param t
+	 * @return
+	 */
+	boolean validateLength(Token t) {
+		//IF token type is ID, the DATA.length x must be 1 < x < 10
+		return true;
+	}
+	
+	
+	/**
+	 * Validates regex within token
+	 * @param t
+	 * @return
+	 */
+	boolean validateRegex(Token t) {
+		return true;
+	}
+
+	Token verifyIDFormat() {
+		
+		return null;
+		
+	}
+	
+	/**
+	 * 
+	 * @param t
+	 * @return
+	 */
+	boolean checkIfTokenIsKeyword(Token t) {
+		
+		
+		return false;
+	}
+	
+	/**
+	 * 
+	 * @param t
+	 * @return
+	 */
+	boolean checkIfTokenIsID(Token t) {
+		
+		return false;
+	}
+	
+	
+	//* ***********************************
+	//*			Rules Start Here	  	  *
+	//*	Some of these functions will be   *
+	//* Deleted when we get further       *
+	//* ***********************************
+	 
+	
+	/**
+	 * Statement List Rule
+	 * <statement-list> ->  <statement><statement-list-tail> 
+	 */
+	void statementList() {
+		statement();
+		statementListTail();
+	}
+	
+	/**
+	 * 
+	 * <statement> -> ID = <exp> ;
+	 * <statement> -> ID = # <exp> ; 
+	 *	<statement> -> ID = maxfreqstring (ID);
+	 *	<statement> -> replace REGEX with ASCII-STR in  <file-names> ;
+	 *	<statement> -> recursivereplace REGEX with ASCII-STR in  <file-names> ;
+	 *  <statement> -> print ( <exp-list> ) ;
+	 */
+	void statement() {
+		// TODO Auto-generated method stub
+	}
+	
+	
+
+	/**
+	 * Statement List Tail Rule
+	 * <statement-list-tail> -> <statement><statement-list-tail>  | epislon
+	 */
+	void statementListTail() {
+		Symbol t = peekToken();
+		boolean matchFound = false;
+		
+		for(Keywords s : Keywords.values()) {
+			if(s.name().equals(t.type)) {
+				matchFound = true;
+				
+			}
+		}
+		
+		if(matchFound) {
+			statement();
+			statementListTail();
+		}
+		else {
+			return;
+		}
+		
+		
+		
+		//or empty string
+	}
+	
+	/**
+	 * File-Names rule
+	 * <file-names> ->  <source-file>  >!  <destination-file>
+	 */
+	void fileNames() {
+		sourceFile();
+		destinationFile();
+	}
+	
+	/**
+	 * Source File Rule
+	 * <source-file> ->  ASCII-STR  
+	 */
+	void sourceFile() {
+		//TODO: ASCII-STR , not sure what to do here yet
+	}
+	
+	/**
+	 * Destination File Rule
+	 * <destination-file> -> ASCII-STR
+	 */
+	void destinationFile() {
+		//TODO: ASCII-STR , not sure what to do here yet
+	}
+	
+	/**
+	 *  Expression List Rule
+	 * <exp-list> -> <exp> <exp-list-tail>
+	 */
+	void expressionList() {
+		exp();
+		expressionListTail();
+	}
+	
+	/**
+	 * Expression List Tail Rule
+	 * <exp-list-tail> -> , <exp> <exp-list-tail>
+	 */
+	
+	void expressionListTail() {
+		exp();
+		expressionListTail();
+		//TODO: Fix this, infinate logic loop
+	}
+	
+	/**
+	 * Expression
+	 * <exp>-> ID  | ( <exp> ) 
+	 * <exp> -> <term> <exp-tail>
+	 * 
+	 */
+	void exp() {
+		//TODO: Stub
+	}
+	
+	/**
+	 * Expression Tail
+	 * <exp-tail> ->  <bin-op> <term> <exp-tail> 
+	 * <exp-tail> -> epislon
+	 */
+	void expressionTail() {
+		//TODO: Stub
+	}
+	
+	/**
+	 * Term
+	 * <term > -> find REGEX in  <file-name>  
+	 */
+	/*void term() {
+		//TODO - This probably isn't needed
+	}*/
+	
+	/**
+	 * Filename
+	 * <file-name> -> ASCII-STR
+	 */
+	void filename() {
+		//TODO - This probably isn't needed
+	}
+	
+	/**
+	 * 
+	 * <bin-op> ->  diff | union | inters
+	 */
+	void binaryOperators() {
+		//TODO
+	}
+
+	
 
 }
