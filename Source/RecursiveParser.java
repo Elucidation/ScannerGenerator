@@ -396,7 +396,14 @@ public class RecursiveParser {
 	 * <bin-op> ->  diff | union | inters
 	 */
 	private NFA binaryOperators() {
-		//TODO
+		Symbol sym = peekToken();
+		if (sym == Symbol.DIFF || sym == Symbol.UNION || sym == Symbol.INTERS) {
+			Token token = matchToken(sym);
+			return NFA.createCharClass(tokens.get(token));
+		}
+		else {
+			throw new ParseError("binaryOperators() was passed unexpected token + '"+sym+"' for "+data);
+		}
 	}
 
 	
