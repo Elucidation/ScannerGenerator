@@ -228,10 +228,10 @@ public class RecursiveParser {
 
 	/**
 	 * Statement List Tail Rule
-	 * <statement-list-tail> -> <statement><statement-list-tail>  | epislon
+	 * <statement-list-tail> -> <statement><statement-list-tail>  | epsilon
 	 */
 	private NFA statementListTail() throws ParseError {
-		NFA t;
+		
 		if (peekToken() == Symbol.ID or Symbol.REPLACE or Symbol.RECURSIVE_REPLACE) {
 			t = statement();
 			t = NFA.sequence( statementListTail() );
@@ -327,20 +327,15 @@ public class RecursiveParser {
 
 	/**
 	 * Expression List Tail Rule
-	 *	 <exp-tail> -> <bin-op> <term> <exp-tail> 
-	 *   <exp-tail> -> eps
+	 *	 <exp-tail> -> , <exp> <exp-list-tail>
 	 */
 
 	private NFA expressionListTail() {
 		NFA t;
+		matchToken(Symbol.COMMA);
 		Symbol sym = peekToken();
-		if (sym == Symbol.DIFF || sym == Symbol.UNION || sym == Symbol.INTERS) {
-			binop();
-			t = exp();
-			t = NFA.sequence(t, expressionListTail() );	
-		} else {
-			t = NFA.epsilon();
-		}
+		t = exp();
+		t = NFA.sequence(t, expressionListTail() );	
 		return t;
 	}
 
@@ -354,21 +349,30 @@ public class RecursiveParser {
 		NFA t;
 		Symbol sym = peekToken();
 		if (sym == Symbol.ID) {
-			matchToken(Symbol.ID);
+			Token token = matchToken(Symbol.ID);
+			t = NFA.createCharClass(tokens.get(token));
 		} else {
 			t = term();
+			t = NFA.sequence(t, expressionTail() );	
 		}
-		
-
+		return t;
 	}
 
 	/**
 	 * Expression Tail
 	 * <exp-tail> ->  <bin-op> <term> <exp-tail> 
-	 * <exp-tail> -> epislon
+	 * <exp-tail> -> epsilon
 	 */
 	private NFA expressionTail() {
-		//TODO: Stub
+		NFA t;
+		Symbol sym = peekToken();
+		if (sym == Symbol.DIFF || sym == Symbol.UNION || sym == Symbol.INTERS) {
+			binop();
+			t = exp();
+			t = NFA.sequence(t, expressionListTail() );	
+		} else {
+			t = NFA.epsilon();
+		}
 	}
 
 	/**
