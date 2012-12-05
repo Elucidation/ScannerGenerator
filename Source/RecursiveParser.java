@@ -13,7 +13,7 @@ public class RecursiveParser {
 	private HashMap<String, HashSet<Character>> tokens;
 	private static List<Character> ID_DELIMS = Arrays.asList('\\', '|', '(',')','[',']','*','+');
 	
-	private enum Symbol {CHARCLASS, CHR, SPECIAL_CHAR, L_PAREN, R_PAREN, ZERO_OR_MORE, ONE_OR_MORE, UNION};
+	private enum Symbol {CHARCLASS, CHR, SPECIAL_CHAR, L_PAREN, R_PAREN, ZERO_OR_MORE, ONE_OR_MORE, UNION, REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS};
 	
 	public RecursiveParser(String val, HashMap<String, HashSet<Character>> tokens) {
 		this.data = val;
@@ -211,7 +211,7 @@ public class RecursiveParser {
 	 
 	private NFA minireProgram() throws ParseError {
 		matchToken(Symbol.BEGIN);
-		t = statementList();
+		NFA t = statementList();
 		matchToken(Symbol.END);
 		return t;
 	}
@@ -300,7 +300,7 @@ public class RecursiveParser {
 	private NFA sourceFile() {
 		//TODO: ASCII-STR , not sure what to do here yet
 		Token token = matchToken(Symbol.CHARCLASS);
-		t = NFA.createCharClass(tokens.get(token));
+		NFA t = NFA.createCharClass(tokens.get(token));
 		return t;
 	}
 
