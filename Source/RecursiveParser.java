@@ -23,7 +23,7 @@ public class RecursiveParser {
 	
 	public NFA getNFA(String name) throws ParseError {
 		NFA x = expr();
-		x.exit.tokenName = name;
+		//x.exit.tokenName = name;
 		return x;
 	}
 	
@@ -215,8 +215,9 @@ public class RecursiveParser {
 	/**
 	 * Statement List Rule
 	 * <statement-list> ->  <statement><statement-list-tail> 
+	 * @throws ParseError 
 	 */
-	void statementList() {
+	void statementList() throws ParseError {
 		statement();
 		statementListTail();
 	}
@@ -239,16 +240,17 @@ public class RecursiveParser {
 	/**
 	 * Statement List Tail Rule
 	 * <statement-list-tail> -> <statement><statement-list-tail>  | epislon
+	 * @throws ParseError 
 	 */
-	void statementListTail() {
+	void statementListTail() throws ParseError {
 		Symbol t = peekToken();
 		boolean matchFound = false;
 		
 		for(Keywords s : Keywords.values()) {
-			if(s.name().equals(t.type)) {
+			/*if(s.name().equals(t.type)) {
 				matchFound = true;
 				
-			}
+			}*/
 		}
 		
 		if(matchFound) {
