@@ -6,11 +6,15 @@ package Source;
  */
 //Token Types:
 
-//IDorKey
-//ID
-//KEY
 //REGEX
-//ASCII
+//ASCII 
+//$IDorKey
+//$ID_EQUALS
+//$ID_HASH 
+//ID_ENDLINE 
+//ID_OPENPAREN 
+//ID_CLOSEPAREN
+//ID_SAVETO 
 
 
 
