@@ -206,151 +206,167 @@ public class RecursiveParser {
 	
 	
 	//* ***********************************
-	//*			Rules Start Here	  	  *
-	//*	Some of these functions will be   *
-	//* Deleted when we get further       *
+	//*	        Rules Start Here          *
 	//* ***********************************
 	 
-	
+	private NFA minireProgram() throws ParseError {
+		matchToken(Symbol.BEGIN);
+		t = statementList();
+		matchToken(Symbol.END);
+		return t;
+	}
+
 	/**
 	 * Statement List Rule
 	 * <statement-list> ->  <statement><statement-list-tail> 
-	 * @throws ParseError 
 	 */
-	void statementList() throws ParseError {
-		statement();
-		statementListTail();
+	private NFA statementList() throws ParseError {
+		NFA t = statement();
+		t = NFA.sequence( statementListTail() );
+		return t
 	}
-	
-	/**
-	 * 
-	 * <statement> -> ID = <exp> ;
-	 * <statement> -> ID = # <exp> ; 
-	 *	<statement> -> ID = maxfreqstring (ID);
-	 *	<statement> -> replace REGEX with ASCII-STR in  <file-names> ;
-	 *	<statement> -> recursivereplace REGEX with ASCII-STR in  <file-names> ;
-	 *  <statement> -> print ( <exp-list> ) ;
-	 */
-	void statement() {
-		// TODO Auto-generated method stub
-	}
-	
-	
 
 	/**
 	 * Statement List Tail Rule
 	 * <statement-list-tail> -> <statement><statement-list-tail>  | epislon
-	 * @throws ParseError 
 	 */
-	void statementListTail() throws ParseError {
-		Symbol t = peekToken();
-		boolean matchFound = false;
-		
-		for(Keywords s : Keywords.values()) {
-			/*if(s.name().equals(t.type)) {
-				matchFound = true;
-				
-			}*/
+	private NFA statementListTail() throws ParseError {
+		NFA t;
+		if (peekToken() == Symbol.ID or Symbol.REPLACE or Symbol.RECURSIVE_REPLACE) {
+			t = statement();
+			t = NFA.sequence( statementListTail() );
+		} else
+		{
+			t = NFA.epsilon();
 		}
-		
-		if(matchFound) {
-			statement();
-			statementListTail();
-		}
-		else {
-			return;
-		}
-		
-		
-		
-		//or empty string
+		return t;
 	}
-	
+
+
+	/**
+	 * 
+	 * <statement> -> ID = <exp> ;
+	 * <statement> -> ID = # <exp> ; 
+	 *      <statement> -> ID = maxfreqstring (ID);
+	 *      <statement> -> replace REGEX with ASCII-STR in  <file-names> ;
+	 *      <statement> -> recursivereplace REGEX with ASCII-STR in  <file-names> ;
+	 *  <statement> -> print ( <exp-list> ) ;
+	 */
+	private NFA statement() throws ParseError {
+		NFA t;
+		Symbol sym = peekToken();
+		switch(sym) {
+		case ID:
+			matchToken(Symbol.ID);
+			matchToken(Symbol.EQUALS);
+			// Magic maxfreqstring
+			// t
+		case REPLACE:
+			matchToken(Symbol.REPLACE);
+			String regex = matchToken(Symbol.REGEX);
+			matchToken(Symbol.WITH);
+			matchToken(Symbol.ASCII_STR);
+			matchToken(Symbol.IN);
+			t = fileNames();
+		case RECURSIVE_REPLACE:
+			matchToken(Symbol.RECURSIVE_REPLACE);
+			matchToken(Symbol.REGEX);
+			matchToken(Symbol.WITH);
+			matchToken(Symbol.ASCII_STR);
+			matchToken(Symbol.IN);
+			t = fileNames();
+		default:
+			throw new ParseError("statement() was passed unexpected token + '"+sym+"' for "+data);
+		}
+		return t;
+	}
+
+
 	/**
 	 * File-Names rule
 	 * <file-names> ->  <source-file>  >!  <destination-file>
 	 */
-	void fileNames() {
-		sourceFile();
-		destinationFile();
+	private NFA fileNames() {
+		NFA t = sourceFile();
+		t = NFA.sequence(t, destinationFile() );
 	}
-	
+
 	/**
 	 * Source File Rule
 	 * <source-file> ->  ASCII-STR  
 	 */
-	void sourceFile() {
+	private NFA sourceFile() {
 		//TODO: ASCII-STR , not sure what to do here yet
 	}
-	
+
 	/**
 	 * Destination File Rule
 	 * <destination-file> -> ASCII-STR
 	 */
-	void destinationFile() {
+	private NFA destinationFile() {
 		//TODO: ASCII-STR , not sure what to do here yet
 	}
-	
+
 	/**
 	 *  Expression List Rule
 	 * <exp-list> -> <exp> <exp-list-tail>
 	 */
-	void expressionList() {
+	private NFA expressionList() {
 		exp();
 		expressionListTail();
 	}
-	
+
 	/**
 	 * Expression List Tail Rule
 	 * <exp-list-tail> -> , <exp> <exp-list-tail>
 	 */
-	
-	void expressionListTail() {
+
+	private NFA expressionListTail() {
 		exp();
 		expressionListTail();
 		//TODO: Fix this, infinate logic loop
 	}
-	
+
 	/**
 	 * Expression
 	 * <exp>-> ID  | ( <exp> ) 
 	 * <exp> -> <term> <exp-tail>
 	 * 
 	 */
-	void exp() {
+	private NFA exp() {
 		//TODO: Stub
 	}
-	
+
 	/**
 	 * Expression Tail
 	 * <exp-tail> ->  <bin-op> <term> <exp-tail> 
 	 * <exp-tail> -> epislon
 	 */
-	void expressionTail() {
+	private NFA expressionTail() {
 		//TODO: Stub
 	}
-	
+
 	/**
 	 * Term
 	 * <term > -> find REGEX in  <file-name>  
 	 */
-	/*void term() {
+	/*private NFA term() {
 		//TODO - This probably isn't needed
 	}*/
-	
+
 	/**
 	 * Filename
 	 * <file-name> -> ASCII-STR
 	 */
-	void filename() {
+	private NFA filename() {
 		//TODO - This probably isn't needed
 	}
-	
+
 	/**
 	 * 
 	 * <bin-op> ->  diff | union | inters
 	 */
-	void binaryOperators() {
+	private NFA binaryOperators() {
 		//TODO
 	}
 
