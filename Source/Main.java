@@ -40,6 +40,7 @@ public class Main {
 		char c;
 		ArrayList<Token> tokens;
 		ArrayList<String> tokenStringList = new ArrayList<String>();
+		ArrayList<Token> allTokens = new ArrayList<Token>();
 		boolean atEnd = false;
 		while (  !atEnd  ) {
 			c = (char)in.read();
@@ -59,6 +60,7 @@ public class Main {
 					String tokenString = "TOKEN!: "+token+"\n";
 					System.out.println(tokenString);
 					tokenStringList.add(tokenString);
+					allTokens.add(token);
 				}
 			}
 			if (c == EOF)
@@ -68,11 +70,15 @@ public class Main {
 		System.out.println("Finished Walking Table! Found "+tokenStringList.size()+" tokens.\n");
 		
 		// Write tokens to output file , writing tokens to '"+outputFilename+"'
-		System.out.println("Writing tokens to output file '"+outputFilename+"'...");
-		BufferedWriter out = new BufferedWriter( new FileWriter(outputFilename) );
-		for (String tokenString : tokenStringList) out.write(tokenString);
-		out.close();
-		System.out.println("Finished writing tokens! All Done.");
+//		System.out.println("Writing tokens to output file '"+outputFilename+"'...");
+//		BufferedWriter out = new BufferedWriter( new FileWriter(outputFilename) );
+//		for (String tokenString : tokenStringList) out.write(tokenString);
+//		out.close();
+//		System.out.println("Finished writing tokens! All Done.");
+		
+		System.out.println("Calling Recursive Parser for Mini-Re Program...");
+		RecursiveParserMiniRe rec = new RecursiveParserMiniRe(allTokens);
+		rec.minireProgram();
 
 	}
 }

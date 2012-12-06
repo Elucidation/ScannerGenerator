@@ -10,7 +10,7 @@ public class RecursiveParserMiniRe {
 	
 	Stack<Token> tokens;
 	
-	private enum Symbol {REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT, UNION, CHARCLASS};
+	private enum Symbol {REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT, UNION, CHARCLASS, MATCHES};
 	
 	private Token peekToken() {
 		return tokens.peek();
@@ -83,7 +83,7 @@ public class RecursiveParserMiniRe {
 	//*	        Rules Start Here          *
 	//* ***********************************
 	 
-	private NFA minireProgram() throws ParseError {
+	public NFA minireProgram() throws ParseError {
 		matchToken(Symbol.BEGIN);
 		NFA t = statementList();
 		matchToken(Symbol.END);
@@ -359,8 +359,11 @@ public class RecursiveParserMiniRe {
 		else if(t.type.equalsIgnoreCase(Symbol.PRINT.name())) {
 			return Symbol.PRINT;
 		}
+		else if(t.type.equalsIgnoreCase(Symbol.MATCHES.name())) {
+			return Symbol.MATCHES;
+		}
 		else {
-			throw new ParseError("Unable to find Symbol");
+			throw new ParseError("Unable to find Symbol for Token : " + t);
 		}
 		
 		/*switch(t.type) {
