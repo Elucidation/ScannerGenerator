@@ -3,25 +3,23 @@ package Source;
 import java.awt.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Stack;
-
 
 public class RecursiveParserMiniRe {
 	
 	Stack<Token> tokens;
 	
-	private enum Symbol {REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT};
+	private enum Symbol {REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT, UNION, CHARCLASS};
 	
-	
-	private Symbol peekToken() {
-		Token tok = tokens.peek();
-		return null;
+	private Token peekToken() {
+		return tokens.peek();
 	}
 	
-	private Symbol matchToken(Symbol begin) {
-		Token tok = tokens.pop();
-		// TODO Actually assert check once symbol to blah exists
-		return null;
+	private Token matchToken(Symbol sym) throws ParseError {
+		Token tok =  tokens.pop();
+		assert( tokenToSymbol(tok) == sym);
+		return tok;
 	}
 	
 	public RecursiveParserMiniRe(ArrayList<Token> inTokens) {
@@ -108,7 +106,7 @@ public class RecursiveParserMiniRe {
 	 */
 	private NFA statementListTail() throws ParseError {
 		NFA t;
-		Symbol sym = peekToken();
+		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.ID || sym == Symbol.REPLACE || sym == Symbol.RECURSIVE_REPLACE) {
 			t = statement();
 			t = NFA.sequence(t,  statementListTail() );
@@ -130,7 +128,7 @@ public class RecursiveParserMiniRe {
 	 */
 	private NFA statement() throws ParseError {
 		NFA t;
-		Symbol sym = peekToken();
+		Symbol sym = tokenToSymbol( peekToken() );
 		switch(sym) {
 		case ID:
 			matchToken(Symbol.ID);
@@ -142,7 +140,8 @@ public class RecursiveParserMiniRe {
 			break;
 		case REPLACE:
 			matchToken(Symbol.REPLACE);
-			String regex = matchToken(Symbol.REGEX);
+			Token regex = matchToken(Symbol.REGEX);
+			String regexLine = (String) regex.data;
 			matchToken(Symbol.WITH);
 			matchToken(Symbol.ASCII_STR);
 			matchToken(Symbol.IN);
@@ -161,7 +160,7 @@ public class RecursiveParserMiniRe {
 			t = expressionList();
 			break;
 		default:
-			throw new ParseError("statement() was passed unexpected token + '"+sym+"' for "+data);
+			throw new ParseError("statement() was passed unexpected token + '"+sym+"' for "+tokens);
 		}
 		return t;
 	}
@@ -186,8 +185,8 @@ public class RecursiveParserMiniRe {
 	 */
 	private NFA sourceFile() throws ParseError {
 		//TODO: ASCII-STR , not sure what to do here yet
-		String token = matchToken(Symbol.CHARCLASS);
-		NFA t = NFA.createCharClass(tokens.get(token));
+		Token token = matchToken(Symbol.CHARCLASS);
+		NFA t = NFA.createCharClass(tokenToEdges(token));
 		return t;
 	}
 
@@ -198,8 +197,8 @@ public class RecursiveParserMiniRe {
 	 */
 	private NFA destinationFile() throws ParseError {
 		//TODO: ASCII-STR , not sure what to do here yet
-		String token = matchToken(Symbol.CHARCLASS);
-		NFA t = NFA.createCharClass(tokens.get(token));
+		Token token = matchToken(Symbol.CHARCLASS);
+		NFA t = NFA.createCharClass(tokenToEdges(token));
 		return t;
 	}
 
@@ -223,7 +222,7 @@ public class RecursiveParserMiniRe {
 	private NFA expressionListTail() throws ParseError {
 		NFA t;
 		matchToken(Symbol.COMMA);
-		Symbol sym = peekToken();
+		Symbol sym = tokenToSymbol( peekToken() );
 		// TODO : This is horribly wrong
 		t = exp();
 		t = NFA.sequence(t, expressionListTail() );	
@@ -239,10 +238,10 @@ public class RecursiveParserMiniRe {
 	 */
 	private NFA exp() throws ParseError {
 		NFA t;
-		Symbol sym = peekToken();
+		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.ID) {
-			String token = matchToken(Symbol.ID);
-			t = NFA.createCharClass(tokens.get(token));
+			Token token = matchToken(Symbol.ID);
+			t = NFA.createCharClass(tokenToEdges(token));
 		} else {
 			t = term2();
 			t = NFA.sequence(t, expressionTail() );	
@@ -258,7 +257,7 @@ public class RecursiveParserMiniRe {
 	 */
 	private NFA expressionTail() throws ParseError {
 		NFA t;
-		Symbol sym = peekToken();
+		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.DIFF || sym == Symbol.UNION || sym == Symbol.INTERS) {
 			t = binaryOperators();
 			t = NFA.sequence(t, exp() );
@@ -293,14 +292,103 @@ public class RecursiveParserMiniRe {
 	 * @throws ParseError 
 	 */
 	private NFA binaryOperators() throws ParseError {
-		Symbol sym = peekToken();
+		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.DIFF || sym == Symbol.UNION || sym == Symbol.INTERS) {
-			String token = matchToken(sym);
-			return NFA.createCharClass(tokens.get(token));
+			Token token = matchToken(sym);
+			return NFA.createCharClass( tokenToEdges(token) );
 		}
 		else {
-			throw new ParseError("binaryOperators() was passed unexpected token + '"+sym+"' for "+data);
+			throw new ParseError("binaryOperators() was passed unexpected token + '"+sym+"' for "+tokens);
 		}
+	}
+	
+	private HashSet<Character> tokenToEdges(Token token) {
+		HashSet<Character> chars = new HashSet<Character>();
+		for (char c : ((String)token.data).toCharArray() )
+			chars.add(c);
+		return chars;
+	}
+
+	///////////////
+	Symbol tokenToSymbol(Token t) throws ParseError {
+		if(t.type.equalsIgnoreCase(Symbol.CHARCLASS.name())) {
+			return Symbol.CHARCLASS;
+		}
+		if(t.type.equalsIgnoreCase(Symbol.UNION.name())) {
+			return Symbol.UNION;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.REPLACE.name())) {
+			return Symbol.REPLACE;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.BEGIN.name())) {
+			return Symbol.BEGIN;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.END.name())) {
+			return Symbol.END;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.EQUALS.name())) {
+			return Symbol.EQUALS;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.REGEX.name())) {
+			return Symbol.REGEX;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.ID.name())) {
+			return Symbol.ID;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.WITH.name())) {
+			return Symbol.WITH;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.COMMA.name())) {
+			return Symbol.COMMA;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.RECURSIVE_REPLACE.name())) {
+			return Symbol.RECURSIVE_REPLACE;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.ASCII_STR.name())) {
+			return Symbol.ASCII_STR;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.IN.name())) {
+			return Symbol.IN;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.DIFF.name())) {
+			return Symbol.DIFF;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.INTERS.name())) {
+			return Symbol.INTERS;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.PRINT.name())) {
+			return Symbol.PRINT;
+		}
+		else {
+			throw new ParseError("Unable to find Symbol");
+		}
+		
+		/*switch(t.type) {
+		case CHARCLASS: 
+		case CHR:
+		case SPECIAL_CHAR: 
+		case L_PAREN:
+		case R_PAREN:
+		case ZERO_OR_MORE: 
+		case ONE_OR_MORE:
+		case UNION:
+		case REPLACE: 
+		case BEGIN:
+		case END:
+		case EQUALS: 
+		case REGEX:
+		case ID:
+		case WITH: 
+		case COMMA: 
+		case RECURSIVE_REPLACE: 
+		case ASCII_STR: 
+		case IN:
+		case DIFF: 
+		case INTERS: 
+		case PRINT:
+			
+			*/
+		
 	}
 
 }
