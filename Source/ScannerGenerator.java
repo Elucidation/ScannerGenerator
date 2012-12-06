@@ -193,10 +193,10 @@ public class ScannerGenerator {
 		System.out.println("  Trying to Recursively Parse '"+val+"' for NFA '"+name+"'...");
 		RecursiveParser rp = new RecursiveParser(val,tokens);
 		NFA partialNFA = rp.getNFA(name);
-		DirectedSparseMultigraph<State, String> dgraph = generateGraph(partialNFA);
+//		DirectedSparseMultigraph<State, String> dgraph = generateGraph(partialNFA);
 //		System.out.println(dgraph);
-		drawGraph(dgraph, name, "Partial NFA '"+name+"', REGEX: "+val  );
-		System.out.println("  Finished Recursive Parse. (Partial NFA image saved to 'Images/graph"+name+".png'");
+//		drawGraph(dgraph, name, "Partial NFA '"+name+"', REGEX: "+val  );
+//		System.out.println("  Finished Recursive Parse. (Partial NFA image saved to 'Images/graph"+name+".png'");
 		return partialNFA;
 	}
 	/**
