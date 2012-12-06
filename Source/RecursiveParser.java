@@ -13,7 +13,7 @@ public class RecursiveParser {
 	private HashMap<String, HashSet<Character>> tokens;
 	private static List<Character> ID_DELIMS = Arrays.asList('\\', '|', '(',')','[',']','*','+');
 	
-	private enum Symbol {CHARCLASS, CHR, SPECIAL_CHAR, L_PAREN, R_PAREN, ZERO_OR_MORE, ONE_OR_MORE, UNION, REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS};
+	private enum Symbol {CHARCLASS, CHR, SPECIAL_CHAR, L_PAREN, R_PAREN, ZERO_OR_MORE, ONE_OR_MORE, UNION, REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT};
 	
 	public RecursiveParser(String val, HashMap<String, HashSet<Character>> tokens) {
 		this.data = val;
@@ -222,8 +222,8 @@ public class RecursiveParser {
 	 */
 	private NFA statementList() throws ParseError {
 		NFA t = statement();
-		t = NFA.sequence( statementListTail() );
-		return t
+		t = NFA.sequence(t,  statementListTail() );
+		return t;
 	}
 
 	/**
@@ -231,10 +231,11 @@ public class RecursiveParser {
 	 * <statement-list-tail> -> <statement><statement-list-tail>  | epsilon
 	 */
 	private NFA statementListTail() throws ParseError {
-		
-		if (peekToken() == Symbol.ID || Symbol.REPLACE || Symbol.RECURSIVE_REPLACE) {
+		NFA t;
+		Symbol sym = peekToken();
+		if (sym == Symbol.ID || sym == Symbol.REPLACE || sym == Symbol.RECURSIVE_REPLACE) {
 			t = statement();
-			t = NFA.sequence( statementListTail() );
+			t = NFA.sequence(t,  statementListTail() );
 		} else
 		{
 			t = NFA.epsilon();
@@ -260,6 +261,9 @@ public class RecursiveParser {
 			matchToken(Symbol.EQUALS);
 			// Magic maxfreqstring
 			// t
+			t = null;
+			// TODO : THIS SHIT
+			break;
 		case REPLACE:
 			matchToken(Symbol.REPLACE);
 			String regex = matchToken(Symbol.REGEX);
@@ -267,7 +271,7 @@ public class RecursiveParser {
 			matchToken(Symbol.ASCII_STR);
 			matchToken(Symbol.IN);
 			t = fileNames();
-
+			break;
 		case RECURSIVE_REPLACE:
 			matchToken(Symbol.RECURSIVE_REPLACE);
 			matchToken(Symbol.REGEX);
@@ -275,9 +279,11 @@ public class RecursiveParser {
 			matchToken(Symbol.ASCII_STR);
 			matchToken(Symbol.IN);
 			t = fileNames();
+			break;
 		case PRINT:
 			matchToken(Symbol.PRINT);
 			t = expressionList();
+			break;
 		default:
 			throw new ParseError("statement() was passed unexpected token + '"+sym+"' for "+data);
 		}
@@ -288,19 +294,23 @@ public class RecursiveParser {
 	/**
 	 * File-Names rule
 	 * <file-names> ->  <source-file>  >!  <destination-file>
+	 * @throws ParseError 
 	 */
-	private NFA fileNames() {
+	private NFA fileNames() throws ParseError {
 		NFA t = sourceFile();
+		// TODO Read filenames
 		t = NFA.sequence(t, destinationFile() );
+		return t;
 	}
 
 	/**
 	 * Source File Rule
 	 * <source-file> ->  ASCII-STR  
+	 * @throws ParseError 
 	 */
-	private NFA sourceFile() {
+	private NFA sourceFile() throws ParseError {
 		//TODO: ASCII-STR , not sure what to do here yet
-		Token token = matchToken(Symbol.CHARCLASS);
+		String token = matchToken(Symbol.CHARCLASS);
 		NFA t = NFA.createCharClass(tokens.get(token));
 		return t;
 	}
@@ -308,19 +318,21 @@ public class RecursiveParser {
 	/**
 	 * Destination File Rule
 	 * <destination-file> -> ASCII-STR
+	 * @throws ParseError 
 	 */
-	private NFA destinationFile() {
+	private NFA destinationFile() throws ParseError {
 		//TODO: ASCII-STR , not sure what to do here yet
-		Token token = matchToken(Symbol.CHARCLASS);
-		t = NFA.createCharClass(tokens.get(token));
+		String token = matchToken(Symbol.CHARCLASS);
+		NFA t = NFA.createCharClass(tokens.get(token));
 		return t;
 	}
 
 	/**
 	 *  Expression List Rule
 	 * <exp-list> -> <exp> <exp-list-tail>
+	 * @throws ParseError 
 	 */
-	private NFA expressionList() {
+	private NFA expressionList() throws ParseError {
 		NFA t = exp();
 		t = NFA.sequence(t, expressionListTail() );
 		return t;
@@ -329,12 +341,14 @@ public class RecursiveParser {
 	/**
 	 * Expression List Tail Rule
 	 *	 <exp-tail> -> , <exp> <exp-list-tail>
+	 * @throws ParseError 
 	 */
 
-	private NFA expressionListTail() {
+	private NFA expressionListTail() throws ParseError {
 		NFA t;
 		matchToken(Symbol.COMMA);
 		Symbol sym = peekToken();
+		// TODO : This is horribly wrong
 		t = exp();
 		t = NFA.sequence(t, expressionListTail() );	
 		return t;
@@ -344,13 +358,14 @@ public class RecursiveParser {
 	 * Expression
 	 * <exp>-> ID  | ( <exp> ) 
 	 * <exp> -> <term> <exp-tail>
+	 * @throws ParseError 
 	 * 
 	 */
-	private NFA exp() {
+	private NFA exp() throws ParseError {
 		NFA t;
 		Symbol sym = peekToken();
 		if (sym == Symbol.ID) {
-			Token token = matchToken(Symbol.ID);
+			String token = matchToken(Symbol.ID);
 			t = NFA.createCharClass(tokens.get(token));
 		} else {
 			t = term();
@@ -363,17 +378,19 @@ public class RecursiveParser {
 	 * Expression Tail
 	 * <exp-tail> ->  <bin-op> <term> <exp-tail> 
 	 * <exp-tail> -> epsilon
+	 * @throws ParseError 
 	 */
-	private NFA expressionTail() {
+	private NFA expressionTail() throws ParseError {
 		NFA t;
 		Symbol sym = peekToken();
 		if (sym == Symbol.DIFF || sym == Symbol.UNION || sym == Symbol.INTERS) {
-			binop();
-			t = exp();
+			t = binaryOperators();
+			t = NFA.sequence(t, exp() );
 			t = NFA.sequence(t, expressionListTail() );	
 		} else {
 			t = NFA.epsilon();
 		}
+		return t;
 	}
 
 	/**
@@ -390,16 +407,18 @@ public class RecursiveParser {
 	 */
 	private NFA filename() {
 		//TODO - This probably isn't needed
+		return null;
 	}
 
 	/**
 	 * 
 	 * <bin-op> ->  diff | union | inters
+	 * @throws ParseError 
 	 */
-	private NFA binaryOperators() {
+	private NFA binaryOperators() throws ParseError {
 		Symbol sym = peekToken();
 		if (sym == Symbol.DIFF || sym == Symbol.UNION || sym == Symbol.INTERS) {
-			Token token = matchToken(sym);
+			String token = matchToken(sym);
 			return NFA.createCharClass(tokens.get(token));
 		}
 		else {
