@@ -11,30 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Operations {
-	
-	public static void main(String[] args){
-		Operations o = new Operations();
-		String[] a = o.find("[A-Za-z]+e[ |\t|\n]","C:\\repos\\scannergenerator\\Samples\\regexTest.txt");
-		String[] b = o.find("t[a-zA-Z]*[ |\t|\n]","C:\\repos\\scannergenerator\\Samples\\regexTest.txt");
-		String[] c = o.intersec(a,b);
-		for(int i = 0;i<a.length;i++){
-			System.out.println(a[i]);
-		}		
-		System.out.println("And thus ends the words ending in e");
 
-		for(int i = 0;i<b.length;i++){
-			System.out.println(b[i]);
-
-		}
-		System.out.println("And thus ends the words starting in t");
-
-		for(int i = 0;i<c.length;i++){
-			System.out.println(c[i]);
-		}
-	}
-	
-	
-	
 	public Operations(){
 		
 	}
