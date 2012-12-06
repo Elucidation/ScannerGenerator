@@ -164,6 +164,8 @@ public class RecursiveParser {
 	 */
 	boolean validateLength(Token t) {
 		//IF token type is ID, the DATA.length x must be 1 < x < 10
+		if (t.data.toString().length() >= 10 || t.data.toString().length() <= 1)
+			return false;
 		return true;
 	}
 	
@@ -357,7 +359,7 @@ public class RecursiveParser {
 	/**
 	 * Expression
 	 * <exp>-> ID  | ( <exp> ) 
-	 * <exp> -> <term> <exp-tail>
+	 * <exp> -> <term2> <exp-tail>
 	 * @throws ParseError 
 	 * 
 	 */
@@ -368,7 +370,7 @@ public class RecursiveParser {
 			String token = matchToken(Symbol.ID);
 			t = NFA.createCharClass(tokens.get(token));
 		} else {
-			t = term();
+			t = term2();
 			t = NFA.sequence(t, expressionTail() );	
 		}
 		return t;
@@ -395,18 +397,19 @@ public class RecursiveParser {
 
 	/**
 	 * Term
-	 * <term > -> find REGEX in  <file-name>  
+	 * <term2> -> find REGEX in  <file-name>  
 	 */
-	/*private NFA term() {
-		//TODO - This probably isn't needed
-	}*/
+	private NFA term2() {
+		//TODO - Call Find regex
+		return null;
+	}
 
 	/**
 	 * Filename
 	 * <file-name> -> ASCII-STR
 	 */
 	private NFA filename() {
-		//TODO - This probably isn't needed
+		//TODO - This probably isn't needed, yes, yes it is.
 		return null;
 	}
 

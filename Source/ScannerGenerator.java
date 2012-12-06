@@ -90,9 +90,9 @@ public class ScannerGenerator {
 		System.out.println("Merging NFAs...");
 		NFA bigNFA = NFA.mergeNFAs(partialNFAs);
 		
-		DirectedSparseMultigraph<State, String> dgraph = generateGraph(bigNFA);
-		drawGraph(dgraph, "BIGNFA", "BIGNFA for '"+specFile+"'");
-		System.out.println("Done merging.");
+//		DirectedSparseMultigraph<State, String> dgraph = generateGraph(bigNFA);
+//		drawGraph(dgraph, "BIGNFA", "BIGNFA for '"+specFile+"'");
+//		System.out.println("Done merging.");
 
 		// Convert BigNFA
 		System.out.println("Converting NFA to DFA...");
