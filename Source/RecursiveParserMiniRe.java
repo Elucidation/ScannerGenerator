@@ -9,15 +9,18 @@ import java.util.Stack;
 public class RecursiveParserMiniRe {
 	
 	Stack<Token> tokens;
+	boolean DEBUG = true;
 	
-	private enum Symbol {REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT, UNION, CHARCLASS, MATCHES};
+	private enum Symbol {REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT, UNION, CHARCLASS};
 	
 	private Token peekToken() {
+		if (DEBUG) System.out.println("PEEK: "+tokens.peek());
 		return tokens.peek();
 	}
 	
 	private Token matchToken(Symbol sym) throws ParseError {
 		Token tok =  tokens.pop();
+		if (DEBUG) System.out.println("POP: "+tok);
 		assert( tokenToSymbol(tok) == sym);
 		return tok;
 	}
@@ -30,19 +33,6 @@ public class RecursiveParserMiniRe {
 	}
 	
 	/**
-	 * Validates the length of the ID within a token
-	 * @param t
-	 * @return
-	 */
-	boolean validateLength(Token t) {
-		//IF token type is ID, the DATA.length x must be 1 < x < 10
-		if (t.data.toString().length() >= 10 || t.data.toString().length() <= 1)
-			return false;
-		return true;
-	}
-	
-	
-	/**
 	 * Validates regex within token
 	 * @param t
 	 * @return
@@ -50,14 +40,8 @@ public class RecursiveParserMiniRe {
 	boolean validateRegex(Token t) {
 		return true;
 	}
-
-	Token verifyIDFormat() {
-		
-		return null;
-		
-	}
 	
-	/**
+	/** 
 	 * 
 	 * @param t
 	 * @return
@@ -68,14 +52,20 @@ public class RecursiveParserMiniRe {
 		return false;
 	}
 	
-	/**
+	/** Starts with a letter, followed by 0-9 letters or numbers or underscores
 	 * 
 	 * @param t
 	 * @return
 	 */
-	boolean checkIfTokenIsID(Token t) {
-		
-		return false;
+	boolean isID(String t) {
+		if ( !((t.charAt(0) >= 'a' && t.charAt(0) <= 'z') || (t.charAt(0) >= 'A' && t.charAt(0) <= 'Z')) )
+			return false;
+		if (t.length() >= 10 || t.length() <= 1)
+			return false;
+		for (char c : t.toCharArray())
+			if ( !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_') )
+				return false;
+		return true;
 	}
 	
 	
@@ -84,6 +74,7 @@ public class RecursiveParserMiniRe {
 	//* ***********************************
 	 
 	public NFA minireProgram() throws ParseError {
+		if (DEBUG) System.out.println("MINIRE PROGRAM");
 		matchToken(Symbol.BEGIN);
 		NFA t = statementList();
 		matchToken(Symbol.END);
@@ -95,6 +86,7 @@ public class RecursiveParserMiniRe {
 	 * <statement-list> ->  <statement><statement-list-tail> 
 	 */
 	private NFA statementList() throws ParseError {
+		if (DEBUG) System.out.println("STATEMENT LIST");
 		NFA t = statement();
 		t = NFA.sequence(t,  statementListTail() );
 		return t;
@@ -105,6 +97,7 @@ public class RecursiveParserMiniRe {
 	 * <statement-list-tail> -> <statement><statement-list-tail>  | epsilon
 	 */
 	private NFA statementListTail() throws ParseError {
+		if (DEBUG) System.out.println("STATEMENT LIST TAIL");
 		NFA t;
 		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.ID || sym == Symbol.REPLACE || sym == Symbol.RECURSIVE_REPLACE) {
@@ -127,6 +120,7 @@ public class RecursiveParserMiniRe {
 	 *  <statement> -> print ( <exp-list> ) ;
 	 */
 	private NFA statement() throws ParseError {
+		if (DEBUG) System.out.println("STATEMENT");
 		NFA t;
 		Symbol sym = tokenToSymbol( peekToken() );
 		switch(sym) {
@@ -160,7 +154,7 @@ public class RecursiveParserMiniRe {
 			t = expressionList();
 			break;
 		default:
-			throw new ParseError("statement() was passed unexpected token + '"+sym+"' for "+tokens);
+			throw new ParseError("statement() was passed unexpected token: '"+sym+"' for "+tokens);
 		}
 		return t;
 	}
@@ -172,6 +166,7 @@ public class RecursiveParserMiniRe {
 	 * @throws ParseError 
 	 */
 	private NFA fileNames() throws ParseError {
+		if (DEBUG) System.out.println("FILENAMES");
 		NFA t = sourceFile();
 		// TODO Read filenames
 		t = NFA.sequence(t, destinationFile() );
@@ -184,6 +179,7 @@ public class RecursiveParserMiniRe {
 	 * @throws ParseError 
 	 */
 	private NFA sourceFile() throws ParseError {
+		if (DEBUG) System.out.println("SOURCE FILE");
 		//TODO: ASCII-STR , not sure what to do here yet
 		Token token = matchToken(Symbol.CHARCLASS);
 		NFA t = NFA.createCharClass(tokenToEdges(token));
@@ -196,6 +192,7 @@ public class RecursiveParserMiniRe {
 	 * @throws ParseError 
 	 */
 	private NFA destinationFile() throws ParseError {
+		if (DEBUG) System.out.println("DESTINATION FILE");
 		//TODO: ASCII-STR , not sure what to do here yet
 		Token token = matchToken(Symbol.CHARCLASS);
 		NFA t = NFA.createCharClass(tokenToEdges(token));
@@ -208,6 +205,7 @@ public class RecursiveParserMiniRe {
 	 * @throws ParseError 
 	 */
 	private NFA expressionList() throws ParseError {
+		if (DEBUG) System.out.println("EXPRESSION LIST");
 		NFA t = exp();
 		t = NFA.sequence(t, expressionListTail() );
 		return t;
@@ -220,6 +218,7 @@ public class RecursiveParserMiniRe {
 	 */
 
 	private NFA expressionListTail() throws ParseError {
+		if (DEBUG) System.out.println("EXPRESSION LIST TAIL");
 		NFA t;
 		matchToken(Symbol.COMMA);
 		Symbol sym = tokenToSymbol( peekToken() );
@@ -232,18 +231,19 @@ public class RecursiveParserMiniRe {
 	/**
 	 * Expression
 	 * <exp>-> ID  | ( <exp> ) 
-	 * <exp> -> <term2> <exp-tail>
+	 * <exp> -> <term> <exp-tail>
 	 * @throws ParseError 
 	 * 
 	 */
 	private NFA exp() throws ParseError {
+		if (DEBUG) System.out.println("EXP");
 		NFA t;
 		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.ID) {
 			Token token = matchToken(Symbol.ID);
 			t = NFA.createCharClass(tokenToEdges(token));
 		} else {
-			t = term2();
+			t = term();
 			t = NFA.sequence(t, expressionTail() );	
 		}
 		return t;
@@ -256,6 +256,7 @@ public class RecursiveParserMiniRe {
 	 * @throws ParseError 
 	 */
 	private NFA expressionTail() throws ParseError {
+		if (DEBUG) System.out.println("EXPRESSION TAIL");
 		NFA t;
 		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.DIFF || sym == Symbol.UNION || sym == Symbol.INTERS) {
@@ -270,9 +271,10 @@ public class RecursiveParserMiniRe {
 
 	/**
 	 * Term
-	 * <term2> -> find REGEX in  <file-name>  
+	 * <term> -> find REGEX in  <file-name>  
 	 */
-	private NFA term2() {
+	private NFA term() {
+		if (DEBUG) System.out.println("TERM");
 		//TODO - Call Find regex
 		return null;
 	}
@@ -282,6 +284,7 @@ public class RecursiveParserMiniRe {
 	 * <file-name> -> ASCII-STR
 	 */
 	private NFA filename() {
+		if (DEBUG) System.out.println("FILENAME");
 		//TODO - This probably isn't needed, yes, yes it is.
 		return null;
 	}
@@ -292,6 +295,7 @@ public class RecursiveParserMiniRe {
 	 * @throws ParseError 
 	 */
 	private NFA binaryOperators() throws ParseError {
+		if (DEBUG) System.out.println("BINARY OPERATOR");
 		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.DIFF || sym == Symbol.UNION || sym == Symbol.INTERS) {
 			Token token = matchToken(sym);
@@ -360,8 +364,8 @@ public class RecursiveParserMiniRe {
 		else if(data.equalsIgnoreCase(Symbol.PRINT.name())) {
 			return Symbol.PRINT;
 		}
-		else if(data.equalsIgnoreCase(Symbol.MATCHES.name())) {
-			return Symbol.MATCHES;
+		else if(isID(data)) {
+			return Symbol.ID;
 		}
 		else {
 			throw new ParseError("Unable to find Symbol for Token : " + t);

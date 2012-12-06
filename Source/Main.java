@@ -75,7 +75,8 @@ public class Main {
 //		for (String tokenString : tokenStringList) out.write(tokenString);
 //		out.close();
 //		System.out.println("Finished writing tokens! All Done.");
-		
+		System.out.println("Token List: ");
+		System.out.println(allTokens);
 		System.out.println("Calling Recursive Parser for Mini-Re Program...");
 		RecursiveParserMiniRe rec = new RecursiveParserMiniRe(allTokens);
 		rec.minireProgram();
