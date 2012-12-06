@@ -13,8 +13,9 @@ public class RecursiveParserMiniRe {
 	private enum Symbol {REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT};
 	
 	
-	private Token peekToken() {
-		return tokens.peek();
+	private Symbol peekToken() {
+		Token tok = tokens.peek();
+		return null;
 	}
 	
 	private Symbol matchToken(Symbol begin) {
