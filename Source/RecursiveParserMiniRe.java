@@ -311,62 +311,63 @@ public class RecursiveParserMiniRe {
 
 	///////////////
 	Symbol tokenToSymbol(Token t) throws ParseError {
-		if(t.type.equalsIgnoreCase(Symbol.CHARCLASS.name())) {
+		String data = t.data.toString();
+		if(data.equalsIgnoreCase(Symbol.CHARCLASS.name())) {
 			return Symbol.CHARCLASS;
 		}
-		if(t.type.equalsIgnoreCase(Symbol.UNION.name())) {
+		if(data.equalsIgnoreCase(Symbol.UNION.name())) {
 			return Symbol.UNION;
 		}
-		else if(t.type.equalsIgnoreCase(Symbol.REPLACE.name())) {
+		else if(data.equalsIgnoreCase(Symbol.REPLACE.name())) {
 			return Symbol.REPLACE;
 		}
-		else if(t.type.equalsIgnoreCase(Symbol.BEGIN.name())) {
+		else if(data.equalsIgnoreCase(Symbol.BEGIN.name())) {
 			return Symbol.BEGIN;
 		}
-		else if(t.type.equalsIgnoreCase(Symbol.END.name())) {
+		else if(data.equalsIgnoreCase(Symbol.END.name())) {
 			return Symbol.END;
 		}
-		else if(t.type.equalsIgnoreCase(Symbol.EQUALS.name())) {
+		else if(data.equalsIgnoreCase(Symbol.EQUALS.name())) {
 			return Symbol.EQUALS;
 		}
-		else if(t.type.equalsIgnoreCase(Symbol.REGEX.name())) {
+		else if(data.equalsIgnoreCase(Symbol.REGEX.name())) {
 			return Symbol.REGEX;
 		}
-		else if(t.type.equalsIgnoreCase(Symbol.ID.name())) {
+		else if(data.equalsIgnoreCase(Symbol.ID.name())) {
 			return Symbol.ID;
 		}
-		else if(t.type.equalsIgnoreCase(Symbol.WITH.name())) {
+		else if(data.equalsIgnoreCase(Symbol.WITH.name())) {
 			return Symbol.WITH;
 		}
-		else if(t.type.equalsIgnoreCase(Symbol.COMMA.name())) {
+		else if(data.equalsIgnoreCase(Symbol.COMMA.name())) {
 			return Symbol.COMMA;
 		}
-		else if(t.type.equalsIgnoreCase(Symbol.RECURSIVE_REPLACE.name())) {
+		else if(data.equalsIgnoreCase(Symbol.RECURSIVE_REPLACE.name())) {
 			return Symbol.RECURSIVE_REPLACE;
 		}
-		else if(t.type.equalsIgnoreCase(Symbol.ASCII_STR.name())) {
+		else if(data.equalsIgnoreCase(Symbol.ASCII_STR.name())) {
 			return Symbol.ASCII_STR;
 		}
-		else if(t.type.equalsIgnoreCase(Symbol.IN.name())) {
+		else if(data.equalsIgnoreCase(Symbol.IN.name())) {
 			return Symbol.IN;
 		}
-		else if(t.type.equalsIgnoreCase(Symbol.DIFF.name())) {
+		else if(data.equalsIgnoreCase(Symbol.DIFF.name())) {
 			return Symbol.DIFF;
 		}
-		else if(t.type.equalsIgnoreCase(Symbol.INTERS.name())) {
+		else if(data.equalsIgnoreCase(Symbol.INTERS.name())) {
 			return Symbol.INTERS;
 		}
-		else if(t.type.equalsIgnoreCase(Symbol.PRINT.name())) {
+		else if(data.equalsIgnoreCase(Symbol.PRINT.name())) {
 			return Symbol.PRINT;
 		}
-		else if(t.type.equalsIgnoreCase(Symbol.MATCHES.name())) {
+		else if(data.equalsIgnoreCase(Symbol.MATCHES.name())) {
 			return Symbol.MATCHES;
 		}
 		else {
 			throw new ParseError("Unable to find Symbol for Token : " + t);
 		}
 		
-		/*switch(t.type) {
+		/*switch(data) {
 		case CHARCLASS: 
 		case CHR:
 		case SPECIAL_CHAR: 
