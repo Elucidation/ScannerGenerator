@@ -428,6 +428,107 @@ public class RecursiveParser {
 			throw new ParseError("binaryOperators() was passed unexpected token + '"+sym+"' for "+data);
 		}
 	}
+	
+	
+	Symbol tokenToSymbol(Token t) throws ParseError {
+		
+		if(t.type.equalsIgnoreCase(Symbol.CHARCLASS.name())) {
+			return Symbol.CHARCLASS;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.CHR.name())) {
+			return Symbol.CHR;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.SPECIAL_CHAR.name())) {
+			return Symbol.SPECIAL_CHAR;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.L_PAREN.name())) {
+			return Symbol.L_PAREN;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.R_PAREN.name())) {
+			return Symbol.R_PAREN;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.ZERO_OR_MORE.name())) {
+			return Symbol.ZERO_OR_MORE;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.ONE_OR_MORE.name())) {
+			return Symbol.ONE_OR_MORE;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.UNION.name())) {
+			return Symbol.UNION;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.REPLACE.name())) {
+			return Symbol.REPLACE;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.BEGIN.name())) {
+			return Symbol.BEGIN;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.END.name())) {
+			return Symbol.END;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.EQUALS.name())) {
+			return Symbol.EQUALS;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.REGEX.name())) {
+			return Symbol.REGEX;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.ID.name())) {
+			return Symbol.ID;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.WITH.name())) {
+			return Symbol.WITH;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.COMMA.name())) {
+			return Symbol.COMMA;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.RECURSIVE_REPLACE.name())) {
+			return Symbol.RECURSIVE_REPLACE;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.ASCII_STR.name())) {
+			return Symbol.ASCII_STR;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.IN.name())) {
+			return Symbol.IN;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.DIFF.name())) {
+			return Symbol.DIFF;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.INTERS.name())) {
+			return Symbol.INTERS;
+		}
+		else if(t.type.equalsIgnoreCase(Symbol.PRINT.name())) {
+			return Symbol.PRINT;
+		}
+		else {
+			throw new ParseError("Unable to find Symbol");
+		}
+		
+		/*switch(t.type) {
+		case CHARCLASS: 
+		case CHR:
+		case SPECIAL_CHAR: 
+		case L_PAREN:
+		case R_PAREN:
+		case ZERO_OR_MORE: 
+		case ONE_OR_MORE:
+		case UNION:
+		case REPLACE: 
+		case BEGIN:
+		case END:
+		case EQUALS: 
+		case REGEX:
+		case ID:
+		case WITH: 
+		case COMMA: 
+		case RECURSIVE_REPLACE: 
+		case ASCII_STR: 
+		case IN:
+		case DIFF: 
+		case INTERS: 
+		case PRINT:
+			
+			*/
+		
+	}
 
 	
 
