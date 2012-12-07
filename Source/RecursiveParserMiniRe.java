@@ -73,42 +73,34 @@ public class RecursiveParserMiniRe {
 	//*	        Rules Start Here          *
 	//* ***********************************
 	 
-	public NFA minireProgram() throws ParseError {
+	public void minireProgram() throws ParseError {
 		if (DEBUG) System.out.println("MINIRE PROGRAM");
 		matchToken(Symbol.BEGIN);
-		NFA t = statementList();
+		statementList();
 		matchToken(Symbol.END);
-		return t;
 	}
 
 	/**
 	 * Statement List Rule
 	 * <statement-list> ->  <statement><statement-list-tail> 
 	 */
-	private NFA statementList() throws ParseError {
+	private void statementList() throws ParseError {
 		if (DEBUG) System.out.println("STATEMENT LIST");
-		NFA t = statement();
-		if (DEBUG) System.out.println("statement = "+t);
-		t = NFA.sequence(t,  statementListTail() );
-		return t;
+		statement();
+		statementListTail();
 	}
 
 	/**
 	 * Statement List Tail Rule
 	 * <statement-list-tail> -> <statement><statement-list-tail>  | epsilon
 	 */
-	private NFA statementListTail() throws ParseError {
+	private void statementListTail() throws ParseError {
 		if (DEBUG) System.out.println("STATEMENT LIST TAIL");
-		NFA t;
 		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.ID || sym == Symbol.REPLACE || sym == Symbol.RECURSIVE_REPLACE) {
-			t = statement();
-			t = NFA.sequence(t,  statementListTail() );
-		} else
-		{
-			t = NFA.epsilon();
-		}
-		return t;
+			statement();
+			statementListTail();
+		} // else epsilon is allowed
 	}
 
 	/**
@@ -120,13 +112,12 @@ public class RecursiveParserMiniRe {
 	 * <statement> -> recursivereplace REGEX with ASCII-STR in  <file-names> ;
 	 *  <statement> -> print ( <exp-list> ) ;
 	 */
-	private NFA statement() throws ParseError {
+	private void statement() throws ParseError {
 		if (DEBUG) System.out.println("STATEMENT");
-		NFA t;
 		Symbol sym = tokenToSymbol( peekToken() );
 		switch(sym) {
 		case FIND:
-			t = exp();
+			exp();
 			break;
 		case ID:
 			matchToken(Symbol.ID);
@@ -137,31 +128,29 @@ public class RecursiveParserMiniRe {
 			case ID:
 				// ID
 				matchToken(Symbol.ID); 
-				t = null;
 				if (DEBUG) System.out.println("SUB SWITCH ID - UNIMPLEMENTED");
 				break;
 			case FIND:
 				// <exp>
-				t = exp();
+				exp();
 				break;
 			case L_PAREN:
 				// (<exp>)
 				matchToken(Symbol.L_PAREN);
-				t = exp();
+				exp();
 				matchToken(Symbol.R_PAREN);
 				break;
 			// # Expression
 			case POUND:
 				// # <exp>
 				matchToken(Symbol.POUND);
-				t = exp();
+				exp();
 				break;
 			// maxfreqstring(ID)
 			case MAXFREQSTRING:
 				// Magic maxfreqstring
 				if (DEBUG) System.out.println("MAX FREQ STRING - UNIMPLEMENTED");
-				t = null;
-//				t = NFA.createCharClass(tokenToEdges(token));
+//				void.createCharClass(tokenToEdges(token));
 				// TODO : THIS SHIT
 				break;
 			default:
@@ -176,7 +165,7 @@ public class RecursiveParserMiniRe {
 			matchToken(Symbol.WITH);
 			matchToken(Symbol.ASCII_STR);
 			matchToken(Symbol.IN);
-			t = fileNames();
+			fileNames();
 			break;
 		case RECURSIVE_REPLACE:
 			matchToken(Symbol.RECURSIVE_REPLACE);
@@ -184,16 +173,15 @@ public class RecursiveParserMiniRe {
 			matchToken(Symbol.WITH);
 			matchToken(Symbol.ASCII_STR);
 			matchToken(Symbol.IN);
-			t = fileNames();
+			fileNames();
 			break;
 		case PRINT:
 			matchToken(Symbol.PRINT);
-			t = expressionList();
+			expressionList();
 			break;
 		default:
 			throw new ParseError("statement() was passed unexpected token: '"+sym+"' for "+tokens);
 		}
-		return t;
 	}
 
 
@@ -202,12 +190,11 @@ public class RecursiveParserMiniRe {
 	 * <file-names> ->  <source-file>  >!  <destination-file>
 	 * @throws ParseError 
 	 */
-	private NFA fileNames() throws ParseError {
-		if (DEBUG) System.out.println("FILENAMES");
-		NFA t = sourceFile();
+	private void fileNames() throws ParseError {
+		if (DEBUG) System.out.println("FILENAMES - UNIMPLEMENTED");
+		sourceFile();
 		// TODO Read filenames
-		t = NFA.sequence(t, destinationFile() );
-		return t;
+		destinationFile();
 	}
 
 	/**
@@ -215,12 +202,10 @@ public class RecursiveParserMiniRe {
 	 * <source-file> ->  ASCII-STR  
 	 * @throws ParseError 
 	 */
-	private NFA sourceFile() throws ParseError {
-		if (DEBUG) System.out.println("SOURCE FILE");
+	private void sourceFile() throws ParseError {
+		if (DEBUG) System.out.println("SOURCE FILE - UNIMPLEMENTED");
 		//TODO: ASCII-STR , not sure what to do here yet
 		Token token = matchToken(Symbol.CHARCLASS);
-		NFA t = NFA.createCharClass(tokenToEdges(token));
-		return t;
 	}
 
 	/**
@@ -228,12 +213,10 @@ public class RecursiveParserMiniRe {
 	 * <destination-file> -> ASCII-STR
 	 * @throws ParseError 
 	 */
-	private NFA destinationFile() throws ParseError {
-		if (DEBUG) System.out.println("DESTINATION FILE");
+	private void destinationFile() throws ParseError {
+		if (DEBUG) System.out.println("DESTINATION FILE - UNIMPLEMENTED");
 		//TODO: ASCII-STR , not sure what to do here yet
 		Token token = matchToken(Symbol.CHARCLASS);
-		NFA t = NFA.createCharClass(tokenToEdges(token));
-		return t;
 	}
 
 	/**
@@ -241,11 +224,10 @@ public class RecursiveParserMiniRe {
 	 * <exp-list> -> <exp> <exp-list-tail>
 	 * @throws ParseError 
 	 */
-	private NFA expressionList() throws ParseError {
+	private void expressionList() throws ParseError {
 		if (DEBUG) System.out.println("EXPRESSION LIST");
-		NFA t = exp();
-		t = NFA.sequence(t, expressionListTail() );
-		return t;
+		exp();
+		expressionListTail();
 	}
 
 	/**
@@ -254,15 +236,13 @@ public class RecursiveParserMiniRe {
 	 * @throws ParseError 
 	 */
 
-	private NFA expressionListTail() throws ParseError {
+	private void expressionListTail() throws ParseError {
 		if (DEBUG) System.out.println("EXPRESSION LIST TAIL");
-		NFA t;
 		matchToken(Symbol.COMMA);
 		Symbol sym = tokenToSymbol( peekToken() );
 		// TODO : This is horribly wrong
-		t = exp();
-		t = NFA.sequence(t, expressionListTail() );	
-		return t;
+		exp();
+		expressionListTail();
 	}
 
 	/**
@@ -272,18 +252,15 @@ public class RecursiveParserMiniRe {
 	 * @throws ParseError 
 	 * 
 	 */
-	private NFA exp() throws ParseError {
+	private void exp() throws ParseError {
 		if (DEBUG) System.out.println("EXP");
-		NFA t;
 		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.ID) {
 			Token token = matchToken(Symbol.ID);
-			t = NFA.createCharClass(tokenToEdges(token));
 		} else {
-			t = term();
-			t = NFA.sequence(t, expressionTail() );	
+			term();
+			expressionTail();
 		}
-		return t;
 	}
 
 	/**
@@ -292,18 +269,14 @@ public class RecursiveParserMiniRe {
 	 * <exp-tail> -> epsilon
 	 * @throws ParseError 
 	 */
-	private NFA expressionTail() throws ParseError {
+	private void expressionTail() throws ParseError {
 		if (DEBUG) System.out.println("EXPRESSION TAIL");
-		NFA t;
 		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.DIFF || sym == Symbol.UNION || sym == Symbol.INTERS) {
-			t = binaryOperators();
-			t = NFA.sequence(t, exp() );
-			t = NFA.sequence(t, expressionListTail() );	
-		} else {
-			t = NFA.epsilon();
-		}
-		return t;
+			binaryOperators();
+			exp();
+			expressionListTail();
+		} // else epsilon
 	}
 
 	/**
@@ -311,24 +284,22 @@ public class RecursiveParserMiniRe {
 	 * <term> -> find REGEX in  <file-name>  
 	 * @throws ParseError 
 	 */
-	private NFA term() throws ParseError {
+	private void term() throws ParseError {
 		if (DEBUG) System.out.println("TERM");
 		//TODO - Call Find regex
 		matchToken(Symbol.FIND);
 		matchToken(Symbol.REGEX);
 		matchToken(Symbol.IN);
 		filename();
-		return null;
 	}
 
 	/**
 	 * Filename
 	 * <file-name> -> ASCII-STR
 	 */
-	private NFA filename() {
-		if (DEBUG) System.out.println("FILENAME");
+	private void filename() {
+		if (DEBUG) System.out.println("FILENAME - UNIMPLEMENTED");
 		//TODO - This probably isn't needed, yes, yes it is.
-		return null;
 	}
 
 	/**
@@ -336,18 +307,18 @@ public class RecursiveParserMiniRe {
 	 * <bin-op> ->  diff | union | inters
 	 * @throws ParseError 
 	 */
-	private NFA binaryOperators() throws ParseError {
+	private void binaryOperators() throws ParseError {
 		if (DEBUG) System.out.println("BINARY OPERATOR");
 		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.DIFF || sym == Symbol.UNION || sym == Symbol.INTERS) {
 			Token token = matchToken(sym);
-			return NFA.createCharClass( tokenToEdges(token) );
 		}
 		else {
 			throw new ParseError("binaryOperators() was passed unexpected token + '"+sym+"' for "+tokens);
 		}
 	}
 	
+	// TODO : not needed probably
 	private HashSet<Character> tokenToEdges(Token token) {
 		HashSet<Character> chars = new HashSet<Character>();
 		for (char c : ((String)token.data).toCharArray() )
