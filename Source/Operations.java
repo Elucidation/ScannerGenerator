@@ -179,6 +179,7 @@ public class Operations {
 		
 		String[] results = new String[hs.size()];
 		return hs.toArray(results);
+		
 	}
 
 }
