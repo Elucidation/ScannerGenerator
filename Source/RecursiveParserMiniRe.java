@@ -11,16 +11,16 @@ public class RecursiveParserMiniRe {
 	Stack<Token> tokens;
 	boolean DEBUG = true;
 	
-	private enum Symbol {REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT, UNION, CHARCLASS};
+	private enum Symbol {L_PAREN, R_PAREN, REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT, UNION, CHARCLASS, FIND, POUND, MAXFREQSTRING};
 	
-	private Token peekToken() {
-		if (DEBUG) System.out.println("PEEK: "+tokens.peek());
+	private Token peekToken() throws ParseError {
+		if (DEBUG) System.out.println("PEEK: "+tokens.peek() + " :: " + tokenToSymbol(tokens.peek()));
 		return tokens.peek();
 	}
 	
 	private Token matchToken(Symbol sym) throws ParseError {
 		Token tok =  tokens.pop();
-		if (DEBUG) System.out.println("POP: "+tok);
+		if (DEBUG) System.out.println("POP: "+tok + " :: " + tokenToSymbol(tok));
 		assert( tokenToSymbol(tok) == sym);
 		return tok;
 	}
@@ -88,6 +88,7 @@ public class RecursiveParserMiniRe {
 	private NFA statementList() throws ParseError {
 		if (DEBUG) System.out.println("STATEMENT LIST");
 		NFA t = statement();
+		if (DEBUG) System.out.println("statement = "+t);
 		t = NFA.sequence(t,  statementListTail() );
 		return t;
 	}
@@ -114,9 +115,9 @@ public class RecursiveParserMiniRe {
 	 * 
 	 * <statement> -> ID = <exp> ;
 	 * <statement> -> ID = # <exp> ; 
-	 *      <statement> -> ID = maxfreqstring (ID);
-	 *      <statement> -> replace REGEX with ASCII-STR in  <file-names> ;
-	 *      <statement> -> recursivereplace REGEX with ASCII-STR in  <file-names> ;
+	 * <statement> -> ID = maxfreqstring (ID);
+	 * <statement> -> replace REGEX with ASCII-STR in  <file-names> ;
+	 * <statement> -> recursivereplace REGEX with ASCII-STR in  <file-names> ;
 	 *  <statement> -> print ( <exp-list> ) ;
 	 */
 	private NFA statement() throws ParseError {
@@ -124,13 +125,49 @@ public class RecursiveParserMiniRe {
 		NFA t;
 		Symbol sym = tokenToSymbol( peekToken() );
 		switch(sym) {
+		case FIND:
+			t = exp();
+			break;
 		case ID:
 			matchToken(Symbol.ID);
 			matchToken(Symbol.EQUALS);
-			// Magic maxfreqstring
-			// t
-			t = null;
-			// TODO : THIS SHIT
+			Symbol sym2 = tokenToSymbol( peekToken() );
+			switch (sym2) {
+			// Expression
+			case ID:
+				// ID
+				matchToken(Symbol.ID); 
+				t = null;
+				if (DEBUG) System.out.println("SUB SWITCH ID - UNIMPLEMENTED");
+				break;
+			case FIND:
+				// <exp>
+				t = exp();
+				break;
+			case L_PAREN:
+				// (<exp>)
+				matchToken(Symbol.L_PAREN);
+				t = exp();
+				matchToken(Symbol.R_PAREN);
+				break;
+			// # Expression
+			case POUND:
+				// # <exp>
+				matchToken(Symbol.POUND);
+				t = exp();
+				break;
+			// maxfreqstring(ID)
+			case MAXFREQSTRING:
+				// Magic maxfreqstring
+				if (DEBUG) System.out.println("MAX FREQ STRING - UNIMPLEMENTED");
+				t = null;
+//				t = NFA.createCharClass(tokenToEdges(token));
+				// TODO : THIS SHIT
+				break;
+			default:
+				throw new ParseError("statement sub-switch ID was passed unexpected token: '"+sym2+"' for "+sym+" with stack "+tokens);
+			}
+			
 			break;
 		case REPLACE:
 			matchToken(Symbol.REPLACE);
@@ -272,10 +309,15 @@ public class RecursiveParserMiniRe {
 	/**
 	 * Term
 	 * <term> -> find REGEX in  <file-name>  
+	 * @throws ParseError 
 	 */
-	private NFA term() {
+	private NFA term() throws ParseError {
 		if (DEBUG) System.out.println("TERM");
 		//TODO - Call Find regex
+		matchToken(Symbol.FIND);
+		matchToken(Symbol.REGEX);
+		matchToken(Symbol.IN);
+		filename();
 		return null;
 	}
 
@@ -316,10 +358,10 @@ public class RecursiveParserMiniRe {
 	///////////////
 	Symbol tokenToSymbol(Token t) throws ParseError {
 		String data = t.data.toString();
-		if(data.equalsIgnoreCase(Symbol.CHARCLASS.name())) {
-			return Symbol.CHARCLASS;
-		}
-		if(data.equalsIgnoreCase(Symbol.UNION.name())) {
+//		if(data.equalsIgnoreCase(Symbol.CHARCLASS.name())) {
+//			return Symbol.CHARCLASS;
+//		}
+		if(data.equalsIgnoreCase("|")) {
 			return Symbol.UNION;
 		}
 		else if(data.equalsIgnoreCase(Symbol.REPLACE.name())) {
@@ -331,10 +373,10 @@ public class RecursiveParserMiniRe {
 		else if(data.equalsIgnoreCase(Symbol.END.name())) {
 			return Symbol.END;
 		}
-		else if(data.equalsIgnoreCase(Symbol.EQUALS.name())) {
+		else if(data.equalsIgnoreCase("=")) {
 			return Symbol.EQUALS;
 		}
-		else if(data.equalsIgnoreCase(Symbol.REGEX.name())) {
+		else if(t.type.equals("$REGEX")) {
 			return Symbol.REGEX;
 		}
 		else if(data.equalsIgnoreCase(Symbol.ID.name())) {
@@ -349,7 +391,7 @@ public class RecursiveParserMiniRe {
 		else if(data.equalsIgnoreCase(Symbol.RECURSIVE_REPLACE.name())) {
 			return Symbol.RECURSIVE_REPLACE;
 		}
-		else if(data.equalsIgnoreCase(Symbol.ASCII_STR.name())) {
+		else if(t.type.equals("$ASCII")) {
 			return Symbol.ASCII_STR;
 		}
 		else if(data.equalsIgnoreCase(Symbol.IN.name())) {
@@ -360,6 +402,9 @@ public class RecursiveParserMiniRe {
 		}
 		else if(data.equalsIgnoreCase(Symbol.INTERS.name())) {
 			return Symbol.INTERS;
+		}
+		else if(data.equalsIgnoreCase(Symbol.FIND.name())) {
+			return Symbol.FIND;
 		}
 		else if(data.equalsIgnoreCase(Symbol.PRINT.name())) {
 			return Symbol.PRINT;
