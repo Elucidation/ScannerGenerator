@@ -150,7 +150,7 @@ public class TableWalker {
 			 * reevaluate the rest from the beginning.
 			 */
 			else {
-				System.out.println("SHIT SHIT SHIT: "+currentToken);
+				System.out.println("SHIT SHIT SHIT: '"+currentToken+"'");
 				throw new IllegalArgumentException(currentToken.charAt(0) + " could not be recognized as part of a valid token.");
 			}
 
