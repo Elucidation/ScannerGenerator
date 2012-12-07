@@ -11,7 +11,7 @@ public class RecursiveParserMiniRe {
 	Stack<Token> tokens;
 	boolean DEBUG = true;
 	
-	private enum Symbol {L_PAREN, R_PAREN, REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT, UNION, CHARCLASS, FIND, POUND, MAXFREQSTRING, END_LINE};
+	private enum Symbol {L_PAREN, R_PAREN, REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT, UNION, CHARCLASS, FIND, HASH, MAXFREQSTRING, END_LINE, SAVE_TO};
 	
 	private Token peekToken() throws ParseError {
 		if (DEBUG) System.out.println("PEEK: "+tokens.peek() + " :: " + tokenToSymbol(tokens.peek()));
@@ -21,7 +21,8 @@ public class RecursiveParserMiniRe {
 	private Token matchToken(Symbol sym) throws ParseError {
 		Token tok =  tokens.pop();
 		if (DEBUG) System.out.println("POP: "+tok + " :: " + tokenToSymbol(tok));
-		assert( tokenToSymbol(tok) == sym);
+		if ( tokenToSymbol(tok) != sym)
+			throw new ParseError("MatchToken Failed Pop,  Expecting " + sym + " but popped "+tokenToSymbol(tok));
 		return tok;
 	}
 	
@@ -97,7 +98,7 @@ public class RecursiveParserMiniRe {
 	private void statementListTail() throws ParseError {
 		if (DEBUG) System.out.println("STATEMENT LIST TAIL");
 		Symbol sym = tokenToSymbol( peekToken() );
-		if (sym == Symbol.ID || sym == Symbol.REPLACE || sym == Symbol.RECURSIVE_REPLACE) {
+		if (sym == Symbol.ID || sym == Symbol.REPLACE || sym == Symbol.RECURSIVE_REPLACE || sym == Symbol.PRINT) {
 			statement();
 			statementListTail();
 		} // else epsilon is allowed
@@ -110,7 +111,7 @@ public class RecursiveParserMiniRe {
 	 * <statement> -> ID = maxfreqstring (ID);
 	 * <statement> -> replace REGEX with ASCII-STR in  <file-names> ;
 	 * <statement> -> recursivereplace REGEX with ASCII-STR in  <file-names> ;
-	 *  <statement> -> print ( <exp-list> ) ;
+	 * <statement> -> print ( <exp-list> ) ;
 	 */
 	private void statement() throws ParseError {
 		if (DEBUG) System.out.println("STATEMENT");
@@ -126,47 +127,42 @@ public class RecursiveParserMiniRe {
 			switch (sym2) {
 			// Expression
 			case ID:
-				// ID
-				matchToken(Symbol.ID); 
-				if (DEBUG) System.out.println("SUB SWITCH ID - UNIMPLEMENTED");
-				break;
 			case FIND:
-				// <exp>
-				exp();
-				break;
 			case L_PAREN:
-				// (<exp>)
-				matchToken(Symbol.L_PAREN);
 				exp();
-				matchToken(Symbol.R_PAREN);
 				break;
 			// # Expression
-			case POUND:
+			case HASH:
 				// # <exp>
-				matchToken(Symbol.POUND);
+				if (DEBUG) System.out.println("DO #");
+				matchToken(Symbol.HASH);
 				exp();
 				break;
 			// maxfreqstring(ID)
 			case MAXFREQSTRING:
 				// Magic maxfreqstring
-				if (DEBUG) System.out.println("MAX FREQ STRING - UNIMPLEMENTED");
-//				void.createCharClass(tokenToEdges(token));
-				// TODO : THIS SHIT
+				if (DEBUG) System.out.println("DO MAX FREQ STRING");
+				matchToken(Symbol.MAXFREQSTRING);
+				matchToken(Symbol.L_PAREN);
+				matchToken(Symbol.ID);
+				matchToken(Symbol.R_PAREN);
 				break;
 			default:
 				throw new ParseError("statement sub-switch ID was passed unexpected token: '"+sym2+"' for "+sym+" with stack "+tokens);
 			}
 			break;
 		case REPLACE:
+			if (DEBUG) System.out.println("DO REPLACE");
 			matchToken(Symbol.REPLACE);
 			Token regex = matchToken(Symbol.REGEX);
-			String regexLine = (String) regex.data;
+			String regexLine = regex.data.toString();
 			matchToken(Symbol.WITH);
 			matchToken(Symbol.ASCII_STR);
 			matchToken(Symbol.IN);
 			fileNames();
 			break;
 		case RECURSIVE_REPLACE:
+			if (DEBUG) System.out.println("DO RECURSIVE REPLACE");
 			matchToken(Symbol.RECURSIVE_REPLACE);
 			matchToken(Symbol.REGEX);
 			matchToken(Symbol.WITH);
@@ -175,6 +171,7 @@ public class RecursiveParserMiniRe {
 			fileNames();
 			break;
 		case PRINT:
+			if (DEBUG) System.out.println("DO PRINT");
 			matchToken(Symbol.PRINT);
 			expressionList();
 			break;
@@ -191,9 +188,10 @@ public class RecursiveParserMiniRe {
 	 * @throws ParseError 
 	 */
 	private void fileNames() throws ParseError {
-		if (DEBUG) System.out.println("FILENAMES - UNIMPLEMENTED");
+		if (DEBUG) System.out.println("FILENAMES");
 		sourceFile();
 		// TODO Read filenames
+		matchToken(Symbol.SAVE_TO);
 		destinationFile();
 	}
 
@@ -203,9 +201,9 @@ public class RecursiveParserMiniRe {
 	 * @throws ParseError 
 	 */
 	private void sourceFile() throws ParseError {
-		if (DEBUG) System.out.println("SOURCE FILE - UNIMPLEMENTED");
+		if (DEBUG) System.out.println("SOURCE FILE");
 		//TODO: ASCII-STR , not sure what to do here yet
-		Token token = matchToken(Symbol.CHARCLASS);
+		matchToken(Symbol.ASCII_STR);
 	}
 
 	/**
@@ -214,9 +212,9 @@ public class RecursiveParserMiniRe {
 	 * @throws ParseError 
 	 */
 	private void destinationFile() throws ParseError {
-		if (DEBUG) System.out.println("DESTINATION FILE - UNIMPLEMENTED");
+		if (DEBUG) System.out.println("DESTINATION FILE");
 		//TODO: ASCII-STR , not sure what to do here yet
-		Token token = matchToken(Symbol.CHARCLASS);
+		matchToken(Symbol.ASCII_STR);
 	}
 
 	/**
@@ -232,17 +230,17 @@ public class RecursiveParserMiniRe {
 
 	/**
 	 * Expression List Tail Rule
-	 *	 <exp-tail> -> , <exp> <exp-list-tail>
+	 *	 <exp-list-tail> -> , <exp> <exp-list-tail>
+	 *   <exp-list-tail> -> epsilon(null)        <---- This was told on Piazza...
 	 * @throws ParseError 
 	 */
-
 	private void expressionListTail() throws ParseError {
 		if (DEBUG) System.out.println("EXPRESSION LIST TAIL");
-		matchToken(Symbol.COMMA);
-		Symbol sym = tokenToSymbol( peekToken() );
-		// TODO : This is horribly wrong
-		exp();
-		expressionListTail();
+		if (tokenToSymbol(peekToken()) == Symbol.COMMA) {
+			matchToken(Symbol.COMMA);			
+			exp();
+			expressionListTail();
+		}
 	}
 
 	/**
@@ -256,7 +254,11 @@ public class RecursiveParserMiniRe {
 		if (DEBUG) System.out.println("EXP");
 		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.ID) {
-			Token token = matchToken(Symbol.ID);
+			matchToken(Symbol.ID);
+		} else if (sym == Symbol.L_PAREN) {
+			matchToken(Symbol.L_PAREN);
+			exp();
+			matchToken(Symbol.R_PAREN);
 		} else {
 			term();
 			expressionTail();
@@ -333,7 +335,19 @@ public class RecursiveParserMiniRe {
 //		if(data.equalsIgnoreCase(Symbol.CHARCLASS.name())) {
 //			return Symbol.CHARCLASS;
 //		}
-		if(data.equalsIgnoreCase("|") || data.equalsIgnoreCase(Symbol.UNION.name())) {
+		if(t.type.equals("$ID_HASH")) {
+			return Symbol.HASH;
+		}
+		else if(t.type.equals("$ID_OPENPAREN")) {
+			return Symbol.L_PAREN;
+		}
+		else if(t.type.equals("$ID_CLOSEPAREN")) {
+			return Symbol.R_PAREN;
+		}
+		else if(t.type.equals("$ID_SAVETO")) {
+			return Symbol.SAVE_TO;
+		}
+		else if(data.equalsIgnoreCase("|") || data.equalsIgnoreCase(Symbol.UNION.name())) {
 			return Symbol.UNION;
 		}
 		else if(data.equalsIgnoreCase(Symbol.REPLACE.name())) {
@@ -389,34 +403,7 @@ public class RecursiveParserMiniRe {
 		}
 		else {
 			throw new ParseError("Unable to find Symbol for Token : " + t + " with stack "+tokens);
-		}
-		
-		/*switch(data) {
-		case CHARCLASS: 
-		case CHR:
-		case SPECIAL_CHAR: 
-		case L_PAREN:
-		case R_PAREN:
-		case ZERO_OR_MORE: 
-		case ONE_OR_MORE:
-		case UNION:
-		case REPLACE: 
-		case BEGIN:
-		case END:
-		case EQUALS: 
-		case REGEX:
-		case ID:
-		case WITH: 
-		case COMMA: 
-		case RECURSIVE_REPLACE: 
-		case ASCII_STR: 
-		case IN:
-		case DIFF: 
-		case INTERS: 
-		case PRINT:
-			
-			*/
-		
+		}		
 	}
 
 }

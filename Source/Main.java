@@ -80,6 +80,6 @@ public class Main {
 		System.out.println("Calling Recursive Parser for Mini-Re Program...");
 		RecursiveParserMiniRe rec = new RecursiveParserMiniRe(allTokens);
 		rec.minireProgram();
-
+		System.out.println("Good god it didn't fail.");
 	}
 }
