@@ -22,7 +22,7 @@ public class Operations {
 			inFile = new FileInputStream(in);
 			outFile = new FileOutputStream(out);
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			System.out.println("Couldn't find files "+infile +" &/or "+outfile);
 			return false;
 		}
 		StringBuffer inputFileText = new StringBuffer();
@@ -39,7 +39,7 @@ public class Operations {
 			try {
 				c = (char) inFile.read();
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.out.println("Failure while reading inFile "+infile);
 				return false;
 			}
 		}
@@ -51,7 +51,7 @@ public class Operations {
 			try {
 				outFile.write(outFileText.charAt(i));
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.out.println("Failure while writing outFile "+outfile);
 				return false;			
 			}
 		}		
@@ -59,7 +59,7 @@ public class Operations {
 			inFile.close();
 			outFile.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Failure while closing files");
 			return false;		
 		}
 		return true;
