@@ -11,7 +11,7 @@ public class RecursiveParserMiniRe {
 	Stack<Token> tokens;
 	boolean DEBUG = true;
 	
-	private enum Symbol {L_PAREN, R_PAREN, REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT, UNION, CHARCLASS, FIND, POUND, MAXFREQSTRING};
+	private enum Symbol {L_PAREN, R_PAREN, REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT, UNION, CHARCLASS, FIND, POUND, MAXFREQSTRING, END_LINE};
 	
 	private Token peekToken() throws ParseError {
 		if (DEBUG) System.out.println("PEEK: "+tokens.peek() + " :: " + tokenToSymbol(tokens.peek()));
@@ -156,7 +156,6 @@ public class RecursiveParserMiniRe {
 			default:
 				throw new ParseError("statement sub-switch ID was passed unexpected token: '"+sym2+"' for "+sym+" with stack "+tokens);
 			}
-			
 			break;
 		case REPLACE:
 			matchToken(Symbol.REPLACE);
@@ -182,6 +181,7 @@ public class RecursiveParserMiniRe {
 		default:
 			throw new ParseError("statement() was passed unexpected token: '"+sym+"' for "+tokens);
 		}
+		matchToken(Symbol.END_LINE);
 	}
 
 
@@ -296,10 +296,11 @@ public class RecursiveParserMiniRe {
 	/**
 	 * Filename
 	 * <file-name> -> ASCII-STR
+	 * @throws ParseError 
 	 */
-	private void filename() {
-		if (DEBUG) System.out.println("FILENAME - UNIMPLEMENTED");
-		//TODO - This probably isn't needed, yes, yes it is.
+	private void filename() throws ParseError {
+		if (DEBUG) System.out.println("FILENAME");
+		matchToken(Symbol.ASCII_STR);
 	}
 
 	/**
@@ -332,7 +333,7 @@ public class RecursiveParserMiniRe {
 //		if(data.equalsIgnoreCase(Symbol.CHARCLASS.name())) {
 //			return Symbol.CHARCLASS;
 //		}
-		if(data.equalsIgnoreCase("|")) {
+		if(data.equalsIgnoreCase("|") || data.equalsIgnoreCase(Symbol.UNION.name())) {
 			return Symbol.UNION;
 		}
 		else if(data.equalsIgnoreCase(Symbol.REPLACE.name())) {
@@ -340,6 +341,9 @@ public class RecursiveParserMiniRe {
 		}
 		else if(data.equalsIgnoreCase(Symbol.BEGIN.name())) {
 			return Symbol.BEGIN;
+		}
+		else if(t.type.equalsIgnoreCase("$ID_ENDLINE")) {
+			return Symbol.END_LINE;
 		}
 		else if(data.equalsIgnoreCase(Symbol.END.name())) {
 			return Symbol.END;
@@ -384,7 +388,7 @@ public class RecursiveParserMiniRe {
 			return Symbol.ID;
 		}
 		else {
-			throw new ParseError("Unable to find Symbol for Token : " + t);
+			throw new ParseError("Unable to find Symbol for Token : " + t + " with stack "+tokens);
 		}
 		
 		/*switch(data) {

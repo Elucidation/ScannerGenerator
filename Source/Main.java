@@ -44,17 +44,17 @@ public class Main {
 		boolean atEnd = false;
 		while (  !atEnd  ) {
 			c = (char)in.read();
-			try {
-				if(c!='\r'){
-					tokens = tableWalker.walkTable(c);	
-				}
-				else{
-					tokens = null;
-				}
-			} catch (IllegalArgumentException e) {
-				System.out.println("Exception "+c );
-				break;
+//			try {
+			if(c!='\r'){
+				tokens = tableWalker.walkTable(c);	
 			}
+			else{
+				tokens = null;
+			}
+//			} catch (IllegalArgumentException e) {
+//				System.out.println("ERROR Exception '"+c+"' : "+e );
+//				break;
+//			}
 			if (tokens != null) {
 				for (Token token: tokens) {
 					String tokenString = "TOKEN!: "+token+"\n";
