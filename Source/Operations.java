@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -127,6 +128,61 @@ public class Operations {
 	}
 	public void print(int a){
 		System.out.println(a);
+	}
+	
+	//This needs to be tested:
+	public String maxfreqstring(String[] a){
+		HashMap<String,Integer> hm = new HashMap<String,Integer>();
+		String maxString = null;
+		int maxNum=0;
+		for(int i=0;i<a.length;i++){
+			if(hm.containsKey(a[i])){
+				int prevNum = hm.get(a[i]);
+				prevNum++;
+				if(prevNum>maxNum){
+					maxNum = prevNum;
+					maxString = a[i];
+				}
+				hm.put(a[i],prevNum);
+			}
+			else{
+				hm.put(a[i], 1);
+			}
+		}		
+		return maxString;
+	}
+	//This needs to be tested
+	public String[] union(String[] a, String[] b){
+
+		HashSet<String> hs = new HashSet<String>();
+		for(int i=0;i<a.length;i++){
+			hs.add(a[i]);
+		}
+		for(int i=0;i<b.length;i++){
+				hs.add(b[i]);
+			
+		}
+		
+		String[] results = new String[hs.size()];
+		return hs.toArray(results);
+	}
+	//This needs to be tested
+	public String[] diff(String[] a, String[] b){
+
+		HashSet<String> hs = new HashSet<String>();
+		for(int i=0;i<a.length;i++){
+			hs.add(a[i]);
+		}
+		
+		for(int i=0;i<b.length;i++){
+				if(hs.contains(b[i])){
+					hs.remove(b[i]);
+				}
+			
+		}
+		
+		String[] results = new String[hs.size()];
+		return hs.toArray(results);
 	}
 
 }
