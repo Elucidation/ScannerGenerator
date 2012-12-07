@@ -153,13 +153,7 @@ public class RecursiveParserMiniRe {
 			break;
 		case REPLACE:
 			if (DEBUG) System.out.println("DO REPLACE");
-			matchToken(Symbol.REPLACE);
-			Token regex = matchToken(Symbol.REGEX);
-			String regexLine = regex.data.toString();
-			matchToken(Symbol.WITH);
-			matchToken(Symbol.ASCII_STR);
-			matchToken(Symbol.IN);
-			fileNames();
+			replace();
 			break;
 		case RECURSIVE_REPLACE:
 			if (DEBUG) System.out.println("DO RECURSIVE REPLACE");
@@ -182,39 +176,68 @@ public class RecursiveParserMiniRe {
 	}
 
 
+	private void replace() throws ParseError {
+		// TODO Auto-generated method stub
+		matchToken(Symbol.REPLACE);
+		String regex = matchToken(Symbol.REGEX).data.toString();
+		regex = regex.subSequence(1, regex.length()-1).toString();
+		matchToken(Symbol.WITH);
+		String ascii_str = matchToken(Symbol.ASCII_STR).data.toString();
+		ascii_str = ascii_str.subSequence(1, ascii_str.length()-1).toString();
+		matchToken(Symbol.IN);
+		ArrayList<String> files = fileNames();
+		String inFile = files.get(0);
+		String outFile = files.get(1);
+		System.out.println("DO REPLACE REGEX("+regex+") with ASCII_STR("+ascii_str+") with IN-FILE("+inFile+") save to OUT-FILE("+outFile+")");
+		if ( Operations.replace(regex, ascii_str, inFile, outFile) )
+			System.out.println("REPLACE SUCCESSFUL");
+		else
+			System.out.println("REPLACE FAILED, SKIPPING");
+	}
+
 	/**
-	 * File-Names rule
+	 * File-Names rule, essentially a save to command
 	 * <file-names> ->  <source-file>  >!  <destination-file>
 	 * @throws ParseError 
 	 */
-	private void fileNames() throws ParseError {
-		if (DEBUG) System.out.println("FILENAMES");
-		sourceFile();
+	private ArrayList<String> fileNames() throws ParseError {
+		if (DEBUG) System.out.println("FILENAMES (DOING SAVE TO)");
+		String inFile = sourceFile();
 		// TODO Read filenames
 		matchToken(Symbol.SAVE_TO);
-		destinationFile();
+		String outFile = destinationFile();
+		ArrayList<String> files = new ArrayList<String>();
+		files.add(inFile);
+		files.add(outFile);
+		return files;
 	}
 
 	/**
 	 * Source File Rule
 	 * <source-file> ->  ASCII-STR  
-	 * @throws ParseError 
+	 * @throws ParseError
+	 * @returns filename 
 	 */
-	private void sourceFile() throws ParseError {
+	private String sourceFile() throws ParseError {
 		if (DEBUG) System.out.println("SOURCE FILE");
 		//TODO: ASCII-STR , not sure what to do here yet
-		matchToken(Symbol.ASCII_STR);
+		Token t = matchToken(Symbol.ASCII_STR);
+		String filename = t.data.toString().substring(1, t.data.toString().length()-1);
+		return filename;
 	}
 
 	/**
 	 * Destination File Rule
 	 * <destination-file> -> ASCII-STR
 	 * @throws ParseError 
+	 * @returns filename
 	 */
-	private void destinationFile() throws ParseError {
+	private String destinationFile() throws ParseError {
 		if (DEBUG) System.out.println("DESTINATION FILE");
 		//TODO: ASCII-STR , not sure what to do here yet
-		matchToken(Symbol.ASCII_STR);
+		Token t = matchToken(Symbol.ASCII_STR);
+		String filename = t.data.toString().substring(1, t.data.toString().length()-1);
+		return filename;
 	}
 
 	/**

@@ -12,12 +12,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Operations {
-
-	public Operations(){
-		
-	}
 	
-	public boolean replace(String regex,String ascii_str,String infile,String outfile){
+	public static boolean replace(String regex,String ascii_str,String infile,String outfile){
 		File in = new File(infile);
 		File out = new File(outfile);
 		FileInputStream inFile;
@@ -69,7 +65,7 @@ public class Operations {
 		return true;
 	}
 	
-	public String[] find(String regex, String infile){
+	public static String[] find(String regex, String infile){
 		File in = new File(infile);
 		FileInputStream inFile;
 		try {
@@ -106,7 +102,7 @@ public class Operations {
 		return   a.toArray(results);
 	}
 	
-	public String[] intersec(String[] a, String[] b){
+	public static String[] intersec(String[] a, String[] b){
 
 		HashSet<String> hs = new HashSet<String>();
 		for(int i=0;i<a.length;i++){
@@ -123,15 +119,15 @@ public class Operations {
 		return rs.toArray(results);
 	}
 	
-	public int hash(String[] a){
+	public static int hash(String[] a){
 		return a.length;
 	}
-	public void print(int a){
+	public static void print(int a){
 		System.out.println(a);
 	}
 	
 	//This needs to be tested:
-	public String maxfreqstring(String[] a){
+	public static String maxfreqstring(String[] a){
 		HashMap<String,Integer> hm = new HashMap<String,Integer>();
 		String maxString = null;
 		int maxNum=0;
@@ -152,7 +148,7 @@ public class Operations {
 		return maxString;
 	}
 	//This needs to be tested
-	public String[] union(String[] a, String[] b){
+	public static String[] union(String[] a, String[] b){
 
 		HashSet<String> hs = new HashSet<String>();
 		for(int i=0;i<a.length;i++){
@@ -167,7 +163,7 @@ public class Operations {
 		return hs.toArray(results);
 	}
 	//This needs to be tested
-	public String[] diff(String[] a, String[] b){
+	public static String[] diff(String[] a, String[] b){
 
 		HashSet<String> hs = new HashSet<String>();
 		for(int i=0;i<a.length;i++){
