@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import Source.ASNode;
 import Source.ASTree;
+import Source.Token;
 
 public class TreeTest {
 
@@ -20,14 +21,19 @@ public class TreeTest {
 		
 		at.setHead(head);
 		
-		head.setName("expr");
+		Token hToken = new Token("expr", null);
+		head.setToken(hToken);
 		head.setParent(head);
 		
-		term.setName("term");
+		//term.setName("term");
+		Token termToken = new Token("term", null);
 		term.setParent(head);
+		term.setToken(termToken);
 		
-		tail.setName("tail");
+		//tail.setName("tail");
+		Token tailToken = new Token("tail", null);
 		tail.setParent(head);
+		tail.setToken(tailToken);
 		
 		ArrayList<ASNode> childrenList = new ArrayList<ASNode>();
 		childrenList.add(term);

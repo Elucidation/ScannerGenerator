@@ -12,7 +12,7 @@ public class ASNode {
 	//Public Variables
 	ArrayList<ASNode> children;
 	ASNode parent = null;
-	String name = "";
+	Token token;
 	
 	/**
 	 * Constructor
@@ -20,7 +20,6 @@ public class ASNode {
 	public ASNode() {
 		//this.parent = new ASNode();
 		this.children = new ArrayList<ASNode>();
-		this.name = "";
 	}
 	/**
 	 * Constructor
@@ -38,11 +37,7 @@ public class ASNode {
 		this.parent = parent;
 		this.children = children;
 	}
-	public ASNode(ASNode parent, ArrayList<ASNode> children, String name) {
-		this.parent = parent;
-		this.children = children;
-		this.name = name;
-	}
+
 	
 	/**
 	 * @return the children
@@ -68,28 +63,24 @@ public class ASNode {
 	public void setParent(ASNode parent) {
 		this.parent = parent;
 	}
+
+	
 	/**
-	 * @return the name
+	 * @return the token
 	 */
-	public String getName() {
-		return name;
+	public Token getToken() {
+		return token;
 	}
 	/**
-	 * @param name the name to set
+	 * @param token the token to set
 	 */
-	public void setName(String name) {
-		this.name = name;
+	public void setToken(Token token) {
+		this.token = token;
 	}
-	
-	
-	
-	
-	
-	
 	@Override 
 	 public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("[Name: " + this.name + ", Parent: " + this.parent.name + "]");
+		sb.append("[Parent: " + (this.parent.token != null? token.toString() : "") + ",Token: "  + (this.token != null? token.toString() : "")  + "]");
 		return sb.toString();
 	
 	}

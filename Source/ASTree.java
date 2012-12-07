@@ -18,10 +18,10 @@ public class ASTree {
 			 StringBuilder sb = new StringBuilder();
 			 ASNode sentinal = this.head;
 			 //System.out.println("[ + "+ sentinal.toString() + "]");
-			 sb.append(sentinal.toString());
+			 sb.append(sentinal.toString() + "\n");
 			 
 			 for(ASNode node : sentinal.children) {
-				 sb.append(node.toString());
+				 sb.append("Child: " + node.toString()+ "\n");
 				 sb.append(findChildren(node));
 			 }
 			 return sb.toString();
@@ -31,10 +31,10 @@ public class ASTree {
 
 			 StringBuilder sb = new StringBuilder();
 			 for(ASNode node : a.children) {
-				 sb.append(node.toString());
+				 sb.append(node.toString()+ "\n");
 				 //If we have children, recurse
 				 if(a.children.size() > 0) {
-					 sb.append(findChildren(node));
+					 sb.append(findChildren(node)+ "\n");
 				 }
 			 }
 			 

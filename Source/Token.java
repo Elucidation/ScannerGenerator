@@ -15,6 +15,6 @@ public class Token {
 
 	@Override
 	public String toString() {
-		return type + " = " + data;
+		return "[Type: " + type + " Data: " + data + "]";
 	}
 }
