@@ -46,7 +46,13 @@ import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 public class ScannerGenerator {
 	public static final char EPS = '\u03B5';// placeholder for graph edges char value when epsilon edge
-	
+	ArrayList<String> identifierNames;
+	public ScannerGenerator() {
+		identifierNames = new ArrayList<String>();
+	}
+	public ArrayList<String> getIdentifiers() {
+		return identifierNames;
+	}
 	/**
 	 * Generates DFATable from Specification File
 	 * 
@@ -54,7 +60,7 @@ public class ScannerGenerator {
 	 * @return
 	 * @throws Exception 
 	 */
-	public static DFATable generateDFA(String specFile) throws Exception {
+	public DFATable generateDFA(String specFile) throws Exception {
 //		FileInputStream in = new FileInputStream(specFile);
 		System.out.println("Parsing specification file '"+specFile+"' to NFAs...");
 		BufferedReader in = new BufferedReader( new FileReader(specFile) );
@@ -69,13 +75,11 @@ public class ScannerGenerator {
 				parseCharClass(line,tokens);
 			}
 		}
-//		for (Entry<String, HashSet<Character>> e : tokens.entrySet()) {
-//			System.out.println( e.getKey() + "("+e.getValue().size()+") : " + e.getValue().toString());
-//		}
 		
 		// For each line, generate an NFA
 		// Parse Identifiers
 		ArrayList<NFA> partialNFAs = new ArrayList<NFA>();
+		
 		
 		while( (line = in.readLine()) != null && !line.isEmpty() ) {
 			System.out.println("Parsing Identifier: "+line);
@@ -179,7 +183,7 @@ public class ScannerGenerator {
 		}
 	}
 	
-	public static NFA parseIdentifier(String line, HashMap<String,HashSet<Character>> tokens) throws ParseError {
+	public NFA parseIdentifier(String line, HashMap<String,HashSet<Character>> tokens) throws ParseError {
 		line.replaceAll("\\ ", "<SPACE>"); // replace '\ ' with '<SPACE>' so split doesn't affect it
 		String name = line.substring( 0, line.indexOf(' ') );;
 		String val = line.substring(line.indexOf(' '), line.length()).replaceAll(" ", ""); // remove all spaces
@@ -199,6 +203,8 @@ public class ScannerGenerator {
 //		System.out.println(dgraph);
 //		drawGraph(dgraph, name, "Partial NFA '"+name+"', REGEX: "+val  );
 //		System.out.println("  Finished Recursive Parse. (Partial NFA image saved to 'Images/graph"+name+".png'");
+		
+		identifierNames.add(name);
 		return partialNFA;
 	}
 	/**
@@ -386,4 +392,5 @@ public class ScannerGenerator {
 		s = s.replaceAll("0123456789", "0-9");
 		return s;
 	}
+	
 }

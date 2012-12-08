@@ -9,6 +9,7 @@ public class RecursiveParserMiniRe {
 	HashMap<String, Variable> variables = new HashMap<String,Variable>(); // These are variables generated during minireProgram run
 	Stack<Token> tokens;
 	boolean DEBUG = true;
+	private ArrayList<String> knownSymbols; // ex ArrayList<String>( ["$ID", "$NUMBER", "$FIND", "$BEGIN"...] )
 	
 	public static enum Symbol {L_PAREN, R_PAREN, REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT, UNION, CHARCLASS, FIND, HASH, MAXFREQSTRING, END_LINE, SAVE_TO};
 	
@@ -25,7 +26,8 @@ public class RecursiveParserMiniRe {
 		return tok;
 	}
 	
-	public RecursiveParserMiniRe(ArrayList<Token> inTokens) {
+	public RecursiveParserMiniRe(ArrayList<Token> inTokens, ArrayList<String> knownSymbols) {
+		this.knownSymbols = knownSymbols;
 		tokens = new Stack<Token>(); 
 		for (int i=inTokens.size()-1; i>=0; --i)
 			tokens.add(inTokens.get(i));
@@ -399,76 +401,11 @@ public class RecursiveParserMiniRe {
 	///////////////
 	Symbol tokenToSymbol(Token t) throws ParseError {
 		String data = t.data.toString();
-//		if(data.equalsIgnoreCase(Symbol.CHARCLASS.name())) {
-//			return Symbol.CHARCLASS;
-//		}
-		if(t.type.equals("$ID_HASH")) {
-			return Symbol.HASH;
+		for (Symbol s : Symbol.values()) {
+			if ( t.type.equals('$'+s.name()) )
+				return s;
 		}
-		else if(t.type.equals("$ID_OPENPAREN")) {
-			return Symbol.L_PAREN;
-		}
-		else if(t.type.equals("$ID_CLOSEPAREN")) {
-			return Symbol.R_PAREN;
-		}
-		else if(t.type.equals("$ID_SAVETO")) {
-			return Symbol.SAVE_TO;
-		}
-		else if(data.equalsIgnoreCase("|") || data.equalsIgnoreCase(Symbol.UNION.name())) {
-			return Symbol.UNION;
-		}
-		else if(data.equalsIgnoreCase(Symbol.REPLACE.name())) {
-			return Symbol.REPLACE;
-		}
-		else if(data.equalsIgnoreCase(Symbol.BEGIN.name())) {
-			return Symbol.BEGIN;
-		}
-		else if(t.type.equalsIgnoreCase("$ID_ENDLINE")) {
-			return Symbol.END_LINE;
-		}
-		else if(data.equalsIgnoreCase(Symbol.END.name())) {
-			return Symbol.END;
-		}
-		else if(data.equalsIgnoreCase("=")) {
-			return Symbol.EQUALS;
-		}
-		else if(t.type.equals("$REGEX")) {
-			return Symbol.REGEX;
-		}
-		else if(data.equalsIgnoreCase(Symbol.ID.name())) {
-			return Symbol.ID;
-		}
-		else if(data.equalsIgnoreCase(Symbol.WITH.name())) {
-			return Symbol.WITH;
-		}
-		else if(data.equalsIgnoreCase(Symbol.COMMA.name())) {
-			return Symbol.COMMA;
-		}
-		else if(data.equalsIgnoreCase(Symbol.RECURSIVE_REPLACE.name())) {
-			return Symbol.RECURSIVE_REPLACE;
-		}
-		else if(t.type.equals("$ASCII")) {
-			return Symbol.ASCII_STR;
-		}
-		else if(data.equalsIgnoreCase(Symbol.IN.name())) {
-			return Symbol.IN;
-		}
-		else if(data.equalsIgnoreCase(Symbol.DIFF.name())) {
-			return Symbol.DIFF;
-		}
-		else if(data.equalsIgnoreCase(Symbol.INTERS.name())) {
-			return Symbol.INTERS;
-		}
-		else if(data.equalsIgnoreCase(Symbol.FIND.name())) {
-			return Symbol.FIND;
-		}
-		else if(data.equalsIgnoreCase(Symbol.PRINT.name())) {
-			return Symbol.PRINT;
-		}
-		else if(isID(data)) {
-			return Symbol.ID;
-		}
-		else if (t.type.equals("$NUMBER")) {
+		if (t.type.equals("$NUMBER")) {
 			return Symbol.ID;
 		}
 		else {

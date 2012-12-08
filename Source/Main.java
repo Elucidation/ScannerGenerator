@@ -27,15 +27,18 @@ public class Main {
 		
 		// Generate DFA table from regex specification file
 		System.out.println("Generating DFA Table for specification file '"+specificationFilename+"'...");
-		DFATable dfaTable = ScannerGenerator.generateDFA(specificationFilename);
+		ScannerGenerator sg = new ScannerGenerator();
+		DFATable dfaTable = sg.generateDFA(specificationFilename);
 		System.out.println("Done generating DFA Table.\n");
-
+		
+		System.out.println("List of identifiers:"+sg.getIdentifiers());
+		
 		// Build scanner using DFA table on input file
 		System.out.println("Initializing TableWalker with DFA Table...");
-		TableWalker tableWalker = new TableWalker(dfaTable,dfaTable.getStartState() );
+		TableWalker tableWalker = new TableWalker( dfaTable, dfaTable.getStartState() );
 
-		System.out.println("DFA Table:");
-		System.out.println(dfaTable.getStartState());
+//		System.out.println("DFA Table start:");
+//		System.out.println(dfaTable.getStartState());
 		
 		// Main driver, Feeds characters from input file to table Walker
 		System.out.println("Walking Table with input file '"+inputFilename+"'...");
@@ -80,12 +83,12 @@ public class Main {
 //		System.out.println("Finished writing tokens! All Done.");
 		
 		// MINIRE
-//		System.out.println("Token List: ");
-//		System.out.println(allTokens);
-//		System.out.println("Calling Recursive Parser for Mini-Re Program...");
-//		RecursiveParserMiniRe rec = new RecursiveParserMiniRe(allTokens);
-//		Node ast = rec.minireProgram();
-//		System.out.println("Good god it didn't fail.");
-//		System.out.println("AST : "+ast);
+		System.out.println("Token List: ");
+		System.out.println(allTokens);
+		System.out.println("Calling Recursive Parser for Mini-Re Program...");
+		RecursiveParserMiniRe rec = new RecursiveParserMiniRe(allTokens,sg.getIdentifiers());
+		Node ast = rec.minireProgram();
+		System.out.println("Good god it didn't fail.");
+		System.out.println("AST : "+ast);
 	}
 }
