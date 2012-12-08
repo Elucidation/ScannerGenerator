@@ -154,19 +154,15 @@ public class RecursiveParserMiniRe {
 //			variables[]
 			break;
 		case REPLACE:
-			if (DEBUG) System.out.println("DO REPLACE");
 			ArrayList<Node> nodes = replace();
 			for (Node node : nodes)
 				n.addChild(node);
 			break;
 		case RECURSIVE_REPLACE:
-			if (DEBUG) System.out.println("DO RECURSIVE REPLACE");
-			matchToken(Symbol.RECURSIVE_REPLACE);
-			matchToken(Symbol.REGEX);
-			matchToken(Symbol.WITH);
-			matchToken(Symbol.ASCII_STR);
-			matchToken(Symbol.IN);
-			fileNames();
+			
+			ArrayList<Node> nodes1 = recursivereplace();
+			for (Node node : nodes1)
+				n.addChild(node);
 			break;
 		case PRINT:
 			if (DEBUG) System.out.println("DO PRINT");
@@ -188,23 +184,43 @@ public class RecursiveParserMiniRe {
 		return n;
 	}
 
-	private ArrayList<Node> replace() throws ParseError {
-		if (DEBUG) System.out.println("REPLACE");
+	private ArrayList<Node> recursivereplace() throws ParseError {
+		if (DEBUG) System.out.println("DO RECURSIVE REPLACE");
 		ArrayList<Node> nodes = new ArrayList<Node>();
-		matchToken(Symbol.REPLACE);
 		
-		nodes.add(new Node("REPLACE"));
+		matchToken(Symbol.RECURSIVE_REPLACE);
+		nodes.add(new Node("RECURSIVE_REPLACE"));
 		
-		String regex = matchToken(Symbol.REGEX).data.toString();
-		regex = regex.subSequence(1, regex.length()-1).toString();
-		nodes.add(new Node("REGEX", new Variable(Variable.VAR_TYPE.STRING, regex)));
+		nodes.add( regex() );
 		
 		matchToken(Symbol.WITH);
 		nodes.add(new Node("WITH"));
 		
-		String ascii_str = matchToken(Symbol.ASCII_STR).data.toString();
-		ascii_str = ascii_str.subSequence(1, ascii_str.length()-1).toString();
-		nodes.add(new Node("ASCII_STR", new Variable(Variable.VAR_TYPE.STRING, ascii_str)));
+		nodes.add( ascii_str() );
+		
+		matchToken(Symbol.IN);
+		nodes.add(new Node("IN"));
+		
+		ArrayList<Node> fnodes = fileNames();
+		for (Node node : fnodes)
+			nodes.add(node);
+		return nodes;
+	}
+
+	private ArrayList<Node> replace() throws ParseError {
+		if (DEBUG) System.out.println("REPLACE");
+		ArrayList<Node> nodes = new ArrayList<Node>();
+		
+		matchToken(Symbol.REPLACE);
+		
+		nodes.add(new Node("REPLACE"));
+		
+		nodes.add( regex() );
+		
+		matchToken(Symbol.WITH);
+		nodes.add(new Node("WITH"));
+		
+		nodes.add( ascii_str() );
 		
 		matchToken(Symbol.IN);
 		nodes.add(new Node("IN"));
@@ -214,6 +230,18 @@ public class RecursiveParserMiniRe {
 			nodes.add(node);
 		
 		return nodes;
+	}
+	
+	private Node regex() throws ParseError {
+		String regex = matchToken(Symbol.REGEX).data.toString();
+		regex = regex.subSequence(1, regex.length()-1).toString();
+		return new Node("REGEX", new Variable(Variable.VAR_TYPE.STRING, regex));
+	}
+
+	private Node ascii_str() throws ParseError {
+		String ascii_str = matchToken(Symbol.ASCII_STR).data.toString();
+		ascii_str = ascii_str.subSequence(1, ascii_str.length()-1).toString();
+		return new Node("ASCII_STR", new Variable(Variable.VAR_TYPE.STRING, ascii_str));
 	}
 
 	/**
