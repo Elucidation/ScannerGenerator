@@ -16,6 +16,8 @@ import org.apache.commons.collections15.Transformer;
 
 import edu.uci.ics.jung.algorithms.layout.TreeLayout;
 import edu.uci.ics.jung.graph.DelegateForest;
+import edu.uci.ics.jung.graph.DelegateTree;
+import edu.uci.ics.jung.graph.DirectedOrderedSparseMultigraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -31,10 +33,10 @@ public class DrawingStuff {
 	 * @param ast
 	 */
 	public static void drawAST(Node ast, String filename) {
-		DelegateForest<Node, Integer> graph = new DelegateForest<Node,Integer>();
-		graph.addVertex(ast);
-		buildGraph(graph,ast);
-		TreeLayout<Node, Integer> layout = new TreeLayout<Node, Integer>(graph);
+		DelegateTree<Node, Integer> tree = new DelegateTree<Node,Integer>(new DirectedOrderedSparseMultigraph<Node, Integer>());
+		tree.setRoot(ast);
+		buildGraph(tree,ast);
+		TreeLayout<Node, Integer> layout = new TreeLayout<Node, Integer>(tree);
 		
 		 VisualizationViewer<Node, Integer> vv = new VisualizationViewer<Node,Integer>(layout, new Dimension(600,600));
 		 
@@ -65,17 +67,17 @@ public class DrawingStuff {
 //            }
 //        });
 //		vv.getRenderContext().setArrowFillPaintTransformer(new ConstantTransformer(Color.lightGray));
+		
 	}
 
-	private static void buildGraph(DelegateForest<Node, Integer> graph,
+	private static void buildGraph(DelegateTree<Node, Integer> tree,
 			Node node) {
-		System.out.println("VERTEX:"+node.name);
+//		System.out.println("VERTEX:"+node.name);
 		for (Node child : node.children) {
 			if (child != null) {
-				System.out.println("CHILD:"+child.name);
-				graph.addVertex(child);
-				graph.addEdge(i++, node, child);
-				buildGraph(graph, child); // Recurse
+//				System.out.println("CHILD:"+child.name);
+				tree.addChild(i++, node, child);
+				buildGraph(tree, child); // Recurse
 			}
 		}
 	}
