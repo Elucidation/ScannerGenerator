@@ -1,5 +1,6 @@
 package Source;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -21,6 +22,7 @@ public class AbstractSyntaxTree {
 		Node stl = this.root.children.get(1);
 		walkStatementList(stl);
 	}
+	@SuppressWarnings("unchecked")
 	private void walkStatementList(Node stl) {
 		if (DEBUG) System.out.println("STL");
 		Node statement = stl.children.get(0);
@@ -44,9 +46,9 @@ public class AbstractSyntaxTree {
 			} else if (valToken.name.equalsIgnoreCase("#")) {
 				if (DEBUG) System.out.println("COUNT");				
 				Variable subExp = walkExpression(statement.children.get(3));
-				if (DEBUG) System.out.println(subExp);
 				val = new Variable(Variable.VAR_TYPE.INT, (  (ArrayList<StringMatch>) subExp.value  ).size() );
 			} else if (valToken.name.equalsIgnoreCase("MAXFREQSTRING")) {
+				// TODO : Implement Max freq string here.
 				val = null;
 			}
 			
@@ -54,10 +56,13 @@ public class AbstractSyntaxTree {
 			variables.put(id, val);
 		} else if (firstToken.name.equalsIgnoreCase("REPLACE")) {
 			if (DEBUG) System.out.println("REPLACE");
+			// TODO : Implement Replace
 		} else if (firstToken.name.equalsIgnoreCase("RECURSIVEREPLACE")) {
 			if (DEBUG) System.out.println("RECURSIVEREPLACE");
+			// TODO : Implement Recursive Replace
 		} else if (firstToken.name.equalsIgnoreCase("PRINT")) {
 			if (DEBUG) System.out.println("PRINT");
+			// TODO : Implement Print
 		}
 		
 		Node tail = stl.children.get(1);
@@ -86,13 +91,55 @@ public class AbstractSyntaxTree {
 			return (Variable) variables.get( first.data );
 		} else if (first.name.equalsIgnoreCase("TERM")) {
 			ArrayList<StringMatch> matches = walkTerm(first);
-			return new Variable(Variable.VAR_TYPE.STRINGLIST, matches);
+			Node tail = exp.children.get(1);
+			return walkExpressionTail(matches, tail);
 		} else {
 			System.out.println("HMM: "+exp+"-first:"+first);
 			return null;
 		}
 	}
 	
+	/**
+	 * <exp-tail> ->  <bin-op> <term> <exp-tail> 
+	 * <exp-tail> -> epsilon
+	 * @param matches
+	 * @param tail
+	 * @return
+	 */
+	private Variable walkExpressionTail(ArrayList<StringMatch> matches,
+			Node tail) {
+		if (tail == null)
+			return new Variable(Variable.VAR_TYPE.STRINGLIST, matches );
+		String binop = tail.children.get(0).name;
+		if (DEBUG) System.out.println("BINOP "+binop);
+		ArrayList<StringMatch> rightSide = walkTerm( tail.children.get(1) );
+		if (binop.equalsIgnoreCase("INTERS")) {
+			ArrayList<StringMatch> newList = new ArrayList<StringMatch>();
+			for (StringMatch sm : matches) {
+				if (rightSide.contains(sm)) {
+					newList.add(sm);
+				}
+			}
+			matches.clear();
+			matches.addAll(newList);
+		} else if (binop.equalsIgnoreCase("DIFF")) {
+			ArrayList<StringMatch> newList = new ArrayList<StringMatch>();
+			for (StringMatch sm : matches) {
+				if (!rightSide.contains(sm)) {
+					newList.add(sm);
+				}
+			}
+			matches.clear();
+			matches.addAll(newList);
+		} else if (binop.equalsIgnoreCase("UNION")) {
+			for (StringMatch sm : rightSide) {
+				if (!matches.contains(sm)) {
+					matches.add(sm);
+				}
+			}
+		}
+		return walkExpressionTail( matches, tail.children.get(2) );
+	}
 	/**
 	 * Term is always a FIND
 	 * <term> -> find REGEX in  <file-name>
@@ -105,6 +152,12 @@ public class AbstractSyntaxTree {
 		String filename = (String) term.children.get(3).data.value;
 		if (DEBUG) System.out.println("FIND "+regex+" IN "+filename);
 		ArrayList<StringMatch> matches = new ArrayList<StringMatch>();
+		try {
+			matches = Operations.find(regex, filename);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return matches;
 	}
 	@Override

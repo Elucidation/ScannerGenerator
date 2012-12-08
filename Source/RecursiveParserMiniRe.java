@@ -386,7 +386,7 @@ public class RecursiveParserMiniRe {
 		node.addChild(new Node ("FIND"));
 		
 		String regex = matchToken(Symbol.REGEX).data.toString();
-		regex = regex.substring(0, regex.length()-1); // Get rid of enclosing apostrophes
+		regex = regex.substring(1, regex.length()-1); // Get rid of enclosing apostrophes
 		node.addChild(new Node ("REGEX", new Variable(Variable.VAR_TYPE.STRING, regex)));
 		
 		matchToken(Symbol.IN);

@@ -10,8 +10,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,7 +39,7 @@ public class Operations {
 		
 		// Test Find
 		String fileIn = "Test_inputs/regexTest.txt";
-		String regex = " a[A-Za-z]*";
+		String regex = "a[a-z]*c";
 		try {
 		System.out.println( find(regex, fileIn) );
 		} catch (IOException e) {
@@ -108,22 +110,36 @@ public class Operations {
 	}
 
 	/**
-	 * Finds all occurrences of regex matches in infile, returns as array list of strings
+	 * Finds all occurrences of regex matches in infile, returns as ArrayList<StringMatch>
 	 * @param regex
 	 * @param infile
-	 * @return
+	 * @return 
 	 * @author Sam
 	 * @throws IOException 
 	 */
-	public static ArrayList<String> find(String regex, String infile) throws IOException{
-		
+	public static ArrayList<StringMatch> find(String regex, String infile) throws IOException{
+		System.out.println("OPERATION FIND "+regex+" IN "+ infile);
 		Pattern regexPattern = Pattern.compile(regex);
 	    Matcher matcher = regexPattern.matcher( fileToString(infile) );
-	    ArrayList<String> matches = new ArrayList<String>();
-	    while(matcher.find()){
-	    	matches.add(matcher.group());
+	    HashMap<String, ArrayList<Integer> > matches = new HashMap<String, ArrayList<Integer> >();
+	    System.out.println();
+	    while (matcher.find()) {
+	    	String s = matcher.group();
+	    	int startIndex = matcher.start();
+	    	if (matches.containsKey(s))
+	    		matches.get(s).add(startIndex);
+	    	else {
+	    		ArrayList<Integer> v = new ArrayList<Integer>();
+	    		v.add(startIndex);
+	    		matches.put(s, v );
+	    	}
 	    }
-		return matches;
+	    System.out.println(matches);
+	    ArrayList<StringMatch> allMatches = new ArrayList<StringMatch>();
+	    for (Entry<String, ArrayList<Integer>> entry : matches.entrySet()) {
+	    	allMatches.add( new StringMatch(entry.getKey(),infile, entry.getValue()) );
+	    }
+		return allMatches;
 	}
 	
 	public static String[] intersec(String[] a, String[] b){

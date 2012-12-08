@@ -11,16 +11,31 @@ import java.util.ArrayList;
  *
  */
 public class StringMatch {
-	private String str, filename;
-	private ArrayList<Integer> locations;
+	private String str;
+	private ArrayList<FileLoc> filelocs;
 
-	public StringMatch(String str, String filename, ArrayList<Integer> locations) {
+	public StringMatch(String str) {
 		this.str = str;
+		this.filelocs = new ArrayList<FileLoc>();		
+	}
+	public StringMatch(String str, String filename, ArrayList<Integer> locations) {
+		this(str);
+		this.filelocs.add(new FileLoc(filename,locations));
+	}
+	@Override
+	public String toString() {
+		return "\""+str+"\""+filelocs;
+	}
+}
+class FileLoc {
+	private String filename;
+	private ArrayList<Integer> locations;
+	public FileLoc(String filename, ArrayList<Integer> locations) {
 		this.filename = filename;
 		this.locations = locations;
 	}
 	@Override
 	public String toString() {
-		return "\""+str+"\"<'"+filename+"',"+locations+">";
+		return "<'"+filename+"',"+locations+">";
 	}
 }
