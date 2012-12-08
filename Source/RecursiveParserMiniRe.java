@@ -63,7 +63,7 @@ public class RecursiveParserMiniRe {
 	 */
 	private Node statementList() throws ParseError {
 		if (DEBUG) System.out.println("STATEMENT LIST");
-		Node n = new Node("SL");
+		Node n = new Node("STATEMENT LIST");
 		n.addChild( statement() );
 		n.addChild( statementListTail() );
 		return n;
@@ -77,7 +77,7 @@ public class RecursiveParserMiniRe {
 		if (DEBUG) System.out.println("STATEMENT LIST TAIL");
 		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.ID || sym == Symbol.REPLACE || sym == Symbol.RECURSIVE_REPLACE || sym == Symbol.PRINT) {
-			Node n = new Node("SLT");
+			Node n = new Node("STATEMENT LIST TAIL");
 			n.addChild( statement() );
 			n.addChild( statementListTail() );
 			return n;
@@ -97,7 +97,7 @@ public class RecursiveParserMiniRe {
 	 */
 	private Node statement() throws ParseError {
 		if (DEBUG) System.out.println("STATEMENT");
-		Node n = new Node("statement");
+		Node n = new Node("STATEMENT");
 		Symbol sym = tokenToSymbol( peekToken() );
 		switch(sym) {
 		case ID:
