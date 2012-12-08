@@ -6,6 +6,7 @@ public class Node {
 	//Variables
 	Node parent;
 	ArrayList<Node> children;
+	RecursiveParserMiniRe.Symbol symbolType;
 	
 	//Constructors
 	Node(Node parent) {
