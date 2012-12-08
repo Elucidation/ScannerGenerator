@@ -119,9 +119,6 @@ public class RecursiveParserMiniRe {
 		if (DEBUG) System.out.println("STATEMENT");
 		Symbol sym = tokenToSymbol( peekToken() );
 		switch(sym) {
-		case FIND:
-			exp();
-			break;
 		case ID:
 			String idToSet = matchToken(Symbol.ID).data.toString();
 			matchToken(Symbol.EQUALS);
