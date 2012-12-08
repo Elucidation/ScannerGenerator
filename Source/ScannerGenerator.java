@@ -33,6 +33,7 @@ import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.Forest;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.graph.util.EdgeType;
@@ -318,7 +319,7 @@ public class ScannerGenerator {
 	}
 
 	/**
-	 * Creates a visualizable Directed Sparse Multipgraph of the partial DFA
+	 * Creates a visualizable Directed Sparse Multipgraph of the partial NFA
 	 * @param partialNFA
 	 * @return
 	 */

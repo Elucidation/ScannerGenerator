@@ -405,7 +405,7 @@ public class RecursiveParserMiniRe {
 			if ( t.type.equals('$'+s.name()) )
 				return s;
 		}
-		if (t.type.equals("$NUMBER")) {
+		if (t.type.equals("$NUMBER")) { // hack to allow numbers for now 
 			return Symbol.ID;
 		}
 		else {
