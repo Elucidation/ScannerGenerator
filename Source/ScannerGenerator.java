@@ -46,6 +46,7 @@ import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 public class ScannerGenerator {
 	public static final char EPS = '\u03B5';// placeholder for graph edges char value when epsilon edge
+	
 	/**
 	 * Generates DFATable from Specification File
 	 * 

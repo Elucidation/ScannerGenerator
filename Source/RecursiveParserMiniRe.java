@@ -1,11 +1,8 @@
 package Source;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Stack;
 
 public class RecursiveParserMiniRe {
@@ -132,10 +129,10 @@ public class RecursiveParserMiniRe {
 			case FIND:
 			case L_PAREN:
 				// set to value of Expression, which will be a string list
-//				Node valNode = exp();
-//				exp();
+				Node valNode = new Node("EXP");
 				toValue = new Variable( Variable.VAR_TYPE.STRINGLIST, exp() );
-//				n.addChild(valNode);
+				valNode.setData(toValue);
+				n.addChild(valNode);
 				break;
 			// # Expression
 			case HASH:
@@ -157,6 +154,7 @@ public class RecursiveParserMiniRe {
 				if (val.type != Variable.VAR_TYPE.STRINGLIST)
 					throw new ParseError("PARSE-ERROR: Variable given to Max freq string not a string list! : is type '"+val.type+"'");
 				System.out.println("Set ID("+idToSet+") = maxfreqstring("+val+")");
+				@SuppressWarnings("unchecked")
 				String mostCommon = Operations.maxfreqstring( (ArrayList<String>)val.value );
 				toValue = new Variable( Variable.VAR_TYPE.STRING, mostCommon );
 //				variables.put(idToSet, val );
@@ -195,7 +193,6 @@ public class RecursiveParserMiniRe {
 
 
 	private void replace() throws ParseError {
-		// TODO Auto-generated method stub
 		matchToken(Symbol.REPLACE);
 		String regex = matchToken(Symbol.REGEX).data.toString();
 		regex = regex.subSequence(1, regex.length()-1).toString();
@@ -223,7 +220,6 @@ public class RecursiveParserMiniRe {
 	private ArrayList<String> fileNames() throws ParseError {
 		if (DEBUG) System.out.println("FILENAMES (DOING SAVE TO)");
 		String inFile = sourceFile();
-		// TODO Read filenames
 		matchToken(Symbol.SAVE_TO);
 		String outFile = destinationFile();
 		ArrayList<String> files = new ArrayList<String>();
@@ -294,9 +290,11 @@ public class RecursiveParserMiniRe {
 		ArrayList<String> listOfExpr = new ArrayList<String>();
 		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.ID) {
-			Node n = new Node("EXP");
-			listOfExpr.add( matchToken(Symbol.ID).data.toString() );
-//			n.setData(value)
+//			Node n = new Node("EXP");
+			Token tok = matchToken(Symbol.ID);
+			listOfExpr.add( tok.data.toString() );
+//			if (tok.type.equals("$NUMBER"))
+//				n.setData( new Variable(Variable.VAR_TYPE.INT, tok.data) );			
 //			return n;
 		} else if (sym == Symbol.L_PAREN) {
 			matchToken(Symbol.L_PAREN);
@@ -396,14 +394,6 @@ public class RecursiveParserMiniRe {
 		else {
 			throw new ParseError("binaryOperators() was passed unexpected token + '"+sym+"' for "+tokens);
 		}
-	}
-	
-	// TODO : not needed probably
-	private HashSet<Character> tokenToEdges(Token token) {
-		HashSet<Character> chars = new HashSet<Character>();
-		for (char c : ((String)token.data).toCharArray() )
-			chars.add(c);
-		return chars;
 	}
 
 	///////////////
