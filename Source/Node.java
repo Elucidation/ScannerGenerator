@@ -19,7 +19,12 @@ public class Node {
 	
 	@Override
 	public String toString() {
-		return "N<"+name+": "+this.children+">";
+		String s = "N<"+name+":";
+		if (this.data != null)
+			s += "data="+this.data+":";
+		if (this.children.size() > 0)
+			s += "children="+this.children;
+		return s + ">";
 	}
 
 	public void setData(Variable value) {

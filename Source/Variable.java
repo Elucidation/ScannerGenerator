@@ -8,4 +8,8 @@ public class Variable {
 		this.type = type;
 		this.value = value;
 	}
+	@Override
+	public String toString() {
+		return this.type+"("+this.value+")";
+	}
 }
