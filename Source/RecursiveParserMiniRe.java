@@ -34,27 +34,7 @@ public class RecursiveParserMiniRe {
 			tokens.add(inTokens.get(i));
 		// Stack is pushed in reverse from list so first token is on top of stack
 	}
-	
-	/**
-	 * Validates regex within token
-	 * @param t
-	 * @return
-	 */
-	boolean validateRegex(Token t) {
-		return true;
-	}
-	
-	/** 
-	 * 
-	 * @param t
-	 * @return
-	 */
-	boolean checkIfTokenIsKeyword(Token t) {
 		
-		
-		return false;
-	}
-	
 	/** Starts with a letter, followed by 0-9 letters or numbers or underscores
 	 * 
 	 * @param t
@@ -76,34 +56,49 @@ public class RecursiveParserMiniRe {
 	//*	        Rules Start Here          *
 	//* ***********************************
 	 
-	public void minireProgram() throws ParseError {
+	/**
+	 * Mini-re Program turns stack into AST, returning root node
+	 * @return
+	 * @throws ParseError
+	 */
+	public Node minireProgram() throws ParseError {
 		if (DEBUG) System.out.println("MINIRE PROGRAM");
+		Node root = new Node("MINIRE");
 		matchToken(Symbol.BEGIN);
-		statementList();
+		Node stl = statementList();
+		root.addChild(stl);
 		matchToken(Symbol.END);
+		return root;
 	}
 
 	/**
 	 * Statement List Rule
 	 * <statement-list> ->  <statement><statement-list-tail> 
+	 * @return 
 	 */
-	private void statementList() throws ParseError {
+	private Node statementList() throws ParseError {
 		if (DEBUG) System.out.println("STATEMENT LIST");
-		statement();
-		statementListTail();
+		Node n = new Node("SL");
+		n.addChild( statement() );
+		n.addChild( statementListTail() );
+		return n;
 	}
 
 	/**
 	 * Statement List Tail Rule
 	 * <statement-list-tail> -> <statement><statement-list-tail>  | epsilon
 	 */
-	private void statementListTail() throws ParseError {
+	private Node statementListTail() throws ParseError {
 		if (DEBUG) System.out.println("STATEMENT LIST TAIL");
 		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.ID || sym == Symbol.REPLACE || sym == Symbol.RECURSIVE_REPLACE || sym == Symbol.PRINT) {
-			statement();
-			statementListTail();
-		} // else epsilon is allowed
+			Node n = new Node("SLT");
+			n.addChild( statement() );
+			n.addChild( statementListTail() );
+			return n;
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -115,14 +110,21 @@ public class RecursiveParserMiniRe {
 	 * <statement> -> recursivereplace REGEX with ASCII-STR in  <file-names> ;
 	 * <statement> -> print ( <exp-list> ) ;
 	 */
-	private void statement() throws ParseError {
+	private Node statement() throws ParseError {
 		if (DEBUG) System.out.println("STATEMENT");
+		Node n = new Node("statement");
 		Symbol sym = tokenToSymbol( peekToken() );
 		switch(sym) {
 		case ID:
-			String idToSet = matchToken(Symbol.ID).data.toString();
+			Variable idToSet = new Variable(Variable.VAR_TYPE.STRING, matchToken(Symbol.ID).data.toString() );
 			matchToken(Symbol.EQUALS);
 			Symbol sym2 = tokenToSymbol( peekToken() );
+			
+			// Add Node ID
+			Node idNode = new Node("ID");
+			idNode.setData(idToSet);
+			n.addChild(idNode);
+			
 			Variable toValue;
 			switch (sym2) {
 			// Expression
@@ -130,14 +132,20 @@ public class RecursiveParserMiniRe {
 			case FIND:
 			case L_PAREN:
 				// set to value of Expression, which will be a string list
+//				Node valNode = exp();
+//				exp();
 				toValue = new Variable( Variable.VAR_TYPE.STRINGLIST, exp() );
+//				n.addChild(valNode);
 				break;
 			// # Expression
 			case HASH:
 				// # <exp>, return length of expression 
 				if (DEBUG) System.out.println("DO #");
 				matchToken(Symbol.HASH);
-				toValue = new Variable( Variable.VAR_TYPE.INT, exp().size() );
+				// TODO : ARGH ALL OF THIS
+				int count = 1;
+				exp();
+				toValue = new Variable( Variable.VAR_TYPE.INT, count );
 				break;
 			// maxfreqstring(ID)
 			case MAXFREQSTRING:
@@ -149,14 +157,15 @@ public class RecursiveParserMiniRe {
 				if (val.type != Variable.VAR_TYPE.STRINGLIST)
 					throw new ParseError("PARSE-ERROR: Variable given to Max freq string not a string list! : is type '"+val.type+"'");
 				System.out.println("Set ID("+idToSet+") = maxfreqstring("+val+")");
-				variables.put(idToSet, val );
+				String mostCommon = Operations.maxfreqstring( (ArrayList<String>)val.value );
+				toValue = new Variable( Variable.VAR_TYPE.STRING, mostCommon );
+//				variables.put(idToSet, val );
 				matchToken(Symbol.R_PAREN);
 				break;
 			default:
 				throw new ParseError("statement sub-switch ID was passed unexpected token: '"+sym2+"' for "+sym+" with stack "+tokens);
 			}
-			
-			System.out.println("Do Set ID("+idToSet+") = SOMETHING()");
+			System.out.println("Do Set ID("+idToSet+") = SOMETHING("+toValue+")");
 //			variables[]
 			break;
 		case REPLACE:
@@ -181,6 +190,7 @@ public class RecursiveParserMiniRe {
 			throw new ParseError("statement() was passed unexpected token: '"+sym+"' for "+tokens);
 		}
 		matchToken(Symbol.END_LINE);
+		return n;
 	}
 
 
@@ -284,7 +294,10 @@ public class RecursiveParserMiniRe {
 		ArrayList<String> listOfExpr = new ArrayList<String>();
 		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.ID) {
+			Node n = new Node("EXP");
 			listOfExpr.add( matchToken(Symbol.ID).data.toString() );
+//			n.setData(value)
+//			return n;
 		} else if (sym == Symbol.L_PAREN) {
 			matchToken(Symbol.L_PAREN);
 			listOfExpr = exp();

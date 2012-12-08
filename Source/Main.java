@@ -79,7 +79,8 @@ public class Main {
 		System.out.println(allTokens);
 		System.out.println("Calling Recursive Parser for Mini-Re Program...");
 		RecursiveParserMiniRe rec = new RecursiveParserMiniRe(allTokens);
-		rec.minireProgram();
+		Node ast = rec.minireProgram();
 		System.out.println("Good god it didn't fail.");
+		System.out.println("AST : "+ast);
 	}
 }
