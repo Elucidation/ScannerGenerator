@@ -13,7 +13,7 @@ public class RecursiveParserMiniRe {
 	Stack<Token> tokens;
 	boolean DEBUG = true;
 	
-	private static enum Symbol {L_PAREN, R_PAREN, REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT, UNION, CHARCLASS, FIND, HASH, MAXFREQSTRING, END_LINE, SAVE_TO};
+	public static enum Symbol {L_PAREN, R_PAREN, REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT, UNION, CHARCLASS, FIND, HASH, MAXFREQSTRING, END_LINE, SAVE_TO};
 	
 	private Token peekToken() throws ParseError {
 		if (DEBUG) System.out.println("PEEK: "+tokens.peek() + " :: " + tokenToSymbol(tokens.peek()));
