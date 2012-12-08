@@ -87,9 +87,16 @@ public class Main {
 		System.out.println(allTokens);
 		System.out.println("Calling Recursive Parser for Mini-Re Program...");
 		RecursiveParserMiniRe rec = new RecursiveParserMiniRe(allTokens,sg.getIdentifiers());
-		Node ast = rec.minireProgram();
-		DrawingStuff.drawAST(ast, "ast.png");
+		Node root = rec.minireProgram();
 		System.out.println("Good god it didn't fail.");
+		
+		
+		// AST
+		AbstractSyntaxTree ast = new AbstractSyntaxTree(root); 
+		DrawingStuff.drawAST(ast, "ast.png");
 		System.out.println("AST : "+ast);
+		System.out.println("Walking Abstract Syntax Tree...");
+		ast.walk();
+		System.out.println("Done walking AST.");
 	}
 }

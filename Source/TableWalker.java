@@ -140,7 +140,7 @@ public class TableWalker {
 			 * actual Token class and add it to our returnList.
 			 */
 			if (lastKnownValidToken.length() != 0) {
-				Token newToken = new Token(lastKnownValidTokenType, lastKnownValidToken);
+				Token newToken = new Token(lastKnownValidTokenType, lastKnownValidToken.toString());
 				returnList.add(newToken);// How do we know what type the token
 											// is?
 			}

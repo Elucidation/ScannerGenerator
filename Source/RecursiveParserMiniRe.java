@@ -332,10 +332,11 @@ public class RecursiveParserMiniRe {
 		Node node = new Node("EXP");
 		if (sym == Symbol.ID) {
 			Token tok = matchToken(Symbol.ID);
+//			if (DEBUG) System.out.println(tok);
 			Variable var; 
 			if (tok.type.equals("$NUMBER"))
 				var = new Variable(Variable.VAR_TYPE.INT, tok.data );
-			else if (tok.type.equals("$STRING"))
+			else if (tok.type.equals("$ID"))
 				var = new Variable(Variable.VAR_TYPE.STRING, tok.data );
 			else
 				var = new Variable(Variable.VAR_TYPE.STRINGLIST, tok.data );
@@ -343,9 +344,7 @@ public class RecursiveParserMiniRe {
 		} else if (sym == Symbol.OPENPAREN) {
 			matchToken(Symbol.OPENPAREN);
 			node.addChild(new Node("("));
-			Node in = exp();
-			in.name = "(EXP)";
-			node.addChild( in );
+			node.addChild( exp() );
 			matchToken(Symbol.CLOSEPAREN);
 			node.addChild(new Node(")"));
 		} else {

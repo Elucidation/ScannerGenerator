@@ -30,10 +30,10 @@ public class DrawingStuff {
 	 * It generates a visual representation and saves it to filename
 	 * @param ast
 	 */
-	public static void drawAST(Node ast, String filename) {
+	public static void drawAST(AbstractSyntaxTree ast, String filename) {
 		DelegateTree<Node, Integer> tree = new DelegateTree<Node,Integer>(new DirectedOrderedSparseMultigraph<Node, Integer>());
-		tree.setRoot(ast);
-		buildGraph(tree,ast);
+		tree.setRoot(ast.root);
+		buildGraph(tree,ast.root);
 		TreeLayout<Node, Integer> layout = new TreeLayout<Node, Integer>(tree,150);
 		
 		 VisualizationViewer<Node, Integer> vv = new VisualizationViewer<Node,Integer>(layout, new Dimension(600,600));
