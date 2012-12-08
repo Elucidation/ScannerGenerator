@@ -1,13 +1,15 @@
 package Source;
 
-import java.awt.List;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Stack;
 
 public class RecursiveParserMiniRe {
-	
+	HashMap<String, Variable> variables = new HashMap<String,Variable>(); // These are variables generated during minireProgram run
 	Stack<Token> tokens;
 	boolean DEBUG = true;
 	
@@ -121,22 +123,24 @@ public class RecursiveParserMiniRe {
 			exp();
 			break;
 		case ID:
-			matchToken(Symbol.ID);
+			String idToSet = matchToken(Symbol.ID).data.toString();
 			matchToken(Symbol.EQUALS);
 			Symbol sym2 = tokenToSymbol( peekToken() );
+			Variable toValue;
 			switch (sym2) {
 			// Expression
 			case ID:
 			case FIND:
 			case L_PAREN:
-				exp();
+				// set to value of Expression, which will be a string list
+				toValue = new Variable( Variable.VAR_TYPE.STRINGLIST, exp() );
 				break;
 			// # Expression
 			case HASH:
-				// # <exp>
+				// # <exp>, return length of expression 
 				if (DEBUG) System.out.println("DO #");
 				matchToken(Symbol.HASH);
-				exp();
+				toValue = new Variable( Variable.VAR_TYPE.INT, exp().size() );
 				break;
 			// maxfreqstring(ID)
 			case MAXFREQSTRING:
@@ -144,12 +148,19 @@ public class RecursiveParserMiniRe {
 				if (DEBUG) System.out.println("DO MAX FREQ STRING");
 				matchToken(Symbol.MAXFREQSTRING);
 				matchToken(Symbol.L_PAREN);
-				matchToken(Symbol.ID);
+				Variable val = variables.get( matchToken(Symbol.ID).data );
+				if (val.type != Variable.VAR_TYPE.STRINGLIST)
+					throw new ParseError("PARSE-ERROR: Variable given to Max freq string not a string list! : is type '"+val.type+"'");
+				System.out.println("Set ID("+idToSet+") = maxfreqstring("+val+")");
+				variables.put(idToSet, val );
 				matchToken(Symbol.R_PAREN);
 				break;
 			default:
 				throw new ParseError("statement sub-switch ID was passed unexpected token: '"+sym2+"' for "+sym+" with stack "+tokens);
 			}
+			
+			System.out.println("Do Set ID("+idToSet+") = SOMETHING()");
+//			variables[]
 			break;
 		case REPLACE:
 			if (DEBUG) System.out.println("DO REPLACE");
@@ -189,10 +200,12 @@ public class RecursiveParserMiniRe {
 		String inFile = files.get(0);
 		String outFile = files.get(1);
 		System.out.println("DO REPLACE REGEX("+regex+") with ASCII_STR("+ascii_str+") with IN-FILE("+inFile+") save to OUT-FILE("+outFile+")");
-		if ( Operations.replace(regex, ascii_str, inFile, outFile) )
+		try {
+			Operations.replace(regex, ascii_str, inFile, outFile);
 			System.out.println("REPLACE SUCCESSFUL");
-		else
+		} catch (IOException e){
 			System.out.println("REPLACE FAILED, SKIPPING");
+		}
 	}
 
 	/**
@@ -220,10 +233,7 @@ public class RecursiveParserMiniRe {
 	 */
 	private String sourceFile() throws ParseError {
 		if (DEBUG) System.out.println("SOURCE FILE");
-		//TODO: ASCII-STR , not sure what to do here yet
-		Token t = matchToken(Symbol.ASCII_STR);
-		String filename = t.data.toString().substring(1, t.data.toString().length()-1);
-		return filename;
+		return filename();
 	}
 
 	/**
@@ -234,21 +244,19 @@ public class RecursiveParserMiniRe {
 	 */
 	private String destinationFile() throws ParseError {
 		if (DEBUG) System.out.println("DESTINATION FILE");
-		//TODO: ASCII-STR , not sure what to do here yet
-		Token t = matchToken(Symbol.ASCII_STR);
-		String filename = t.data.toString().substring(1, t.data.toString().length()-1);
-		return filename;
+		return filename();
 	}
 
 	/**
 	 *  Expression List Rule
 	 * <exp-list> -> <exp> <exp-list-tail>
+	 * @return 
 	 * @throws ParseError 
 	 */
 	private void expressionList() throws ParseError {
 		if (DEBUG) System.out.println("EXPRESSION LIST");
-		exp();
-		expressionListTail();
+		ArrayList<String> listOfExpresssions = exp();
+		expressionListTail(listOfExpresssions);
 	}
 
 	/**
@@ -257,12 +265,13 @@ public class RecursiveParserMiniRe {
 	 *   <exp-list-tail> -> epsilon(null)        <---- This was told on Piazza...
 	 * @throws ParseError 
 	 */
-	private void expressionListTail() throws ParseError {
+	private void expressionListTail(ArrayList<String> expList) throws ParseError {
 		if (DEBUG) System.out.println("EXPRESSION LIST TAIL");
 		if (tokenToSymbol(peekToken()) == Symbol.COMMA) {
 			matchToken(Symbol.COMMA);			
-			exp();
-			expressionListTail();
+			ArrayList<String> expr = exp();
+			expList.addAll(expr);
+			expressionListTail(expList);
 		}
 	}
 
@@ -273,19 +282,21 @@ public class RecursiveParserMiniRe {
 	 * @throws ParseError 
 	 * 
 	 */
-	private void exp() throws ParseError {
+	private ArrayList<String> exp() throws ParseError {
 		if (DEBUG) System.out.println("EXP");
+		ArrayList<String> listOfExpr = new ArrayList<String>();
 		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.ID) {
-			matchToken(Symbol.ID);
+			listOfExpr.add( matchToken(Symbol.ID).data.toString() );
 		} else if (sym == Symbol.L_PAREN) {
 			matchToken(Symbol.L_PAREN);
-			exp();
+			listOfExpr = exp();
 			matchToken(Symbol.R_PAREN);
 		} else {
-			term();
-			expressionTail();
+			listOfExpr = term();
+			expressionTail(listOfExpr);
 		}
+		return listOfExpr;
 	}
 
 	/**
@@ -294,28 +305,58 @@ public class RecursiveParserMiniRe {
 	 * <exp-tail> -> epsilon
 	 * @throws ParseError 
 	 */
-	private void expressionTail() throws ParseError {
+	private void expressionTail(ArrayList<String> first) throws ParseError {
 		if (DEBUG) System.out.println("EXPRESSION TAIL");
 		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.DIFF || sym == Symbol.UNION || sym == Symbol.INTERS) {
 			binaryOperators();
-			exp();
-			expressionListTail();
+			ArrayList<String> second = term();
+			if (sym == Symbol.DIFF){ // a - b Difference
+				// first list minus second
+				first.removeAll(second);
+			}
+			else if (sym == Symbol.UNION){ // Union
+				for (String thing : second) {
+					if (!first.contains(thing))
+						first.add(thing);
+				}
+			}
+			else { // Intersection
+				ArrayList<String> intersected = new ArrayList<String>();
+				for (String thing : second) {
+					if (first.contains(thing))
+						intersected.add(thing);
+				}
+				first.clear();
+				first.addAll(intersected);
+			}
+			expressionTail(first);
 		} // else epsilon
 	}
 
 	/**
-	 * Term
-	 * <term> -> find REGEX in  <file-name>  
-	 * @throws ParseError 
+	 * <term> -> find REGEX in  <file-name>
+	 * @return String[] of those strings found via regex
+	 * @throws ParseError
 	 */
-	private void term() throws ParseError {
+	private ArrayList<String> term() throws ParseError {
 		if (DEBUG) System.out.println("TERM");
-		//TODO - Call Find regex
+		
 		matchToken(Symbol.FIND);
-		matchToken(Symbol.REGEX);
+		String regex = matchToken(Symbol.REGEX).data.toString();
+		regex = regex.substring(0, regex.length()-1); // Get rid of enclosing apostrophes
 		matchToken(Symbol.IN);
-		filename();
+		String fname = filename();
+		if (DEBUG) System.out.println("DO Find("+regex+","+fname+")");
+		ArrayList<String> out = new ArrayList<String>();
+		try {
+			out.addAll( Operations.find(regex, fname) );
+			System.out.println("FIND SUCCESSFUL: "+out);
+		} catch (IOException e) {
+			System.out.println("FIND FAILED, return empty string array list.");
+		}
+		
+		return out;
 	}
 
 	/**
@@ -323,21 +364,24 @@ public class RecursiveParserMiniRe {
 	 * <file-name> -> ASCII-STR
 	 * @throws ParseError 
 	 */
-	private void filename() throws ParseError {
+	private String filename() throws ParseError {
 		if (DEBUG) System.out.println("FILENAME");
-		matchToken(Symbol.ASCII_STR);
+		Token t = matchToken(Symbol.ASCII_STR);
+		String filename = t.data.toString().substring(1, t.data.toString().length()-1);
+		return filename;
 	}
 
 	/**
 	 * 
 	 * <bin-op> ->  diff | union | inters
+	 * @return 
 	 * @throws ParseError 
 	 */
 	private void binaryOperators() throws ParseError {
 		if (DEBUG) System.out.println("BINARY OPERATOR");
 		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.DIFF || sym == Symbol.UNION || sym == Symbol.INTERS) {
-			Token token = matchToken(sym);
+			matchToken(sym);
 		}
 		else {
 			throw new ParseError("binaryOperators() was passed unexpected token + '"+sym+"' for "+tokens);
