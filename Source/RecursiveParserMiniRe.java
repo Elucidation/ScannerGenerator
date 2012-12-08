@@ -478,6 +478,9 @@ public class RecursiveParserMiniRe {
 		else if(isID(data)) {
 			return Symbol.ID;
 		}
+		else if (t.type.equals("$NUMBER")) {
+			return Symbol.ID;
+		}
 		else {
 			throw new ParseError("Unable to find Symbol for Token : " + t + " with stack "+tokens);
 		}		

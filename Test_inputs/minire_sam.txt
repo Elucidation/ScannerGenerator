@@ -1,0 +1,14 @@
+$LETTER [a-zA-Z]
+$DIGIT [0-9]
+$CHAR abcdefghijklmnopqrs tuvwxyz=$,_ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789.\(\)|#>!;
+
+$REGEX '(_|\(|\)|\||-|$LETTER|[|]|\*)*'
+$ASCII "(.|$LETTER|$DIGIT|[|]|\*)*"
+$IDorKey $LETTER(_|$LETTER|$DIGIT)*
+$ID_EQUALS =
+$ID_HASH #
+$ID_ENDLINE ;
+$ID_OPENPAREN \(
+$ID_CLOSEPAREN \)
+$ID_SAVETO >!
+$NUMBER ($DIGIT)+

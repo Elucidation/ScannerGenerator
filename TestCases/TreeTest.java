@@ -1,19 +1,21 @@
 package TestCases;
 
-import static org.junit.Assert.*;
-
 import java.util.ArrayList;
 
-import org.junit.Test;
+//import org.junit.Test;
 
 import Source.ASNode;
 import Source.ASTree;
 import Source.Token;
 
 public class TreeTest {
+	public static void main(String[] args) {
+		// Since not all of us know how to install junit test, here's a standby main
+		test();
+	}
 
-	@Test
-	public void test() {
+//	@Test
+	public static void test() {
 		ASTree at = new ASTree();
 		ASNode head = new ASNode();
 		ASNode term = new ASNode();

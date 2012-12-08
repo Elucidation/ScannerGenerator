@@ -1,4 +1,8 @@
-Sam's Branch
+Master branch
+Project Phase 2
+---
+ScannerGenerator now incorporates a MiniRe parser and AST generator, and theoretically an AST walker.
+
 
 Usage
 ---

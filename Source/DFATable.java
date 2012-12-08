@@ -68,7 +68,7 @@ public class DFATable extends HashMap<StateCharacter, State> {
 		State s = n.entry;
 		this.langList = generateAlphabet(s);
 		
-		System.out.println(" AlphabeT: [");
+		System.out.print(" Alphabet: [");
 		for(Character c : langList) {
 			System.out.print("'"+c + "' ");
 		}
