@@ -1,5 +1,5 @@
 begin
-var1 = 42;
-var2 = word;
-var3 = find '[A-Za-z]*ment[A-Za-z]*' in "file1.txt";
+print(42, 45);
+matches = find 'a[a-z]*' in "Test_inputs/regexTest.txt";
+mostfreq = maxfreqstring(matches);
 end

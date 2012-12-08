@@ -6,12 +6,12 @@ import java.util.HashMap;
 import java.util.Stack;
 
 public class RecursiveParserMiniRe {
-	HashMap<String, Variable> variables = new HashMap<String,Variable>(); // These are variables generated during minireProgram run
+//	HashMap<String, Variable> variables = new HashMap<String,Variable>(); // These are variables generated during minireProgram run
 	Stack<Token> tokens;
 	boolean DEBUG = true;
 	private ArrayList<String> knownSymbols; // ex ArrayList<String>( ["$ID", "$NUMBER", "$FIND", "$BEGIN"...] )
 	
-	public static enum Symbol {L_PAREN, R_PAREN, REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT, UNION, CHARCLASS, FIND, HASH, MAXFREQSTRING, END_LINE, SAVE_TO};
+	public static enum Symbol {OPENPAREN, CLOSEPAREN, REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT, UNION, CHARCLASS, FIND, HASH, MAXFREQSTRING, END_LINE, SAVE_TO};
 	
 	private Token peekToken() throws ParseError {
 		if (DEBUG) System.out.println("PEEK: "+tokens.peek() + " :: " + tokenToSymbol(tokens.peek()));
@@ -33,22 +33,6 @@ public class RecursiveParserMiniRe {
 			tokens.add(inTokens.get(i));
 		// Stack is pushed in reverse from list so first token is on top of stack
 	}
-		
-	/** Starts with a letter, optionally followed by 0-9 letters or numbers or underscores
-	 * Has to be 1 or more characters
-	 * Basically [a-zA-Z][a-zA-Z0-9_]*
-	 * 
-	 * @param t
-	 * @return
-	 */
-	boolean isID(String t) {
-		if (t.isEmpty() || t.length() >= 10 || !((t.charAt(0) >= 'a' && t.charAt(0) <= 'z') || (t.charAt(0) >= 'A' && t.charAt(0) <= 'Z')) )
-			return false;
-		for (char c : t.toCharArray())
-			if ( !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_') )
-				return false;
-		return true;
-	}
 	
 	
 	//* ***********************************
@@ -64,9 +48,11 @@ public class RecursiveParserMiniRe {
 		if (DEBUG) System.out.println("MINIRE PROGRAM");
 		Node root = new Node("MINIRE");
 		matchToken(Symbol.BEGIN);
+		root.addChild(new Node ("BEGIN"));
 		Node stl = statementList();
 		root.addChild(stl);
 		matchToken(Symbol.END);
+		root.addChild(new Node ("END"));
 		return root;
 	}
 
@@ -116,56 +102,55 @@ public class RecursiveParserMiniRe {
 		switch(sym) {
 		case ID:
 			Variable idToSet = new Variable(Variable.VAR_TYPE.STRING, matchToken(Symbol.ID).data.toString() );
-			matchToken(Symbol.EQUALS);
-			Symbol sym2 = tokenToSymbol( peekToken() );
-			
-			// Add Node ID
+			// ID
 			Node idNode = new Node("ID");
 			idNode.setData(idToSet);
 			n.addChild(idNode);
 			
-			Variable toValue;
+			// ID =
+			matchToken(Symbol.EQUALS);
+			n.addChild(new Node("="));
+			Symbol sym2 = tokenToSymbol( peekToken() );
+			
 			switch (sym2) {
 			// Expression
 			case ID:
 			case FIND:
-			case L_PAREN:
+			case OPENPAREN:
 				// set to value of Expression, which will be a string list
-				Node valNode = new Node("EXP");
-				toValue = new Variable( Variable.VAR_TYPE.STRINGLIST, exp() );
-				valNode.setData(toValue);
-				n.addChild(valNode);
+				n.addChild( exp() );
 				break;
 			// # Expression
 			case HASH:
 				// # <exp>, return length of expression 
 				if (DEBUG) System.out.println("DO #");
 				matchToken(Symbol.HASH);
-				// TODO : ARGH ALL OF THIS
-				int count = 1;
-				exp();
-				toValue = new Variable( Variable.VAR_TYPE.INT, count );
+				n.addChild(new Node("#"));
+				n.addChild( exp() );
 				break;
 			// maxfreqstring(ID)
 			case MAXFREQSTRING:
 				// Magic maxfreqstring
 				if (DEBUG) System.out.println("DO MAX FREQ STRING");
 				matchToken(Symbol.MAXFREQSTRING);
-				matchToken(Symbol.L_PAREN);
-				Variable val = variables.get( matchToken(Symbol.ID).data );
-				if (val.type != Variable.VAR_TYPE.STRINGLIST)
-					throw new ParseError("PARSE-ERROR: Variable given to Max freq string not a string list! : is type '"+val.type+"'");
-				System.out.println("Set ID("+idToSet+") = maxfreqstring("+val+")");
-				@SuppressWarnings("unchecked")
-				String mostCommon = Operations.maxfreqstring( (ArrayList<String>)val.value );
-				toValue = new Variable( Variable.VAR_TYPE.STRING, mostCommon );
-//				variables.put(idToSet, val );
-				matchToken(Symbol.R_PAREN);
+				n.addChild( new Node("MAXFREQSTRING") );
+				matchToken(Symbol.OPENPAREN);
+				n.addChild( new Node("(") );
+				Token tok = matchToken(Symbol.ID);
+//				if (!variables.containsKey(tok.data))
+//					throw new ParseError("PARSE-ERROR: ID("+tok.data+") passed to maxfreqstring not stored in variables("+variables+")!");
+//				Variable val = variables.get( tok.data );
+//				if (val.type != Variable.VAR_TYPE.STRINGLIST)
+//					throw new ParseError("PARSE-ERROR: Variable given to Max freq string not a string list! : is type '"+val.type+"'");
+				n.addChild( new Node("ID", new Variable(Variable.VAR_TYPE.STRING, tok.data.toString()) ) );
+				
+				matchToken(Symbol.CLOSEPAREN);
+				n.addChild( new Node(")") );
 				break;
 			default:
 				throw new ParseError("statement sub-switch ID was passed unexpected token: '"+sym2+"' for "+sym+" with stack "+tokens);
 			}
-			System.out.println("Do Set ID("+idToSet+") = SOMETHING("+toValue+")");
+//			System.out.println("Do Set ID("+idToSet+") = SOMETHING("+toValue+")");
 //			variables[]
 			break;
 		case REPLACE:
@@ -183,13 +168,21 @@ public class RecursiveParserMiniRe {
 			break;
 		case PRINT:
 			if (DEBUG) System.out.println("DO PRINT");
+			
 			matchToken(Symbol.PRINT);
-			expressionList();
+			n.addChild( new Node("PRINT") );
+			
+			matchToken(Symbol.OPENPAREN);
+			n.addChild(new Node ("("));
+			n.addChild( expressionList() );
+			matchToken(Symbol.CLOSEPAREN);
+			n.addChild(new Node (")"));
 			break;
 		default:
 			throw new ParseError("statement() was passed unexpected token: '"+sym+"' for "+tokens);
 		}
 		matchToken(Symbol.END_LINE);
+		n.addChild(new Node (";"));
 		return n;
 	}
 
@@ -258,10 +251,12 @@ public class RecursiveParserMiniRe {
 	 * @return 
 	 * @throws ParseError 
 	 */
-	private void expressionList() throws ParseError {
+	private Node expressionList() throws ParseError {
 		if (DEBUG) System.out.println("EXPRESSION LIST");
-		ArrayList<String> listOfExpresssions = exp();
-		expressionListTail(listOfExpresssions);
+		Node node = new Node("EXP LIST");
+		node.addChild( exp() );
+		node.addChild( expressionListTail() );
+		return node;
 	}
 
 	/**
@@ -270,13 +265,17 @@ public class RecursiveParserMiniRe {
 	 *   <exp-list-tail> -> epsilon(null)        <---- This was told on Piazza...
 	 * @throws ParseError 
 	 */
-	private void expressionListTail(ArrayList<String> expList) throws ParseError {
+	private Node expressionListTail() throws ParseError {
 		if (DEBUG) System.out.println("EXPRESSION LIST TAIL");
 		if (tokenToSymbol(peekToken()) == Symbol.COMMA) {
-			matchToken(Symbol.COMMA);			
-			ArrayList<String> expr = exp();
-			expList.addAll(expr);
-			expressionListTail(expList);
+			Node node = new Node("EXP LIST");
+			matchToken(Symbol.COMMA);		
+			node.addChild( new Node(",") );
+			node.addChild( exp() );
+			node.addChild( expressionListTail() );
+			return node;
+		} else {
+			return null;
 		}
 	}
 
@@ -287,26 +286,32 @@ public class RecursiveParserMiniRe {
 	 * @throws ParseError 
 	 * 
 	 */
-	private ArrayList<String> exp() throws ParseError {
+	@SuppressWarnings("unchecked")
+	private Node exp() throws ParseError {
 		if (DEBUG) System.out.println("EXP");
-		ArrayList<String> listOfExpr = new ArrayList<String>();
 		Symbol sym = tokenToSymbol( peekToken() );
+		Node node = new Node("EXP");
 		if (sym == Symbol.ID) {
-//			Node n = new Node("EXP");
 			Token tok = matchToken(Symbol.ID);
-			listOfExpr.add( tok.data.toString() );
-//			if (tok.type.equals("$NUMBER"))
-//				n.setData( new Variable(Variable.VAR_TYPE.INT, tok.data) );			
-//			return n;
-		} else if (sym == Symbol.L_PAREN) {
-			matchToken(Symbol.L_PAREN);
-			listOfExpr = exp();
-			matchToken(Symbol.R_PAREN);
+			Variable var; 
+			if (tok.type.equals("$NUMBER"))
+				var = new Variable(Variable.VAR_TYPE.INT, tok.data );
+			else if (((ArrayList<String>)tok.data).size() == 1)
+				var = new Variable(Variable.VAR_TYPE.STRING, tok.data );
+			else
+				var = new Variable(Variable.VAR_TYPE.STRINGLIST, tok.data );
+			node.addChild( new Node("ID", var ) );
+		} else if (sym == Symbol.OPENPAREN) {
+			matchToken(Symbol.OPENPAREN);
+			Node in = exp();
+			in.name = "(EXP)";
+			node.addChild( in );
+			matchToken(Symbol.CLOSEPAREN);
 		} else {
-			listOfExpr = term();
-			expressionTail(listOfExpr);
+			node.addChild( term() );
+			node.addChild( expressionTail() );
 		}
-		return listOfExpr;
+		return node;
 	}
 
 	/**
@@ -315,33 +320,18 @@ public class RecursiveParserMiniRe {
 	 * <exp-tail> -> epsilon
 	 * @throws ParseError 
 	 */
-	private void expressionTail(ArrayList<String> first) throws ParseError {
+	private Node expressionTail() throws ParseError {
 		if (DEBUG) System.out.println("EXPRESSION TAIL");
 		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.DIFF || sym == Symbol.UNION || sym == Symbol.INTERS) {
-			binaryOperators();
-			ArrayList<String> second = term();
-			if (sym == Symbol.DIFF){ // a - b Difference
-				// first list minus second
-				first.removeAll(second);
-			}
-			else if (sym == Symbol.UNION){ // Union
-				for (String thing : second) {
-					if (!first.contains(thing))
-						first.add(thing);
-				}
-			}
-			else { // Intersection
-				ArrayList<String> intersected = new ArrayList<String>();
-				for (String thing : second) {
-					if (first.contains(thing))
-						intersected.add(thing);
-				}
-				first.clear();
-				first.addAll(intersected);
-			}
-			expressionTail(first);
-		} // else epsilon
+			Node node = new Node("EXP TAIL");
+			node.addChild( binaryOperators() );
+			node.addChild( term() );
+			node.addChild( expressionTail() );
+			return node;
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -349,24 +339,22 @@ public class RecursiveParserMiniRe {
 	 * @return String[] of those strings found via regex
 	 * @throws ParseError
 	 */
-	private ArrayList<String> term() throws ParseError {
+	private Node term() throws ParseError {
 		if (DEBUG) System.out.println("TERM");
-		
+		Node node = new Node("TERM");
 		matchToken(Symbol.FIND);
+		node.addChild(new Node ("FIND"));
+		
 		String regex = matchToken(Symbol.REGEX).data.toString();
 		regex = regex.substring(0, regex.length()-1); // Get rid of enclosing apostrophes
-		matchToken(Symbol.IN);
-		String fname = filename();
-		if (DEBUG) System.out.println("DO Find("+regex+","+fname+")");
-		ArrayList<String> out = new ArrayList<String>();
-		try {
-			out.addAll( Operations.find(regex, fname) );
-			System.out.println("FIND SUCCESSFUL: "+out);
-		} catch (IOException e) {
-			System.out.println("FIND FAILED, return empty string array list.");
-		}
+		node.addChild(new Node ("REGEX", new Variable(Variable.VAR_TYPE.STRING, regex)));
 		
-		return out;
+		matchToken(Symbol.IN);
+		node.addChild(new Node ("IN"));
+		
+		String fname = filename();
+		node.addChild(new Node ("FILE", new Variable(Variable.VAR_TYPE.STRING, fname)));
+		return node;
 	}
 
 	/**
@@ -387,11 +375,12 @@ public class RecursiveParserMiniRe {
 	 * @return 
 	 * @throws ParseError 
 	 */
-	private void binaryOperators() throws ParseError {
+	private Node binaryOperators() throws ParseError {
 		if (DEBUG) System.out.println("BINARY OPERATOR");
 		Symbol sym = tokenToSymbol( peekToken() );
 		if (sym == Symbol.DIFF || sym == Symbol.UNION || sym == Symbol.INTERS) {
 			matchToken(sym);
+			return new Node(sym.name());
 		}
 		else {
 			throw new ParseError("binaryOperators() was passed unexpected token + '"+sym+"' for "+tokens);

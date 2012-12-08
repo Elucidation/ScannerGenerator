@@ -38,7 +38,7 @@ public class DrawingStuff {
 		DelegateTree<Node, Integer> tree = new DelegateTree<Node,Integer>(new DirectedOrderedSparseMultigraph<Node, Integer>());
 		tree.setRoot(ast);
 		buildGraph(tree,ast);
-		TreeLayout<Node, Integer> layout = new TreeLayout<Node, Integer>(tree,150);
+		TreeLayout<Node, Integer> layout = new TreeLayout<Node, Integer>(tree,50);
 		
 		 VisualizationViewer<Node, Integer> vv = new VisualizationViewer<Node,Integer>(layout, new Dimension(600,600));
 		 

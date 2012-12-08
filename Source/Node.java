@@ -12,6 +12,10 @@ public class Node {
 		this.children = new ArrayList<Node>();
 		this.name = nodeName;
 	}
+	public Node(String nodeName, Variable data) {
+		this(nodeName);
+		this.data = data;
+	}
 	
 	public void addChild(Node n) {
 		this.children.add(n);
@@ -19,11 +23,11 @@ public class Node {
 	
 	@Override
 	public String toString() {
-		String s = "N<"+name+":";
+		String s = "N<"+name;
 		if (this.data != null)
-			s += "data="+this.data+":";
+			s += ":data="+this.data;
 		if (this.children.size() > 0)
-			s += "children="+this.children;
+			s += ":children="+this.children;
 		return s + ">";
 	}
 
