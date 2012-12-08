@@ -1,6 +1,7 @@
 package Source;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 public  class State implements Comparable<State> {
         
@@ -87,7 +88,7 @@ public  class State implements Comparable<State> {
         public String toString() {
                 ArrayList<String> connectedStates = new ArrayList<String>();
                 ArrayList<String> connectedStatesEps = new ArrayList<String>();
-                for ( State state : charEdges.values() ) connectedStates.add("S"+state.stateNum);
+                for ( Entry<Character, State> entry : charEdges.entrySet() ) connectedStates.add(entry.getKey()+"->S"+entry.getValue().stateNum);
                 for ( State state : epsEdges ) connectedStatesEps.add("S"+state.stateNum);
                 return "<S"+stateNum+" "+(isFinal ? "FINAL" : "") + (charEdges.isEmpty() ? "" : ", charEdges =" + connectedStates) 
                                 + (epsEdges.isEmpty() ? "" : ", epsEdges=" + connectedStatesEps) + ">";

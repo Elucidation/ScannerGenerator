@@ -1,14 +1,26 @@
 $LETTER [a-zA-Z]
 $DIGIT [0-9]
-$CHAR abcdefghijklmnopqrs tuvwxyz=$,_ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789.\(\)|#>!;
 
-$REGEX '(_|\(|\)|\||-|$LETTER|[|]|\*)*'
-$ASCII "(.|$LETTER|$DIGIT|[|]|\*)*"
-$IDorKey $LETTER(_|$LETTER|$DIGIT)*
-$ID_EQUALS =
-$ID_HASH #
-$ID_ENDLINE ;
-$ID_OPENPAREN \(
-$ID_CLOSEPAREN \)
-$ID_SAVETO >!
+$ID $LETTER(_|$LETTER|$DIGIT)*
 $NUMBER ($DIGIT)+
+$REGEX '(_|\(|\)|\||-|$LETTER|[|]|\*)*'
+$ASCII_STR "(.|$LETTER|$DIGIT|[|]|\*)*"
+$EQUALS =
+$HASH #
+$END_LINE ;
+$OPENPAREN \(
+$CLOSEPAREN \)
+$SAVETO >!
+$FIND find
+$BEGIN begin
+$END end
+$REPLACE replace
+$WITH with
+$COMMA ,
+$RECURSIVE_REPLACE recursivereplace
+$IN in
+$DIFF diff
+$INTERS inters
+$PRINT print
+$UNION union|\|
+$MAXFREQSTRING maxfreqstring

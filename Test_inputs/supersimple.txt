@@ -1,3 +1,5 @@
 begin
-abc = 42;
+var1 = 42;
+var2 = word;
+var3 = find '[A-Za-z]*ment[A-Za-z]*' in "file1.txt";
 end

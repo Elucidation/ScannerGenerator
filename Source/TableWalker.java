@@ -43,7 +43,7 @@ public class TableWalker {
 		startState = start;
 		currentState = startState;
 	}
-
+	
 	public DFATable getDfa() {
 		return dfa;
 	}

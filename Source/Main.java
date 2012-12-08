@@ -34,6 +34,9 @@ public class Main {
 		System.out.println("Initializing TableWalker with DFA Table...");
 		TableWalker tableWalker = new TableWalker(dfaTable,dfaTable.getStartState() );
 
+		System.out.println("DFA Table:");
+		System.out.println(dfaTable.getStartState());
+		
 		// Main driver, Feeds characters from input file to table Walker
 		System.out.println("Walking Table with input file '"+inputFilename+"'...");
 		FileInputStream in = new FileInputStream(inputFilename);
@@ -57,7 +60,7 @@ public class Main {
 //			}
 			if (tokens != null) {
 				for (Token token: tokens) {
-					String tokenString = "TOKEN!: "+token+"\n";
+					String tokenString = "TOKEN!: "+token;
 					System.out.println(tokenString);
 					tokenStringList.add(tokenString);
 					allTokens.add(token);
@@ -75,12 +78,14 @@ public class Main {
 //		for (String tokenString : tokenStringList) out.write(tokenString);
 //		out.close();
 //		System.out.println("Finished writing tokens! All Done.");
-		System.out.println("Token List: ");
-		System.out.println(allTokens);
-		System.out.println("Calling Recursive Parser for Mini-Re Program...");
-		RecursiveParserMiniRe rec = new RecursiveParserMiniRe(allTokens);
-		Node ast = rec.minireProgram();
-		System.out.println("Good god it didn't fail.");
-		System.out.println("AST : "+ast);
+		
+		// MINIRE
+//		System.out.println("Token List: ");
+//		System.out.println(allTokens);
+//		System.out.println("Calling Recursive Parser for Mini-Re Program...");
+//		RecursiveParserMiniRe rec = new RecursiveParserMiniRe(allTokens);
+//		Node ast = rec.minireProgram();
+//		System.out.println("Good god it didn't fail.");
+//		System.out.println("AST : "+ast);
 	}
 }

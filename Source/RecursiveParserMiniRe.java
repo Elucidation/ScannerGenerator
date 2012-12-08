@@ -32,15 +32,15 @@ public class RecursiveParserMiniRe {
 		// Stack is pushed in reverse from list so first token is on top of stack
 	}
 		
-	/** Starts with a letter, followed by 0-9 letters or numbers or underscores
+	/** Starts with a letter, optionally followed by 0-9 letters or numbers or underscores
+	 * Has to be 1 or more characters
+	 * Basically [a-zA-Z][a-zA-Z0-9_]*
 	 * 
 	 * @param t
 	 * @return
 	 */
 	boolean isID(String t) {
-		if ( !((t.charAt(0) >= 'a' && t.charAt(0) <= 'z') || (t.charAt(0) >= 'A' && t.charAt(0) <= 'Z')) )
-			return false;
-		if (t.length() >= 10 || t.length() <= 1)
+		if (t.isEmpty() || t.length() >= 10 || !((t.charAt(0) >= 'a' && t.charAt(0) <= 'z') || (t.charAt(0) >= 'A' && t.charAt(0) <= 'Z')) )
 			return false;
 		for (char c : t.toCharArray())
 			if ( !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_') )
