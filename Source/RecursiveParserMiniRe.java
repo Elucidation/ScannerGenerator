@@ -2,13 +2,13 @@ package Source;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Stack;
 
 public class RecursiveParserMiniRe {
 //	HashMap<String, Variable> variables = new HashMap<String,Variable>(); // These are variables generated during minireProgram run
 	Stack<Token> tokens;
 	boolean DEBUG = true;
+	@SuppressWarnings("unused")
 	private ArrayList<String> knownSymbols; // ex ArrayList<String>( ["$ID", "$NUMBER", "$FIND", "$BEGIN"...] )
 	
 	public static enum Symbol {OPENPAREN, CLOSEPAREN, REPLACE, BEGIN, END, EQUALS, REGEX, ID, WITH, COMMA, RECURSIVE_REPLACE, ASCII_STR, IN, DIFF, INTERS, PRINT, UNION, CHARCLASS, FIND, HASH, MAXFREQSTRING, END_LINE, SAVE_TO};
@@ -155,7 +155,9 @@ public class RecursiveParserMiniRe {
 			break;
 		case REPLACE:
 			if (DEBUG) System.out.println("DO REPLACE");
-			replace();
+			ArrayList<Node> nodes = replace();
+			for (Node node : nodes)
+				n.addChild(node);
 			break;
 		case RECURSIVE_REPLACE:
 			if (DEBUG) System.out.println("DO RECURSIVE REPLACE");
@@ -186,25 +188,32 @@ public class RecursiveParserMiniRe {
 		return n;
 	}
 
-
-	private void replace() throws ParseError {
+	private ArrayList<Node> replace() throws ParseError {
+		if (DEBUG) System.out.println("REPLACE");
+		ArrayList<Node> nodes = new ArrayList<Node>();
 		matchToken(Symbol.REPLACE);
+		
+		nodes.add(new Node("REPLACE"));
+		
 		String regex = matchToken(Symbol.REGEX).data.toString();
 		regex = regex.subSequence(1, regex.length()-1).toString();
+		nodes.add(new Node("REGEX", new Variable(Variable.VAR_TYPE.STRING, regex)));
+		
 		matchToken(Symbol.WITH);
+		nodes.add(new Node("WITH"));
+		
 		String ascii_str = matchToken(Symbol.ASCII_STR).data.toString();
 		ascii_str = ascii_str.subSequence(1, ascii_str.length()-1).toString();
+		nodes.add(new Node("ASCII_STR", new Variable(Variable.VAR_TYPE.STRING, ascii_str)));
+		
 		matchToken(Symbol.IN);
-		ArrayList<String> files = fileNames();
-		String inFile = files.get(0);
-		String outFile = files.get(1);
-		System.out.println("DO REPLACE REGEX("+regex+") with ASCII_STR("+ascii_str+") with IN-FILE("+inFile+") save to OUT-FILE("+outFile+")");
-		try {
-			Operations.replace(regex, ascii_str, inFile, outFile);
-			System.out.println("REPLACE SUCCESSFUL");
-		} catch (IOException e){
-			System.out.println("REPLACE FAILED, SKIPPING");
-		}
+		nodes.add(new Node("IN"));
+		
+		ArrayList<Node> fnodes = fileNames();
+		for (Node node : fnodes)
+			nodes.add(node);
+		
+		return nodes;
 	}
 
 	/**
@@ -212,15 +221,18 @@ public class RecursiveParserMiniRe {
 	 * <file-names> ->  <source-file>  >!  <destination-file>
 	 * @throws ParseError 
 	 */
-	private ArrayList<String> fileNames() throws ParseError {
+	private ArrayList<Node> fileNames() throws ParseError {
 		if (DEBUG) System.out.println("FILENAMES (DOING SAVE TO)");
+		ArrayList<Node> nodes = new ArrayList<Node>();
 		String inFile = sourceFile();
+		nodes.add(new Node(inFile));
+		
 		matchToken(Symbol.SAVE_TO);
+		nodes.add(new Node("SAVE TO"));
+		
 		String outFile = destinationFile();
-		ArrayList<String> files = new ArrayList<String>();
-		files.add(inFile);
-		files.add(outFile);
-		return files;
+		nodes.add(new Node(outFile));
+		return nodes;
 	}
 
 	/**
@@ -286,7 +298,6 @@ public class RecursiveParserMiniRe {
 	 * @throws ParseError 
 	 * 
 	 */
-	@SuppressWarnings("unchecked")
 	private Node exp() throws ParseError {
 		if (DEBUG) System.out.println("EXP");
 		Symbol sym = tokenToSymbol( peekToken() );
@@ -296,17 +307,19 @@ public class RecursiveParserMiniRe {
 			Variable var; 
 			if (tok.type.equals("$NUMBER"))
 				var = new Variable(Variable.VAR_TYPE.INT, tok.data );
-			else if (((ArrayList<String>)tok.data).size() == 1)
+			else if (tok.type.equals("$STRING"))
 				var = new Variable(Variable.VAR_TYPE.STRING, tok.data );
 			else
 				var = new Variable(Variable.VAR_TYPE.STRINGLIST, tok.data );
 			node.addChild( new Node("ID", var ) );
 		} else if (sym == Symbol.OPENPAREN) {
 			matchToken(Symbol.OPENPAREN);
+			node.addChild(new Node("("));
 			Node in = exp();
 			in.name = "(EXP)";
 			node.addChild( in );
 			matchToken(Symbol.CLOSEPAREN);
+			node.addChild(new Node(")"));
 		} else {
 			node.addChild( term() );
 			node.addChild( expressionTail() );
@@ -389,7 +402,6 @@ public class RecursiveParserMiniRe {
 
 	///////////////
 	Symbol tokenToSymbol(Token t) throws ParseError {
-		String data = t.data.toString();
 		for (Symbol s : Symbol.values()) {
 			if ( t.type.equals('$'+s.name()) )
 				return s;

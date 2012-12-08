@@ -1,5 +1,3 @@
 begin
-print(42, 45);
-matches = find 'a[a-z]*' in "Test_inputs/regexTest.txt";
-mostfreq = maxfreqstring(matches);
+x = 5;
 end

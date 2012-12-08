@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Paint;
 import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -17,14 +16,11 @@ import javax.imageio.ImageIO;
 import org.apache.commons.collections15.Transformer;
 
 import edu.uci.ics.jung.algorithms.layout.TreeLayout;
-import edu.uci.ics.jung.graph.DelegateForest;
 import edu.uci.ics.jung.graph.DelegateTree;
 import edu.uci.ics.jung.graph.DirectedOrderedSparseMultigraph;
-import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 public class DrawingStuff {
@@ -38,7 +34,7 @@ public class DrawingStuff {
 		DelegateTree<Node, Integer> tree = new DelegateTree<Node,Integer>(new DirectedOrderedSparseMultigraph<Node, Integer>());
 		tree.setRoot(ast);
 		buildGraph(tree,ast);
-		TreeLayout<Node, Integer> layout = new TreeLayout<Node, Integer>(tree,50);
+		TreeLayout<Node, Integer> layout = new TreeLayout<Node, Integer>(tree,150);
 		
 		 VisualizationViewer<Node, Integer> vv = new VisualizationViewer<Node,Integer>(layout, new Dimension(600,600));
 		 
@@ -47,6 +43,7 @@ public class DrawingStuff {
 		 saveImage(vv,filename);
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static void setVisuals(VisualizationViewer<Node, Integer> vv) {
 		// Background color white
 		vv.setBackground(Color.white);

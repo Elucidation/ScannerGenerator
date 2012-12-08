@@ -11,7 +11,7 @@ $HASH #
 $END_LINE ;
 $OPENPAREN \(
 $CLOSEPAREN \)
-$SAVETO >!
+$SAVE_TO >!
 $FIND find
 $BEGIN begin
 $END end
