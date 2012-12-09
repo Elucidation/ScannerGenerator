@@ -113,8 +113,8 @@ public class AbstractSyntaxTree {
 	 * Walk Print
 	 * @param stl
 	 */
-	private void walkPrint(Node stl) {
-		ArrayList<Variable> variableList = walkExpressionList(stl);
+	private void walkPrint(Node el) {
+		ArrayList<Variable> variableList = walkExpressionList(el);
 		
 		System.out.print("Print: (");
 		for(Variable v : variableList) {
@@ -131,20 +131,16 @@ public class AbstractSyntaxTree {
 	 * @param node
 	 */
 	@SuppressWarnings("unchecked")
-	private ArrayList<Variable> walkExpressionList(Node stl) {
+	private ArrayList<Variable> walkExpressionList(Node el) {
 		ArrayList<Variable> variableList = new ArrayList<Variable>();
-		//if (DEBUG) System.out.println("STL");
-		//Variable val = null;
 		
-		Variable v = walkExpression(stl,true);
-		if(v != null) 
-			variableList.add(v);
-		//ArrayList<StringMatch> matches 
-		//= walkTerm(stl);
+		Variable v = walkExpression(el.children.get(0),true);
+		variableList.add(v);
 		
-		Node tail = stl.children.get(1);
+		
+		Node tail = el.children.get(1);
 		if (tail != null) {
-			Variable vb = walkExpressionTail((ArrayList<StringMatch>)v.value, tail);
+			Variable vb = walkExpressionListTail(FK_YOU_RON, tail);
 			if(vb != null)
 				variableList.add(vb);
 		}

@@ -1,4 +1,4 @@
 begin
 bloop = 5;
-print(bloop);
+print(bloop,42,39,win);
 end
