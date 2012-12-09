@@ -133,7 +133,7 @@ public class AbstractSyntaxTree {
 			System.out.print("Print: ( ");
 			for (int i = 0; i < variableList.size(); i++) {
 				if(variableList.get(i).type == VAR_TYPE.INT) {
-					System.out.println(variableList.get(i).value);
+					System.out.println("," + variableList.get(i).value);
 				} else {
 					System.out.print(", "+variableList.get(i));
 				}
