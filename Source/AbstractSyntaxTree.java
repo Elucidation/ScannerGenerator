@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import Source.Variable.VAR_TYPE;
+
 public class AbstractSyntaxTree {
 	Node root;
 	private HashMap<Variable,Object> variables;
@@ -124,9 +126,14 @@ public class AbstractSyntaxTree {
 		if (variableList.isEmpty())
 			System.out.println("Print: ()");
 		else {
-			System.out.print("Print: ( "+variableList.get(0));
-			for (int i = 1; i < variableList.size(); i++) {
-				System.out.print(", "+variableList.get(i));
+			System.out.print("Print: ( ");
+			for (int i = 0; i < variableList.size(); i++) {
+				if(variableList.get(i).type == VAR_TYPE.INT) {
+					System.out.println(variableList.get(i).value);
+				} else {
+					System.out.print(", "+variableList.get(i));
+				}
+				
 			}
 			System.out.println(" )");
 		}
