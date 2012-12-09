@@ -1,0 +1,4 @@
+begin
+matches = find '[A-Za-z]*ment[A-Za-z]*' in "Test_inputs/regexTest.txt";
+best = maxfreqstring(matches);
+end

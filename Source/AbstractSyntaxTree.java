@@ -48,9 +48,11 @@ public class AbstractSyntaxTree {
 				if (DEBUG) System.out.println("COUNT");			
 				int count = 0;
 				ArrayList<StringMatch> matches = (ArrayList<StringMatch>)walkExpression(statement.children.get(3), true).value;
-//				for (StringMatch sm : matches) {
-//					s
-//				}
+				for (StringMatch sm : matches) {
+					for (FileLoc fileloc : sm.getFilelocs()) {
+						count += fileloc.getNumLoc();
+					}
+				}
 				val = new Variable(Variable.VAR_TYPE.INT, count );
 			} else if (valToken.name.equalsIgnoreCase("MAXFREQSTRING")) {
 				// TODO : Implement Max freq string here.
