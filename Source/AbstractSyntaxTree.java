@@ -112,13 +112,15 @@ public class AbstractSyntaxTree {
 	private void walkPrint(Node el) {
 		ArrayList<Variable> variableList = walkExpressionList(el);
 		
-		System.out.print("Print: (");
-		for(Variable v : variableList) {
-			System.out.print(v);
-			
+		if (variableList.isEmpty())
+			System.out.println("Print: ()");
+		else {
+			System.out.print("Print: ( "+variableList.get(0));
+			for (int i = 1; i < variableList.size(); i++) {
+				System.out.print(", "+variableList.get(i));
+			}
+			System.out.println(" )");
 		}
-			
-		System.out.print(")\n");
 	}
 	
 	
