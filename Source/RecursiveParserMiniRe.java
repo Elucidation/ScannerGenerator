@@ -22,7 +22,7 @@ public class RecursiveParserMiniRe {
 		Token tok =  tokens.pop();
 		if (DEBUG) System.out.println("POP: "+tok + " :: " + tokenToSymbol(tok));
 		if ( tokenToSymbol(tok) != sym)
-			throw new ParseError("MatchToken Failed Pop,  Expecting " + sym + " but popped "+tokenToSymbol(tok));
+			throw new ParseError("MatchToken Failed Pop,  Expecting " + sym + " but popped "+tokenToSymbol(tok) + " in " + tokens);
 		return tok;
 	}
 	
