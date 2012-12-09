@@ -136,7 +136,7 @@ public class AbstractSyntaxTree {
 		//if (DEBUG) System.out.println("STL");
 		//Variable val = null;
 		
-		Variable v = walkExpression(stl);
+		Variable v = walkExpression(stl,true);
 		if(v != null) 
 			variableList.add(v);
 		//ArrayList<StringMatch> matches 
