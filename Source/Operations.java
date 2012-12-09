@@ -18,6 +18,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Operations {
+	private static final int MAX_ITER = 10;
+	
 	public static void main(String[] args) {
 		// Test Replace with
 		String fileIn = "C:\\repos\\scannergenerator\\Test_inputs\\regexTest.txt";
@@ -109,25 +111,27 @@ public class Operations {
 		return true;
 	}
 	
+	/**
+	 * Repeated replace on string until no matches found or MAX_ITER(probably 10) is hit
+	 * @param regex string of regex
+	 * @param ascii_str string to replace with
+	 * @param infile string filename
+	 * @param outfile string filename
+	 * @return true if finished before hitting max-iter, false otherwise, still creates new file regardless
+	 * @throws IOException
+	 */
 	public static boolean recursiveReplace(String regex,String ascii_str,String infile,String outfile) throws IOException{
 		String original = fileToString(infile);
 		String replaced = original;
 		int i;
-		for(i=0;i<10;i++){
+		for(i=0;i<MAX_ITER;i++){
 			String oldReplaced = replaced;
 			replaced = replaceAll(replaced,regex,ascii_str);
-			if(oldReplaced.equals(replaced)){
-				stringToFile(outfile,replaced);
-				return true;
-			}
+			if(oldReplaced.equals(replaced))
+				break;
 		}
-		if(i==10){
-			return false;
-		}
-		else{
-			stringToFile(outfile,replaced);
-			return true;
-		}
+		stringToFile(outfile,replaced);
+		return i < 10;
 	}
 
 	/**
@@ -163,31 +167,7 @@ public class Operations {
 		return allMatches;
 	}
 	
-	public static String[] intersec(String[] a, String[] b){
-
-		HashSet<String> hs = new HashSet<String>();
-		for(int i=0;i<a.length;i++){
-			hs.add(a[i]);
-		}
-		HashSet<String> rs = new HashSet<String>();
-		for(int i=0;i<b.length;i++){
-			if(hs.contains(b[i])){
-				rs.add(b[i]);
-			}
-		}
-		
-		String[] results = new String[rs.size()];
-		return rs.toArray(results);
-	}
-	
-	public static int hash(String[] a){
-		return a.length;
-	}
-	public static void print(int a){
-		System.out.println(a);
-	}
-	
-	/**
+	/** Returns the StringMatch from given ArrayList<StringMatch> that has the highest number of locations in all files.
 	 * 
 	 * @param matches
 	 * @return
@@ -210,41 +190,4 @@ public class Operations {
 		return maxFreqString;
 		
 	}
-
-	
-	//This needs to be tested
-	public static String[] union(String[] a, String[] b){
-
-		HashSet<String> hs = new HashSet<String>();
-		for(int i=0;i<a.length;i++){
-			hs.add(a[i]);
-		}
-		for(int i=0;i<b.length;i++){
-				hs.add(b[i]);
-			
-		}
-		
-		String[] results = new String[hs.size()];
-		return hs.toArray(results);
-	}
-	//This needs to be tested
-	public static String[] diff(String[] a, String[] b){
-
-		HashSet<String> hs = new HashSet<String>();
-		for(int i=0;i<a.length;i++){
-			hs.add(a[i]);
-		}
-		
-		for(int i=0;i<b.length;i++){
-				if(hs.contains(b[i])){
-					hs.remove(b[i]);
-				}
-			
-		}
-		
-		String[] results = new String[hs.size()];
-		return hs.toArray(results);
-		
-	}
-
 }
