@@ -1,5 +1,5 @@
 begin
 x = 5;
-y = z;
+y = x;
 print(x,y,39,"win");
 end

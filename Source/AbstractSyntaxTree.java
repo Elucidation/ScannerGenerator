@@ -9,7 +9,7 @@ import Source.Variable.VAR_TYPE;
 public class AbstractSyntaxTree {
 	Node root;
 	private HashMap<Variable,Object> variables;
-	public static boolean DEBUG = false; 
+	public static boolean DEBUG = true; 
 	
 	public AbstractSyntaxTree(Node root) {
 		this.root = root;
@@ -47,7 +47,9 @@ public class AbstractSyntaxTree {
 			Variable val = null;
 			if (valToken.name.equalsIgnoreCase("EXP")) {
 				boolean doLoad = false;
-				if (valToken.children.size() == 1 && valToken.children.get(0).name.equalsIgnoreCase("ID"))
+				if ( valToken.children.size() == 1 
+						&& valToken.children.get(0).name.equalsIgnoreCase("ID") 
+						&& variables.containsKey(valToken.children.get(0).data) )
 					doLoad = true;
 				val = walkExpression(valToken, doLoad);
 			} else if (valToken.name.equalsIgnoreCase("#")) {
@@ -152,10 +154,10 @@ public class AbstractSyntaxTree {
 	 * @throws ParseError 
 	 */
 	@SuppressWarnings("unchecked")
-	private ArrayList<Variable> walkExpressionList(Node el) throws ParseError {
+	private ArrayList<Variable> walkExpressionList(Node el, boolean doLoad) throws ParseError {
 		ArrayList<Variable> variableList = new ArrayList<Variable>();
 		
-		Variable v = walkExpression(el.children.get(0),true);
+		Variable v = walkExpression(el.children.get(0),doLoad);
 		variableList.add(v);
 		
 		
@@ -216,6 +218,7 @@ public class AbstractSyntaxTree {
 				if (loaded != null)
 					return loaded;
 				else { 
+					System.out.println("  LOAD ID:"+first.data+"(from variables? "+doLoad+" ) : " + exp + " : datastore: "+variables);
 					throw new ParseError("VARIABLE ID: "+first.data+" not in datastore.");
 //					return first.data;
 				}
