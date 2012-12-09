@@ -118,7 +118,7 @@ public class AbstractSyntaxTree {
 		
 		System.out.print("Print: (");
 		for(Variable v : variableList) {
-			System.out.println(v.toString());
+			System.out.print(v);
 			
 		}
 			
@@ -140,15 +140,39 @@ public class AbstractSyntaxTree {
 		
 		Node tail = el.children.get(1);
 		if (tail != null) {
-			Variable vb = walkExpressionListTail(FK_YOU_RON, tail);
+			ArrayList<Variable> vb = walkExpressionListTail(tail);
 			if(vb != null)
-				variableList.add(vb);
+				variableList.addAll(vb);
 		}
 		
 		return variableList;
 	}
 	
-	
+	/**
+	 *  <exp-list-tail> -> , <exp> <exp-list-tail>
+	 *	<exp-list-tail> -> epislon
+	 * 
+	 * @param tail
+	 * @return
+	 */
+	private ArrayList<Variable> walkExpressionListTail(Node el) {
+		if(el == null) {
+			return null;
+		}
+		ArrayList<Variable> variableList = new ArrayList<Variable>();
+		
+		Variable v = walkExpression(el.children.get(1),true);
+		variableList.add(v);
+		Node tail = el.children.get(2);
+		if (tail != null) {
+			ArrayList<Variable> vb = walkExpressionListTail(tail);
+			if(vb != null)
+				variableList.addAll(vb);
+		}
+		
+		
+		return variableList;
+	}
 	/**
 	 * Walks through expression returning either an Integer or an ArrayList<StringMatch>
 	 * An expression in MiniRE can be:
