@@ -123,8 +123,9 @@ public class AbstractSyntaxTree {
 	/**
 	 * Walk Print
 	 * @param stl
+	 * @throws ParseError 
 	 */
-	private void walkPrint(Node el) {
+	private void walkPrint(Node el) throws ParseError {
 		ArrayList<Variable> variableList = walkExpressionList(el);
 		
 		if (variableList.isEmpty())
@@ -132,12 +133,13 @@ public class AbstractSyntaxTree {
 		else {
 			System.out.print("Print: ( ");
 			for (int i = 0; i < variableList.size(); i++) {
+				if (i>0)
+					System.out.print(", ");
 				if(variableList.get(i).type == VAR_TYPE.INT) {
 					System.out.println("," + variableList.get(i).value);
 				} else {
-					System.out.print(", "+variableList.get(i));
+					System.out.println(variableList.get(i));
 				}
-				
 			}
 			System.out.println(" )");
 		}
@@ -147,9 +149,10 @@ public class AbstractSyntaxTree {
 	/**
 	 * <exp-list> -> <exp> <exp-list-tail>
 	 * @param node
+	 * @throws ParseError 
 	 */
 	@SuppressWarnings("unchecked")
-	private ArrayList<Variable> walkExpressionList(Node el) {
+	private ArrayList<Variable> walkExpressionList(Node el) throws ParseError {
 		ArrayList<Variable> variableList = new ArrayList<Variable>();
 		
 		Variable v = walkExpression(el.children.get(0),true);
@@ -172,8 +175,9 @@ public class AbstractSyntaxTree {
 	 * 
 	 * @param tail
 	 * @return
+	 * @throws ParseError 
 	 */
-	private ArrayList<Variable> walkExpressionListTail(Node el) {
+	private ArrayList<Variable> walkExpressionListTail(Node el) throws ParseError {
 		if(el == null) {
 			return null;
 		}
@@ -200,8 +204,9 @@ public class AbstractSyntaxTree {
 	 * -	Set operations applied to string-match lists that return modified lists: union (returns union of the two lists), intersection (returns intersection of the two lists), and difference (first list minus second). Represented by literal tokens union, inters, and -, respectively. Associativity is by parentheses and left to right.
 	 * <exp>-> ID  | ( <exp> ) | <term> <exp-tail>
 	 * @return
+	 * @throws ParseError 
 	 */
-	private Variable walkExpression(Node exp,boolean doLoad) {
+	private Variable walkExpression(Node exp,boolean doLoad) throws ParseError {
 		if (DEBUG) System.out.println("EXP");
 		Node first = exp.children.get(0);
 		if (first.name.equalsIgnoreCase("ID")) {
@@ -210,9 +215,9 @@ public class AbstractSyntaxTree {
 				Variable loaded = (Variable) variables.get( first.data );
 				if (loaded != null)
 					return loaded;
-				else {
-					if (DEBUG) System.out.println("VARIABLE ID: "+first.data+" not in datastore, returning it instead.");
-					return first.data;
+				else { 
+					throw new ParseError("VARIABLE ID: "+first.data+" not in datastore.");
+//					return first.data;
 				}
 			}
 			else
@@ -225,8 +230,8 @@ public class AbstractSyntaxTree {
 			return walkExpression(first.children.get(1),doLoad);
 		} else {
 			if (DEBUG) System.out.println("HMM... (Expected first child == ID or TERM or '('): "+exp+" & it's first child:"+first);
-			return first.data;
-//			return null;
+			throw new ParseError("VARIABLE: "+first+" not in datastore.");
+//			return first.data;
 		}
 	}
 	
@@ -239,7 +244,7 @@ public class AbstractSyntaxTree {
 	 * @throws ParseError 
 	 */
 	private Variable walkExpressionTail(ArrayList<StringMatch> matches,
-			Node tail) {
+			Node tail) throws ParseError {
 		if (tail == null)
 			return new Variable(Variable.VAR_TYPE.STRINGLIST, matches );
 		String binop = tail.children.get(0).name;
@@ -253,7 +258,7 @@ public class AbstractSyntaxTree {
 		} else if (binop.equalsIgnoreCase("UNION")) {
 			newList = Operations.union(matches, rightSide);
 		} else {
-//			throw new ParseError("ERROR: <BIN-OP>:"+binop+" not known.");
+			throw new ParseError("ERROR: <BIN-OP>:"+binop+" not known.");
 		}
 		matches.clear();
 		matches.addAll(newList);
