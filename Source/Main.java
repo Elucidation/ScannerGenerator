@@ -89,7 +89,7 @@ public class Main {
 			Token x = tokenIt.next();
 			if(x.type.toString().equals("$ID")){
 				if(x.data.toString().length()> 10){
-					throw new ParseError("Found an ID token whose length is greater than 10; cannot continue");
+					throw new ParseError("Found an ID token whose length is greater than 10; cannot continue: "+x);
 				}
 			}
 		}

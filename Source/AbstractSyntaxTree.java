@@ -63,9 +63,9 @@ public class AbstractSyntaxTree {
 				}
 				val = new Variable(Variable.VAR_TYPE.INT, count );
 			} else if (valToken.name.equalsIgnoreCase("MAXFREQSTRING")) {
-				// TODO : Implement Max freq string here.
-				val = null;
+				if (DEBUG) System.out.println("MAXFREQSTRING");
 				Variable a = (Variable)variables.get(stl.children.get(0).children.get(4).data);
+				if (DEBUG) System.out.println("Searching following list of stringmatches: "+a);
 				ArrayList<StringMatch> matches = (ArrayList<StringMatch>)a.value;
 				val = new Variable(Variable.VAR_TYPE.STRINGLIST,Operations.maxfreqstring(matches));
 			}
@@ -213,13 +213,13 @@ public class AbstractSyntaxTree {
 		if (DEBUG) System.out.println("EXP");
 		Node first = exp.children.get(0);
 		if (first.name.equalsIgnoreCase("ID")) {
-			if (DEBUG) System.out.println("  LOAD ID:"+first.data+"(from variables? "+doLoad+" )");
+			if (DEBUG) System.out.println("  LOAD ID:"+first.data+"(load? "+doLoad+" : varbase: "+variables+")");
 			if (doLoad) {
 				Variable loaded = (Variable) variables.get( first.data );
 				if (loaded != null)
 					return loaded;
 				else { 
-					System.out.println("  LOAD ID:"+first.data+"(from variables? "+doLoad+" ) : " + exp + " : datastore: "+variables);
+					System.out.println("TRY LOAD ID:"+first.data+"(from variables? "+doLoad+" ) : " + exp + " : datastore: "+variables);
 					if (first.data.type == Variable.VAR_TYPE.INT || first.name.equals("CONST"))
 						return first.data;
 					else
@@ -227,6 +227,8 @@ public class AbstractSyntaxTree {
 					
 				}
 			}
+			else if (first.data.type == Variable.VAR_TYPE.ID && !variables.containsKey(first.data))
+				throw new ParseError("Failed to load "+first.data+" from datastore : "+variables);
 			else
 				return first.data;
 		} else if (first.name.equalsIgnoreCase("TERM")) {

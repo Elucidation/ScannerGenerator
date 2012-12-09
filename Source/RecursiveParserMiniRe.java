@@ -107,7 +107,7 @@ public class RecursiveParserMiniRe {
 		Symbol sym = tokenToSymbol( peekToken() );
 		switch(sym) {
 		case ID:
-			Variable idToSet = new Variable(Variable.VAR_TYPE.STRING, matchToken(Symbol.ID).data.toString() );
+			Variable idToSet = new Variable(Variable.VAR_TYPE.ID, matchToken(Symbol.ID).data.toString() );
 			// ID
 			Node idNode = new Node("ID");
 			idNode.setData(idToSet);
@@ -148,7 +148,7 @@ public class RecursiveParserMiniRe {
 //				Variable val = variables.get( tok.data );
 //				if (val.type != Variable.VAR_TYPE.STRINGLIST)
 //					throw new ParseError("PARSE-ERROR: Variable given to Max freq string not a string list! : is type '"+val.type+"'");
-				n.addChild( new Node("ID", new Variable(Variable.VAR_TYPE.STRING, tok.data.toString()) ) );
+				n.addChild( new Node("ID", new Variable(Variable.VAR_TYPE.ID, tok.data.toString()) ) );
 				
 				matchToken(Symbol.CLOSEPAREN);
 				n.addChild( new Node(")") );
@@ -343,7 +343,7 @@ public class RecursiveParserMiniRe {
 			if (tok.type.equals("$NUMBER"))
 				var = new Variable(Variable.VAR_TYPE.INT, tok.data );
 			else if (tok.type.equals("$ID"))
-				var = new Variable(Variable.VAR_TYPE.STRING, tok.data );
+				var = new Variable(Variable.VAR_TYPE.ID, tok.data );
 			else
 				var = new Variable(Variable.VAR_TYPE.STRINGLIST, tok.data );
 			node.addChild( new Node("ID", var ) );
