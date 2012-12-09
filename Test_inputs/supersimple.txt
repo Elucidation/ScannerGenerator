@@ -1,4 +1,5 @@
 begin
-bloop = 5;
-print(bloop,42,39,win);
+x = 5;
+y = x;
+print(x,y,39,"win");
 end

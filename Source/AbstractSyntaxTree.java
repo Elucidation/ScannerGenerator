@@ -46,7 +46,10 @@ public class AbstractSyntaxTree {
 			Node valToken = statement.children.get(2);
 			Variable val = null;
 			if (valToken.name.equalsIgnoreCase("EXP")) {
-				val = walkExpression(valToken, false);
+				boolean doLoad = false;
+				if (valToken.children.size() == 1 && valToken.children.get(0).name.equalsIgnoreCase("ID"))
+					doLoad = true;
+				val = walkExpression(valToken, doLoad);
 			} else if (valToken.name.equalsIgnoreCase("#")) {
 				if (DEBUG) System.out.println("COUNT");			
 				int count = 0;
