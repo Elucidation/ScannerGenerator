@@ -37,6 +37,7 @@ public class TableWalker {
 	private State currentState;
 	private ArrayList<Token> returnList = new ArrayList<Token>();
 	private String lastKnownValidTokenType;
+	private int currentLoc;
 
 	public TableWalker(DFATable dfaTable, State start) {
 		this.dfa = dfaTable;
@@ -59,6 +60,7 @@ public class TableWalker {
 		/*
 		 * Ignore whitespace!
 		 */
+		currentLoc++;
 		boolean whiteSpace = false;
 		if((c==' ') || (c=='\t')||(c=='\n')||(c=='\r')){
 			//return null;
@@ -150,7 +152,7 @@ public class TableWalker {
 			 * reevaluate the rest from the beginning.
 			 */
 			else {
-				throw new IllegalArgumentException(currentToken.charAt(0) + " could not be recognized as part of a valid token. Current Token: '"+currentToken+"'");
+				throw new IllegalArgumentException(currentToken.charAt(0) + " could not be recognized as part of a valid token. Current Token: '"+currentToken+"' at location " + currentLoc);
 			}
 
 			/*

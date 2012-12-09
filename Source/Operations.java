@@ -22,7 +22,7 @@ public class Operations {
 	private static final int MAX_ITER = 10;
 	private static final boolean DEBUG = false;
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ParseError {
 		// Test Replace with
 //		String fileIn = "C:\\repos\\scannergenerator\\Test_inputs\\regexTest.txt";
 //		String fileOut = "C:\\repos\\scannergenerator\\Test_inputs\\testOut.txt";
@@ -131,19 +131,31 @@ public class Operations {
 	 * @param outfile string filename
 	 * @return true if finished before hitting max-iter, false otherwise, still creates new file regardless
 	 * @throws IOException
+	 * @throws ParseError 
 	 */
-	public static boolean recursiveReplace(String regex,String ascii_str,String infile,String outfile) throws IOException{
-		String original = fileToString(infile);
-		String replaced = original;
-		int i;
-		for(i=0;i<MAX_ITER;i++){
-			String oldReplaced = replaced;
-			replaced = replaceAll(replaced,regex,ascii_str);
-			if(oldReplaced.equals(replaced))
-				break;
+	public static boolean recursiveReplace(String regex,String ascii_str,String infile,String outfile) throws IOException, ParseError{
+
+		StringBuilder sb = new StringBuilder();
+		for (int i = 1; i < (regex.length()-1); i++){
+			char c = regex.charAt(i);
+			sb.append(c);
 		}
-		stringToFile(outfile,replaced);
-		return i < 10;
+		if (sb.toString().equals(ascii_str.substring(1, (ascii_str.length()-1)))){
+			throw new ParseError("\""+regex+"\" is the same as \""+ascii_str+"\"");
+		}
+		else {
+			String original = fileToString(infile);
+			String replaced = original;
+			int i;
+			for(i=0;i<MAX_ITER;i++){
+				String oldReplaced = replaced;
+				replaced = replaceAll(replaced,regex,ascii_str);
+				if(oldReplaced.equals(replaced))
+					break;
+			}
+			stringToFile(outfile,replaced);
+			return i < 10;
+		}
 	}
 
 	/**
@@ -154,9 +166,16 @@ public class Operations {
 	 * @author Sam
 	 * @throws IOException 
 	 */
-	public static ArrayList<StringMatch> find(String regex, String infile) throws IOException{
+	public static ArrayList<StringMatch> find(String regex, String infile) throws IOException,ParseError{
 		if (DEBUG) System.out.print("OPERATION FIND "+regex+" IN "+ infile + ": returns ");
-		Pattern regexPattern = Pattern.compile(regex);
+		Pattern regexPattern = null;
+		try{
+		regexPattern = Pattern.compile(regex);
+		}
+		catch(Exception e){
+			throw new ParseError("Improperly formed regex: " + regex);
+			
+		}
 	    Matcher matcher = regexPattern.matcher( fileToString(infile) );
 	    HashMap<String, Set<Integer> > matches = new HashMap<String, Set<Integer> >();
 	    while (matcher.find()) {
@@ -187,7 +206,7 @@ public class Operations {
 
 		int bestLength = 0;
 		StringMatch maxFreqString = null;
-		
+
 		for(StringMatch match : matches){
 			int count = 0;
 			for(FileLoc loc: match.getFilelocs()){

@@ -17,8 +17,9 @@ public class AbstractSyntaxTree {
 	}
 	/**
 	 * Walks through the tree, calling operations as needed
+	 * @throws ParseError 
 	 */
-	public void walk() {
+	public void walk() throws ParseError {
 		// Get statement-list
 		if (DEBUG) System.out.println("WALK");
 		Node stl = this.root.children.get(1);
@@ -26,7 +27,7 @@ public class AbstractSyntaxTree {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void walkStatementList(Node stl) {
+	private void walkStatementList(Node stl) throws ParseError {
 		if (DEBUG) System.out.println("STL");
 		Node statement = stl.children.get(0);
 		Node firstToken = statement.children.get(0);
@@ -271,6 +272,9 @@ public class AbstractSyntaxTree {
 			matches = Operations.find(regex, filename);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch(ParseError e){
 			e.printStackTrace();
 		}
 		return matches;
