@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,31 +23,40 @@ public class Operations {
 	
 	public static void main(String[] args) {
 		// Test Replace with
-		String fileIn = "C:\\repos\\scannergenerator\\Test_inputs\\regexTest.txt";
-		String fileOut = "C:\\repos\\scannergenerator\\Test_inputs\\testOut.txt";
-		String regex = "the";
-		String replaceWith = "";
-		try {
-			recursiveReplace(regex,replaceWith,fileIn,fileOut);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		System.out.println("File "+fileOut+":");
-		try {
-			System.out.println( fileToString(fileOut) );
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		// Test Find
-//		String fileIn = "Test_inputs/regexTest.txt";
-//		String regex = "a[a-z]*c";
+//		String fileIn = "C:\\repos\\scannergenerator\\Test_inputs\\regexTest.txt";
+//		String fileOut = "C:\\repos\\scannergenerator\\Test_inputs\\testOut.txt";
+//		String regex = "the";
+//		String replaceWith = "";
 //		try {
-//		System.out.println( find(regex, fileIn) );
+//			recursiveReplace(regex,replaceWith,fileIn,fileOut);
 //		} catch (IOException e) {
 //			e.printStackTrace();
 //		}
+		
+//		System.out.println("File "+fileOut+":");
+//		try {
+//			System.out.println( fileToString(fileOut) );
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+		
+		// Test Find
+		String fileIn = "Test_inputs/regexTest.txt";
+		String fileIn2 = "Test_inputs/regexTest_2.txt";
+		String regex = "th[a-z]{4,5}";
+		String regex2 = "th[a-z]{5}";
+		try {
+			ArrayList<StringMatch> a = find(regex, fileIn);
+			ArrayList<StringMatch> b = find(regex2, fileIn2);
+			System.out.println("A: "+ a );
+			System.out.println("B: "+ b );
+			
+			ArrayList<StringMatch> c = union(a, b);
+			System.out.println("C: "+ c );
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -146,22 +156,21 @@ public class Operations {
 		System.out.println("OPERATION FIND "+regex+" IN "+ infile);
 		Pattern regexPattern = Pattern.compile(regex);
 	    Matcher matcher = regexPattern.matcher( fileToString(infile) );
-	    HashMap<String, ArrayList<Integer> > matches = new HashMap<String, ArrayList<Integer> >();
-	    System.out.println();
+	    HashMap<String, Set<Integer> > matches = new HashMap<String, Set<Integer> >();
 	    while (matcher.find()) {
 	    	String s = matcher.group();
 	    	int startIndex = matcher.start();
 	    	if (matches.containsKey(s))
 	    		matches.get(s).add(startIndex);
 	    	else {
-	    		ArrayList<Integer> v = new ArrayList<Integer>();
+	    		Set<Integer> v = new HashSet<Integer>();
 	    		v.add(startIndex);
 	    		matches.put(s, v );
 	    	}
 	    }
 	    System.out.println(matches);
 	    ArrayList<StringMatch> allMatches = new ArrayList<StringMatch>();
-	    for (Entry<String, ArrayList<Integer>> entry : matches.entrySet()) {
+	    for (Entry<String, Set<Integer>> entry : matches.entrySet()) {
 	    	allMatches.add( new StringMatch(entry.getKey(),infile, entry.getValue()) );
 	    }
 		return allMatches;
@@ -173,6 +182,7 @@ public class Operations {
 	 * @return
 	 */
 	public static StringMatch maxfreqstring(ArrayList<StringMatch> matches){
+
 		int bestLength = 0;
 		StringMatch maxFreqString = null;
 		
@@ -189,5 +199,57 @@ public class Operations {
 		
 		return maxFreqString;
 		
+	}
+
+	/**
+	 * Does intersection of two given ArrayList<StringMatch>'s
+	 * For Example:
+	 * String-list-1 = {"xyz"<'file1.txt', 30, 70, 100><file-2.txt', 20,40>, "pqr"<'file1.txt', 200>}
+	 * String-list-2 = {"xyz" <file-2.txt', 90, 100>} 
+	 * 
+	 * Here String-list-1 shows two strings : "xyz" occuring at index locations 30, 70 and 100 in file-1.txt + file-2.txt in 20 and 40, and "pqr" in file1.txt at location 200. 
+	 * Similarly, String-list-2 shows a string xyz. The string intersection should result in :
+	 * String-list-1 inters String-list-2 = {"xyz" <'file1.txt', 30, 70, 100><'file-2.txt', 20, 40, 90, 100>}
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static ArrayList<StringMatch> inters(ArrayList<StringMatch> a, ArrayList<StringMatch> b) {
+		ArrayList<StringMatch> c = new ArrayList<StringMatch>();
+		for (StringMatch sm : a) {
+			if (b.contains(sm)) {
+//				StringMatch x = merge(sm, b.get(b.indexOf(sm)));
+//				c.add(x);
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns union of two given ArrayList<StringMatch>'s
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static ArrayList<StringMatch> union(ArrayList<StringMatch> a, ArrayList<StringMatch> b) {
+		ArrayList<StringMatch> c = new ArrayList<StringMatch>();
+		for (StringMatch sm : a) {
+			if (!b.contains(sm)) {
+				c.add(sm);
+			}
+		}
+		for (StringMatch sm : a) {
+			if (b.contains(sm)) {
+				StringMatch x = sm.union(b.get(b.indexOf(sm)));
+				c.add(x);
+			}
+		}
+		// Add all remaining in b not in a 
+		for (StringMatch sm : b) {
+			if (!a.contains(sm)) {
+				c.add(sm);
+			}
+		}
+		return c;
 	}
 }
