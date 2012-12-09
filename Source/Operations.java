@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 
 public class Operations {
 	private static final int MAX_ITER = 10;
+	private static final boolean DEBUG = false;
 	
 	public static void main(String[] args) {
 		// Test Replace with
@@ -154,7 +155,7 @@ public class Operations {
 	 * @throws IOException 
 	 */
 	public static ArrayList<StringMatch> find(String regex, String infile) throws IOException{
-		System.out.println("OPERATION FIND "+regex+" IN "+ infile);
+		if (DEBUG) System.out.print("OPERATION FIND "+regex+" IN "+ infile + ": returns ");
 		Pattern regexPattern = Pattern.compile(regex);
 	    Matcher matcher = regexPattern.matcher( fileToString(infile) );
 	    HashMap<String, Set<Integer> > matches = new HashMap<String, Set<Integer> >();
@@ -169,7 +170,7 @@ public class Operations {
 	    		matches.put(s, v );
 	    	}
 	    }
-	    System.out.println(matches);
+	    if (DEBUG) System.out.println(matches);
 	    ArrayList<StringMatch> allMatches = new ArrayList<StringMatch>();
 	    for (Entry<String, Set<Integer>> entry : matches.entrySet()) {
 	    	allMatches.add( new StringMatch(entry.getKey(),infile, entry.getValue()) );

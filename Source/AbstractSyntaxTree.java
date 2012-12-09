@@ -7,7 +7,7 @@ import java.util.HashMap;
 public class AbstractSyntaxTree {
 	Node root;
 	private HashMap<Variable,Object> variables;
-	public static boolean DEBUG = true; 
+	public static boolean DEBUG = false; 
 	
 	public AbstractSyntaxTree(Node root) {
 		this.root = root;
@@ -193,14 +193,9 @@ public class AbstractSyntaxTree {
 	private Variable walkExpression(Node exp,boolean doLoad) {
 		if (DEBUG) System.out.println("EXP");
 		Node first = exp.children.get(0);
-		System.out.println(first);
 		//Node second = exp.children.get(1);
 		if (first.name.equalsIgnoreCase("ID")) {
-			System.out.println("  LOAD ID:"+first.data+"(from variables? "+doLoad+" )");
-//			System.out.println("variables = "+variables);
-//			System.out.println("searchkey= "+first.data.value.getClass());
-//			System.out.println("variable keyset1 = "+variables.keySet().toArray()[0] );
-//			System.out.println("variables.get("+first.data+") = "+variables.get( first.data ));
+			if (DEBUG) System.out.println("  LOAD ID:"+first.data+"(from variables? "+doLoad+" )");
 			if (doLoad)
 				return (Variable) variables.get( first.data );
 			else
@@ -210,11 +205,9 @@ public class AbstractSyntaxTree {
 			Node tail = exp.children.get(1);
 			return walkExpressionTail(matches, tail);
 		} else if(first.name.equalsIgnoreCase("(")) {
-			return (Variable) variables.get(first.children.get(0).data);
-			//System.out.println(first);
-			//return null;
+			return walkExpression(first.children.get(1),doLoad);
 		} else {
-			System.out.println("HMM: "+exp+"-first:"+first);
+			System.out.println("HMM... Problem(Expected first child == ID or TERM or '('): "+exp+" & it's first child:"+first);
 			return null;
 		}
 	}

@@ -1,0 +1,8 @@
+begin
+matchesA = find 'th[a-z]{4,5}' in "Test_inputs/regexTest.txt";
+matchesB = find 'th[a-z]{5}' in "Test_inputs/regexTest_2.txt";
+n_matches = #matchesA;
+print (matchesA, matchesB, n_matches);
+match_inters = find 'th[a-z]{4,5}' in "Test_inputs/regexTest.txt" inters find 'th[a-z]{5}' in "Test_inputs/regexTest_2.txt";
+print (match_inters);
+end
