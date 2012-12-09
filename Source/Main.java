@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 // Use java -jar <this>
 public class Main {
@@ -83,6 +84,15 @@ public class Main {
 //		System.out.println("Finished writing tokens! All Done.");
 		
 		// MINIRE
+		Iterator<Token> tokenIt = allTokens.iterator();
+		while(tokenIt.hasNext()){
+			Token x = tokenIt.next();
+			if(x.type.toString().equals("$ID")){
+				if(x.data.toString().length()> 10){
+					throw new ParseError("Found an ID token whose length is greater than 10; cannot continue");
+				}
+			}
+		}
 		System.out.println("Token List: ");
 		System.out.println(allTokens);
 		System.out.println("Calling Recursive Parser for Mini-Re Program...");
