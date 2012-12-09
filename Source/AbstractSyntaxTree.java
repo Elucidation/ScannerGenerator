@@ -137,8 +137,8 @@ public class AbstractSyntaxTree {
 			for (int i = 0; i < variableList.size(); i++) {
 				if (i>0)
 					System.out.print(", ");
-				if(variableList.get(i).type == VAR_TYPE.INT) {
-					System.out.println("," + variableList.get(i).value);
+				if(variableList.get(i).type == VAR_TYPE.INT || variableList.get(i).type == VAR_TYPE.STRING) {
+					System.out.println(variableList.get(i).value);
 				} else {
 					System.out.println(variableList.get(i));
 				}
@@ -220,7 +220,7 @@ public class AbstractSyntaxTree {
 					return loaded;
 				else { 
 					System.out.println("  LOAD ID:"+first.data+"(from variables? "+doLoad+" ) : " + exp + " : datastore: "+variables);
-					if (first.data.type == Variable.VAR_TYPE.INT || first.name.equals("UNKNOWN"))
+					if (first.data.type == Variable.VAR_TYPE.INT || first.name.equals("CONST"))
 						return first.data;
 					else
 						throw new ParseError("VARIABLE ID: "+first.data+" not in datastore.");
@@ -235,7 +235,7 @@ public class AbstractSyntaxTree {
 			return walkExpressionTail(matches, tail);
 		} else if(first.name.equalsIgnoreCase("(")) {
 			return walkExpression(first.children.get(1),doLoad);
-		} else if(first.name.equalsIgnoreCase("UNKNOWN")) {
+		} else if(first.name.equalsIgnoreCase("CONST")) {
 			return first.data;
 		} else {
 			if (DEBUG) System.out.println("HMM... (Expected first child == ID or TERM or '('): "+exp+" & it's first child:"+first);

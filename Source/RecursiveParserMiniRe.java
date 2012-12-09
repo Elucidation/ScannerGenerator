@@ -357,7 +357,8 @@ public class RecursiveParserMiniRe {
 			node.addChild( term() );
 			node.addChild( expressionTail() );
 		} else {
-			node.addChild( new Node("UNKNOWN", new Variable(Variable.VAR_TYPE.STRING, matchAnyToken().data.toString()) ));
+			// Create const string node
+			node.addChild( new Node("CONST", new Variable(Variable.VAR_TYPE.STRING, matchAnyToken().data.toString()) ));
 		}
 		return node;
 	}
