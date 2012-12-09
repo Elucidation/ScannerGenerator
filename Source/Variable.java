@@ -17,18 +17,15 @@ public class Variable {
 	
 	@Override
 	public int hashCode() {
-		// TODO Auto-generated method stub
 		return this.type.hashCode() + 37*this.value.hashCode();
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
-		// TODO Auto-generated method stub
 		if (obj.getClass() == this.getClass()) return equals((Variable)obj);
 		return false;
 	}
 	public boolean equals(Variable o) {
-		// TODO Auto-generated method stub
 		return type == o.type && value.equals(o.value);
 	}
 	
