@@ -62,13 +62,62 @@ public class AbstractSyntaxTree {
 			// TODO : Implement Recursive Replace
 		} else if (firstToken.name.equalsIgnoreCase("PRINT")) {
 			if (DEBUG) System.out.println("PRINT");
-			// TODO : Implement Print
+			walkPrint( statement.children.get(2));
 		}
 		
 		Node tail = stl.children.get(1);
 		if (tail != null)
 			walkStatementList(tail);
 	}
+	
+	/**
+	 * HERE RON
+	 */
+	
+	/**
+	 * Walk Print
+	 * @param stl
+	 */
+	private void walkPrint(Node stl) {
+		ArrayList<Variable> variableList = walkExpressionList(stl);
+		
+		System.out.print("Print: (");
+		for(Variable v : variableList) {
+			System.out.println(v.toString());
+			
+		}
+			
+		System.out.print(")\n");
+	}
+	
+	
+	/**
+	 * <exp-list> -> <exp> <exp-list-tail>
+	 * @param node
+	 */
+	@SuppressWarnings("unchecked")
+	private ArrayList<Variable> walkExpressionList(Node stl) {
+		ArrayList<Variable> variableList = new ArrayList<Variable>();
+		//if (DEBUG) System.out.println("STL");
+		//Variable val = null;
+		
+		Variable v = walkExpression(stl);
+		if(v != null) 
+			variableList.add(v);
+		//ArrayList<StringMatch> matches 
+		//= walkTerm(stl);
+		
+		Node tail = stl.children.get(1);
+		if (tail != null) {
+			Variable vb = walkExpressionTail((ArrayList<StringMatch>)v.value, tail);
+			if(vb != null)
+				variableList.add(vb);
+		}
+		
+		return variableList;
+	}
+	
+	
 	/**
 	 * Walks through expression returning either an Integer or an ArrayList<StringMatch>
 	 * An expression in MiniRE can be:
@@ -82,6 +131,8 @@ public class AbstractSyntaxTree {
 	private Variable walkExpression(Node exp) {
 		if (DEBUG) System.out.println("EXP");
 		Node first = exp.children.get(0);
+		System.out.println(first);
+		//Node second = exp.children.get(1);
 		if (first.name.equalsIgnoreCase("ID")) {
 			System.out.println("  LOAD ID:"+first.data);
 //			System.out.println("variables = "+variables);
@@ -93,6 +144,10 @@ public class AbstractSyntaxTree {
 			ArrayList<StringMatch> matches = walkTerm(first);
 			Node tail = exp.children.get(1);
 			return walkExpressionTail(matches, tail);
+		} else if(first.name.equalsIgnoreCase("(")) {
+			return (Variable) variables.get(first.children.get(0).data);
+			//System.out.println(first);
+			//return null;
 		} else {
 			System.out.println("HMM: "+exp+"-first:"+first);
 			return null;
