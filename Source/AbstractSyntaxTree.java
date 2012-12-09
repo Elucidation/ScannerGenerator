@@ -55,7 +55,28 @@ public class AbstractSyntaxTree {
 			if (DEBUG) System.out.println("  SET VAR ID:"+id+"="+val);
 			variables.put(id, val);
 		} else if (firstToken.name.equalsIgnoreCase("REPLACE")) {
-			if (DEBUG) System.out.println("REPLACE");
+			if (DEBUG)
+				System.out.println("REPLACE");
+
+			Node regx = statement.children.get(1);
+			String regX = regx.data.value.toString();
+
+			Node asci = statement.children.get(3);
+			String ascI = asci.data.value.toString();
+
+			Node inFile = statement.children.get(5);
+			String iFile = inFile.name;
+
+			Node outFile = statement.children.get(7);
+			String oFile = outFile.name;
+
+			try {
+				Operations.replace(regX, ascI, iFile, oFile);
+			} catch (IOException e) {
+				System.out
+						.println("Replace could not finish Operation. Make sure files provided exists.");
+				e.printStackTrace();
+			}
 			// TODO : Implement Replace
 		} else if (firstToken.name.equalsIgnoreCase("RECURSIVEREPLACE")) {
 			if (DEBUG) System.out.println("RECURSIVEREPLACE");
@@ -72,7 +93,7 @@ public class AbstractSyntaxTree {
 	/**
 	 * Walks through expression returning either an Integer or an ArrayList<StringMatch>
 	 * An expression in MiniRE can be:
-	 * -	A find expression, whose format is Ågfind REGEX in filenameÅh where filename is the name of a text file surrounded by "Åfs.  
+	 * -	A find expression, whose format is gfind REGEX in filenameh where filename is the name of a text file surrounded by "fs.  
 	 * -    A variable, of type integer or string-match list. Using a variable not (yet) assigned to is an error.
 	 * -	#v which returns the length (as an integer) of string-match list variable v, ie. the number of strings contained in the string list. 
 	 * -	Set operations applied to string-match lists that return modified lists: union (returns union of the two lists), intersection (returns intersection of the two lists), and difference (first list minus second). Represented by literal tokens union, inters, and -, respectively. Associativity is by parentheses and left to right.
