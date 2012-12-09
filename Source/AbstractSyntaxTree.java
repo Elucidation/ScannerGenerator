@@ -157,7 +157,8 @@ public class AbstractSyntaxTree {
 	private ArrayList<Variable> walkExpressionList(Node el) throws ParseError {
 		ArrayList<Variable> variableList = new ArrayList<Variable>();
 		
-		Variable v = walkExpression(el.children.get(0),true);
+		
+		Variable v = walkExpression(el.children.get(0), true);
 		variableList.add(v);
 		
 		
@@ -219,8 +220,11 @@ public class AbstractSyntaxTree {
 					return loaded;
 				else { 
 					System.out.println("  LOAD ID:"+first.data+"(from variables? "+doLoad+" ) : " + exp + " : datastore: "+variables);
-					throw new ParseError("VARIABLE ID: "+first.data+" not in datastore.");
-//					return first.data;
+					if (first.data.type == Variable.VAR_TYPE.INT || first.name.equals("UNKNOWN"))
+						return first.data;
+					else
+						throw new ParseError("VARIABLE ID: "+first.data+" not in datastore.");
+					
 				}
 			}
 			else
@@ -231,6 +235,8 @@ public class AbstractSyntaxTree {
 			return walkExpressionTail(matches, tail);
 		} else if(first.name.equalsIgnoreCase("(")) {
 			return walkExpression(first.children.get(1),doLoad);
+		} else if(first.name.equalsIgnoreCase("UNKNOWN")) {
+			return first.data;
 		} else {
 			if (DEBUG) System.out.println("HMM... (Expected first child == ID or TERM or '('): "+exp+" & it's first child:"+first);
 			throw new ParseError("VARIABLE: "+first+" not in datastore.");
