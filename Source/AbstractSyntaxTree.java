@@ -22,6 +22,7 @@ public class AbstractSyntaxTree {
 		Node stl = this.root.children.get(1);
 		walkStatementList(stl);
 	}
+	
 	@SuppressWarnings("unchecked")
 	private void walkStatementList(Node stl) {
 		if (DEBUG) System.out.println("STL");
@@ -56,19 +57,19 @@ public class AbstractSyntaxTree {
 			variables.put(id, val);
 		} else if (firstToken.name.equalsIgnoreCase("REPLACE")) {
 			if (DEBUG) System.out.println("REPLACE");
-
+	
 			Node regx = statement.children.get(1);
 			String regX = regx.data.value.toString();
-
+	
 			Node asci = statement.children.get(3);
 			String ascI = asci.data.value.toString();
-
+	
 			Node inFile = statement.children.get(5);
 			String iFile = inFile.name;
-
+	
 			Node outFile = statement.children.get(7);
 			String oFile = outFile.name;
-
+	
 			try {
 				Operations.replace(regX, ascI, iFile, oFile);
 			} catch (IOException e) {
@@ -79,16 +80,16 @@ public class AbstractSyntaxTree {
 			if (DEBUG) System.out.println("RECURSIVE_REPLACE");
 			Node regx = statement.children.get(1);
 			String regX = regx.data.value.toString();
-
+	
 			Node asci = statement.children.get(3);
 			String ascI = asci.data.value.toString();
-
+	
 			Node inFile = statement.children.get(5);
 			String iFile = inFile.name;
-
+	
 			Node outFile = statement.children.get(7);
 			String oFile = outFile.name;
-
+	
 			try {
 				Operations.recursiveReplace(regX, ascI, iFile, oFile);
 			} catch (IOException e) {
@@ -104,11 +105,6 @@ public class AbstractSyntaxTree {
 		if (tail != null)
 			walkStatementList(tail);
 	}
-	
-	/**
-	 * HERE RON
-	 */
-	
 	/**
 	 * Walk Print
 	 * @param stl
