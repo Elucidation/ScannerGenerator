@@ -193,11 +193,17 @@ public class AbstractSyntaxTree {
 	private Variable walkExpression(Node exp,boolean doLoad) {
 		if (DEBUG) System.out.println("EXP");
 		Node first = exp.children.get(0);
-		//Node second = exp.children.get(1);
 		if (first.name.equalsIgnoreCase("ID")) {
 			if (DEBUG) System.out.println("  LOAD ID:"+first.data+"(from variables? "+doLoad+" )");
-			if (doLoad)
-				return (Variable) variables.get( first.data );
+			if (doLoad) {
+				Variable loaded = (Variable) variables.get( first.data );
+				if (loaded != null)
+					return loaded;
+				else {
+					if (DEBUG) System.out.println("VARIABLE ID: "+first.data+" not in datastore, returning it instead.");
+					return first.data;
+				}
+			}
 			else
 				return first.data;
 		} else if (first.name.equalsIgnoreCase("TERM")) {
@@ -207,8 +213,9 @@ public class AbstractSyntaxTree {
 		} else if(first.name.equalsIgnoreCase("(")) {
 			return walkExpression(first.children.get(1),doLoad);
 		} else {
-			System.out.println("HMM... Problem(Expected first child == ID or TERM or '('): "+exp+" & it's first child:"+first);
-			return null;
+			if (DEBUG) System.out.println("HMM... (Expected first child == ID or TERM or '('): "+exp+" & it's first child:"+first);
+			return first.data;
+//			return null;
 		}
 	}
 	
@@ -218,6 +225,7 @@ public class AbstractSyntaxTree {
 	 * @param matches
 	 * @param tail
 	 * @return
+	 * @throws ParseError 
 	 */
 	private Variable walkExpressionTail(ArrayList<StringMatch> matches,
 			Node tail) {
@@ -226,31 +234,18 @@ public class AbstractSyntaxTree {
 		String binop = tail.children.get(0).name;
 		if (DEBUG) System.out.println("BINOP "+binop);
 		ArrayList<StringMatch> rightSide = walkTerm( tail.children.get(1) );
+		ArrayList<StringMatch> newList = null;
 		if (binop.equalsIgnoreCase("INTERS")) {
-			ArrayList<StringMatch> newList = new ArrayList<StringMatch>();
-			for (StringMatch sm : matches) {
-				if (rightSide.contains(sm)) {
-					newList.add(sm);
-				}
-			}
-			matches.clear();
-			matches.addAll(newList);
+			newList = Operations.inters(matches, rightSide);
 		} else if (binop.equalsIgnoreCase("DIFF")) {
-			ArrayList<StringMatch> newList = new ArrayList<StringMatch>();
-			for (StringMatch sm : matches) {
-				if (!rightSide.contains(sm)) {
-					newList.add(sm);
-				}
-			}
-			matches.clear();
-			matches.addAll(newList);
+			newList = Operations.diff(matches, rightSide);
 		} else if (binop.equalsIgnoreCase("UNION")) {
-			for (StringMatch sm : rightSide) {
-				if (!matches.contains(sm)) {
-					matches.add(sm);
-				}
-			}
+			newList = Operations.union(matches, rightSide);
+		} else {
+//			throw new ParseError("ERROR: <BIN-OP>:"+binop+" not known.");
 		}
+		matches.clear();
+		matches.addAll(newList);
 		return walkExpressionTail( matches, tail.children.get(2) );
 	}
 	/**

@@ -186,6 +186,7 @@ public class ScannerGenerator {
 	
 	public NFA parseIdentifier(String line, HashMap<String,HashSet<Character>> tokens) throws ParseError {
 		line.replaceAll("\\ ", "<SPACE>"); // replace '\ ' with '<SPACE>' so split doesn't affect it
+//		System.out.println(line);
 		String name = line.substring( 0, line.indexOf(' ') );;
 		String val = line.substring(line.indexOf(' '), line.length()).replaceAll(" ", ""); // remove all spaces
 		val = val.replaceAll("<SPACE>","\\ "); // replace '\ ' with '<SPACE>' so split doesn't affect it

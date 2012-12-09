@@ -26,6 +26,12 @@ public class RecursiveParserMiniRe {
 		return tok;
 	}
 	
+	private Token matchAnyToken() throws ParseError {
+		Token tok =  tokens.pop();
+		if (DEBUG) System.out.println("POP ANY: "+tok + " :: " + tokenToSymbol(tok));
+		return tok;
+	}
+	
 	public RecursiveParserMiniRe(ArrayList<Token> inTokens, ArrayList<String> knownSymbols) {
 		this.knownSymbols = knownSymbols;
 		tokens = new Stack<Token>(); 
@@ -347,9 +353,11 @@ public class RecursiveParserMiniRe {
 			node.addChild( exp() );
 			matchToken(Symbol.CLOSEPAREN);
 			node.addChild(new Node(")"));
-		} else {
+		} else if (sym == Symbol.FIND){
 			node.addChild( term() );
 			node.addChild( expressionTail() );
+		} else {
+			node.addChild( new Node("UNKNOWN", new Variable(Variable.VAR_TYPE.STRING, matchAnyToken().data.toString()) ));
 		}
 		return node;
 	}

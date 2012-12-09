@@ -3,6 +3,12 @@ matchesA = find 'th[a-z]{4,5}' in "Test_inputs/regexTest.txt";
 matchesB = find 'th[a-z]{5}' in "Test_inputs/regexTest_2.txt";
 n_matches = #matchesA;
 print (matchesA, matchesB, n_matches);
+print ("TEST", 42 ,find 'th[a-z]{4,5}' in "Test_inputs/regexTest.txt" inters find 'th[a-z]{5}' in "Test_inputs/regexTest_2.txt");
 match_inters = find 'th[a-z]{4,5}' in "Test_inputs/regexTest.txt" inters find 'th[a-z]{5}' in "Test_inputs/regexTest_2.txt";
-print (match_inters);
+print (match_inters, find 'th[a-z]{4,5}' in "Test_inputs/regexTest.txt" inters find 'th[a-z]{5}' in "Test_inputs/regexTest_2.txt");
+print ("A",matchesA);
+print ("B",matchesB);
+print("inters:", match_inters);
+print("union: " ,find 'th[a-z]{4,5}' in "Test_inputs/regexTest.txt" union find 'th[a-z]{5}' in "Test_inputs/regexTest_2.txt");
+print("diff: " ,find 'th[a-z]{4,5}' in "Test_inputs/regexTest.txt" diff find 'th[a-z]{5}' in "Test_inputs/regexTest_2.txt");
 end

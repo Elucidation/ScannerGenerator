@@ -5,7 +5,7 @@ $ASCII !#$%&()*+,-./:;<=>?@[\\]^_`{|}~
 $ID $LETTER(_|$LETTER|$DIGIT)*
 $NUMBER ($DIGIT)+
 $REGEX '(_|\(|\)|\||-|$LETTER|$DIGIT|$ASCII|[|]|{|}|\+|\*)*'
-$ASCII_STR "($ASCII|$LETTER|$DIGIT|\*|\')*"
+$ASCII_STR "($ASCII|$LETTER|$DIGIT|\*|\'|<SPACE>)*"
 $EQUALS =
 $HASH #
 $END_LINE ;
