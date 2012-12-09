@@ -51,8 +51,9 @@ public class Operations {
 			System.out.println("A: "+ a );
 			System.out.println("B: "+ b );
 			
-			System.out.println("UNION : "+ union(a, b) );
+			System.out.println(" UNION: "+ union(a, b) );
 			System.out.println("INTERS: "+ inters(a, b) );
+			System.out.println("  DIFF: "+ diff(a, b) );
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -247,6 +248,22 @@ public class Operations {
 		// Add all remaining in b not in a 
 		for (StringMatch sm : b) {
 			if (!a.contains(sm)) {
+				c.add(sm);
+			}
+		}
+		return c;
+	}
+	
+	/**
+	 * Returns diff of two given ArrayList<StringMatch>'s
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static ArrayList<StringMatch> diff(ArrayList<StringMatch> a, ArrayList<StringMatch> b) {
+		ArrayList<StringMatch> c = new ArrayList<StringMatch>();
+		for (StringMatch sm : a) {
+			if (!b.contains(sm)) {
 				c.add(sm);
 			}
 		}
