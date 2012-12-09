@@ -42,10 +42,10 @@ public class AbstractSyntaxTree {
 			Node valToken = statement.children.get(2);
 			Variable val = null;
 			if (valToken.name.equalsIgnoreCase("EXP")) {
-				val = walkExpression(valToken);
+				val = walkExpression(valToken, false);
 			} else if (valToken.name.equalsIgnoreCase("#")) {
 				if (DEBUG) System.out.println("COUNT");				
-				Variable subExp = walkExpression(statement.children.get(3));
+				Variable subExp = walkExpression(statement.children.get(3), true);
 				val = new Variable(Variable.VAR_TYPE.INT, (  (ArrayList<StringMatch>) subExp.value  ).size() );
 			} else if (valToken.name.equalsIgnoreCase("MAXFREQSTRING")) {
 				// TODO : Implement Max freq string here.
@@ -114,16 +114,19 @@ public class AbstractSyntaxTree {
 	 * <exp>-> ID  | ( <exp> ) | <term> <exp-tail>
 	 * @return
 	 */
-	private Variable walkExpression(Node exp) {
+	private Variable walkExpression(Node exp,boolean doLoad) {
 		if (DEBUG) System.out.println("EXP");
 		Node first = exp.children.get(0);
 		if (first.name.equalsIgnoreCase("ID")) {
-			System.out.println("  LOAD ID:"+first.data);
+			System.out.println("  LOAD ID:"+first.data+"(from variables? "+doLoad+" )");
 //			System.out.println("variables = "+variables);
 //			System.out.println("searchkey= "+first.data.value.getClass());
 //			System.out.println("variable keyset1 = "+variables.keySet().toArray()[0] );
 //			System.out.println("variables.get("+first.data+") = "+variables.get( first.data ));
-			return (Variable) variables.get( first.data );
+			if (doLoad)
+				return (Variable) variables.get( first.data );
+			else
+				return first.data;
 		} else if (first.name.equalsIgnoreCase("TERM")) {
 			ArrayList<StringMatch> matches = walkTerm(first);
 			Node tail = exp.children.get(1);
