@@ -20,31 +20,31 @@ import java.util.regex.Pattern;
 public class Operations {
 	public static void main(String[] args) {
 		// Test Replace with
-//		String fileIn = "Test_inputs/regexTest.txt";
-//		String fileOut = "Test_inputs/testOut.txt";
-//		String regex = " a[A-Za-z]*";
-//		String replaceWith = " BLOOP";
-//		try {
-//			replace(regex,replaceWith,fileIn,fileOut);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//		
-//		System.out.println("File "+fileOut+":");
-//		try {
-//			System.out.println( fileToString(fileOut) );
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-		
-		// Test Find
-		String fileIn = "Test_inputs/regexTest.txt";
-		String regex = "a[a-z]*c";
+		String fileIn = "C:\\repos\\scannergenerator\\Test_inputs\\regexTest.txt";
+		String fileOut = "C:\\repos\\scannergenerator\\Test_inputs\\testOut.txt";
+		String regex = "the";
+		String replaceWith = "";
 		try {
-		System.out.println( find(regex, fileIn) );
+			recursiveReplace(regex,replaceWith,fileIn,fileOut);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		System.out.println("File "+fileOut+":");
+		try {
+			System.out.println( fileToString(fileOut) );
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		// Test Find
+//		String fileIn = "Test_inputs/regexTest.txt";
+//		String regex = "a[a-z]*c";
+//		try {
+//		System.out.println( find(regex, fileIn) );
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 	}
 	
 	/**
@@ -107,6 +107,27 @@ public class Operations {
 		String replaced = replaceAll(original , regex, ascii_str);
 		stringToFile(outfile, replaced);
 		return true;
+	}
+	
+	public static boolean recursiveReplace(String regex,String ascii_str,String infile,String outfile) throws IOException{
+		String original = fileToString(infile);
+		String replaced = original;
+		int i;
+		for(i=0;i<10;i++){
+			String oldReplaced = replaced;
+			replaced = replaceAll(replaced,regex,ascii_str);
+			if(oldReplaced.equals(replaced)){
+				stringToFile(outfile,replaced);
+				return true;
+			}
+		}
+		if(i==10){
+			return false;
+		}
+		else{
+			stringToFile(outfile,replaced);
+			return true;
+		}
 	}
 
 	/**
