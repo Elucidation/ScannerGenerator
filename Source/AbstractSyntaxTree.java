@@ -154,10 +154,10 @@ public class AbstractSyntaxTree {
 	 * @throws ParseError 
 	 */
 	@SuppressWarnings("unchecked")
-	private ArrayList<Variable> walkExpressionList(Node el, boolean doLoad) throws ParseError {
+	private ArrayList<Variable> walkExpressionList(Node el) throws ParseError {
 		ArrayList<Variable> variableList = new ArrayList<Variable>();
 		
-		Variable v = walkExpression(el.children.get(0),doLoad);
+		Variable v = walkExpression(el.children.get(0),true);
 		variableList.add(v);
 		
 		
