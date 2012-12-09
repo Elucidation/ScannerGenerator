@@ -187,31 +187,30 @@ public class Operations {
 		System.out.println(a);
 	}
 	
-	/** 
-	 * Returns null if string list is empty.
-	 * @param stringList
+	/**
+	 * 
+	 * @param matches
 	 * @return
-	 * @author Sam
 	 */
-	public static String maxfreqstring(ArrayList<String> stringList){
-		String maxString = null;
-		int maxCount = 0;
-		HashMap<String,Integer> counts = new HashMap<String,Integer>();
-		for (String s : stringList) {
-			if (counts.containsKey(s)) {
-				int c = counts.get(s)+1;
-				counts.put(s, c);
-				if (c > maxCount) {
-					maxCount = c;
-					maxString = s;
-				}
+	public static StringMatch maxfreqstring(ArrayList<StringMatch> matches){
+		int bestLength = 0;
+		StringMatch maxFreqString = null;
+		
+		for(StringMatch match : matches){
+			int count = 0;
+			for(FileLoc loc: match.getFilelocs()){
+				count += loc.getNumLoc();
 			}
-			else
-				counts.put(s,1);
+			if(count > bestLength) {
+				bestLength = count;
+				maxFreqString = match;
+			}
 		}
-				
-		return maxString;
+		
+		return maxFreqString;
+		
 	}
+
 	
 	//This needs to be tested
 	public static String[] union(String[] a, String[] b){

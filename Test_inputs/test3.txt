@@ -3,5 +3,5 @@ matches = find '[A-Za-z]*ment[A-Za-z]*' in "Test_inputs/regexTest.txt";
 n_matches = #matches;
 print (n_matches);
 replace 'a[A-Za-z]*' with "WEEWEE" in "Test_inputs/regexTest.txt" >! "file3.txt";
-print(matches,n_matches);
+print(matches,n_matches, 13);
 end

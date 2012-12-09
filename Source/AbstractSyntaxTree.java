@@ -45,12 +45,19 @@ public class AbstractSyntaxTree {
 			if (valToken.name.equalsIgnoreCase("EXP")) {
 				val = walkExpression(valToken, false);
 			} else if (valToken.name.equalsIgnoreCase("#")) {
-				if (DEBUG) System.out.println("COUNT");				
-				Variable subExp = walkExpression(statement.children.get(3), true);
-				val = new Variable(Variable.VAR_TYPE.INT, (  (ArrayList<StringMatch>) subExp.value  ).size() );
+				if (DEBUG) System.out.println("COUNT");			
+				int count = 0;
+				ArrayList<StringMatch> matches = (ArrayList<StringMatch>)walkExpression(statement.children.get(3), true).value;
+//				for (StringMatch sm : matches) {
+//					s
+//				}
+				val = new Variable(Variable.VAR_TYPE.INT, count );
 			} else if (valToken.name.equalsIgnoreCase("MAXFREQSTRING")) {
 				// TODO : Implement Max freq string here.
 				val = null;
+				Variable a = (Variable)variables.get(stl.children.get(0).children.get(4).data);
+				ArrayList<StringMatch> matches = (ArrayList<StringMatch>)a.value;
+				val = new Variable(Variable.VAR_TYPE.STRINGLIST,Operations.maxfreqstring(matches));
 			}
 			
 			if (DEBUG) System.out.println("  SET VAR ID:"+id+"="+val);
