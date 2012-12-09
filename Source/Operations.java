@@ -51,8 +51,8 @@ public class Operations {
 			System.out.println("A: "+ a );
 			System.out.println("B: "+ b );
 			
-			ArrayList<StringMatch> c = union(a, b);
-			System.out.println("C: "+ c );
+			System.out.println("UNION : "+ union(a, b) );
+			System.out.println("INTERS: "+ inters(a, b) );
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -218,11 +218,11 @@ public class Operations {
 		ArrayList<StringMatch> c = new ArrayList<StringMatch>();
 		for (StringMatch sm : a) {
 			if (b.contains(sm)) {
-//				StringMatch x = merge(sm, b.get(b.indexOf(sm)));
-//				c.add(x);
+				StringMatch x = sm.union(b.get(b.indexOf(sm)));
+				c.add(x);
 			}
 		}
-		return null;
+		return c;
 	}
 	
 	/**
