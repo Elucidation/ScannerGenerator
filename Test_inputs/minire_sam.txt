@@ -20,7 +20,7 @@ $WITH with
 $COMMA ,
 $RECURSIVE_REPLACE recursivereplace
 $IN in
-$DIFF diff
+$DIFF -
 $INTERS inters
 $PRINT print
 $UNION union|\|

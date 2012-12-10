@@ -9,7 +9,7 @@ import Source.Variable.VAR_TYPE;
 public class AbstractSyntaxTree {
 	Node root;
 	private HashMap<Variable,Object> variables;
-	public static boolean DEBUG = true; 
+	public static boolean DEBUG = false; 
 	
 	public AbstractSyntaxTree(Node root) {
 		this.root = root;

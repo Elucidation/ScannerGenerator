@@ -10,5 +10,5 @@ print ("A",matchesA);
 print ("B",matchesB);
 print("inters:", minters);
 print("union: " ,find 'th[a-z]{4,5}' in "Test_inputs/regexTest.txt" union find 'th[a-z]{5}' in "Test_inputs/regexTest_2.txt");
-print("diff: " ,find 'th[a-z]{4,5}' in "Test_inputs/regexTest.txt" diff find 'th[a-z]{5}' in "Test_inputs/regexTest_2.txt");
+print("diff: " ,find 'th[a-z]{4,5}' in "Test_inputs/regexTest.txt" - find 'th[a-z]{5}' in "Test_inputs/regexTest_2.txt");
 end
