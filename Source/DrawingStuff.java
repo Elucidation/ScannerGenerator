@@ -122,8 +122,8 @@ public class DrawingStuff {
 			    viz.getGraphLayout().getSize().getHeight() / 2),
 			    new Dimension(viz.getGraphLayout().getSize()));
 		
-		File f = new File("Images");
-		if (!f.exists()) f.mkdirs();
+//		File f = new File("Images");
+//		if (!f.exists()) f.mkdirs();
 		
 		File outputfile = new File(filename);
 
